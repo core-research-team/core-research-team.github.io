@@ -8,9 +8,8 @@ layout: default
     {% if page.author %}
         {{ page.author }}
     {% else %}
-        {{ site.author.name }}
+		<p>Whitehat</p>
     {% endif %}
-
     {% if page.date %}
       <br>
       <span>on&nbsp;</span><time datetime="{{ page.date }}">{{ page.date | date: "%B %d, %Y" }}</time>
