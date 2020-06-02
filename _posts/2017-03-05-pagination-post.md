@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Pagination Post"
+tags: [onestar, tag-test]
 author: "Chester"
 ---
 

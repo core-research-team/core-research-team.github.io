@@ -20,4 +20,4 @@ Thanks for reading!
 
 
 ## Team member
-![macarong](./macarong.jpg){: width="150" height="150"}
+![macarong](./macarong.jpg){: width="10px" height="10px"}
