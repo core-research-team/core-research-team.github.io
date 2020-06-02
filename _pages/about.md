@@ -12,7 +12,7 @@ permalink: /about/
 
 [About RAON Whitehat...](https://www.whitehat.co.kr/ko/)
 
-## Team reader
+## Team leader
 hellsonic is number one
 and onestar is very good girl
 
