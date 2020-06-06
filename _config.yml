@@ -2,7 +2,7 @@
 title:          Tale
 description:    "Minimal Jekyll theme for storytellers"
 #baseurl:        "/tale"
-baseurl:        "/"
+baseurl:        ""
 url:            "https://core-research-team.github.io/"
 
 # Google Analytics
@@ -23,7 +23,7 @@ include:
 sass:
   sass_dir:     _sass
   style:        compressed
-
+s
 # Gems
 plugins:
   - jekyll-feed
@@ -33,10 +33,14 @@ plugins:
 
 # Permalinks
 permalink:      /:year-:month-:day/:title
-paginate:       5
+paginate:       99999
 
 # Excludes
 exclude: [ Gemfile, Gemfile.lock, tale.gemspec ]
 
 # Disqus (Set to your disqus id)
 disqus:         jekyll-tale
+
+#tag
+category_dir: category/
+tag_dir: tag/

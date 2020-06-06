@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Pagination Post"
-tags: [onestar, tag-test]
+tags: [badspell]
 author: "Chester"
 ---
 

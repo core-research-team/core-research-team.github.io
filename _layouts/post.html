@@ -2,25 +2,19 @@
 layout: default
 ---
 
-<div class="post">
-  <div class="post-info">
-    <span>Written by</span>
-    {% if page.author %}
-        {{ page.author }}
-    {% else %}
-        {{ site.author.name }}
-    {% endif %}
+<h1 class="post-title">{{ page.title }}</h1>
+<div class="post-line"></div>
 
-    {% if page.date %}
-      <br>
-      <span>on&nbsp;</span><time datetime="{{ page.date }}">{{ page.date | date: "%B %d, %Y" }}</time>
-    {% endif %}
-  </div>
+{% if page.tags %}
+	{% for tag in page.tags %}
+		{% if site.data.tags contains tag %}
+			<span class="tag"><center><i>{{ site.data.format[tag] }}</i></center></span>
+		{% endif %}
+	{% endfor %}
+{% endif %}
 
-  <h1 class="post-title">{{ page.title }}</h1>
-  <div class="post-line"></div>
+{{ content }}
 
-  {{ content }}
 </div>
 
 {% if page.comments %}

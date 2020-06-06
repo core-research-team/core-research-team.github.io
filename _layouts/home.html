@@ -2,20 +2,36 @@
 layout: default
 ---
 
+<i class="fas fa-atlas"></i>Tags
+
+{% for tag in site.data.tags %}
+  <span class="tag" data-tag="{{tag}}">
+    <a style="padding-right:5px; font-size:14px; color:silver;"	href="#" value="{{tag}}">#{{ site.data.format[tag] }}</a>
+  </span>
+{% endfor %}
+
 <div class="catalogue">
   {% for post in paginator.posts %}
-    <a href="{{ post.url | prepend: site.baseurl }}" class="catalogue-item">
-      <div>
-        <time datetime="{{ post.date }}" class="catalogue-time">{{ post.date | date: "%B %d, %Y" }}</time>
-        <h1 class="catalogue-title">{{ post.title }}</h1>
-        <div class="catalogue-line"></div>
-
-        <p>
-          {{ post.content | strip_html | truncatewords: 30 }}
-        </p>
-
-      </div>
-    </a>
+  <div class="catalogue-item">
+	<time datetime="{{ post.date }}" class="catalogue-time">{{ post.date | date: "%B %d, %Y" }}</time>
+	<a href="{{ post.url | prepend: site.baseurl }}"><h1 class="catalogue-title">{{ post.title }}</h1></a>
+	<div class="catalogue-line"></div>
+	<div class="post-wrapper"
+	{% if post.tags %}
+	  {% for tag in post.tags %}
+		data-{{ tag }}
+	  {% endfor %}
+	{% endif %}>
+		{% if post.tags %}
+		  {% for tag in post.tags %}
+			<a style="padding-right:5px; font-size:14px; color:silver;"	href="#" value="{{tag}}">#{{ site.data.format[tag] }}</a>
+		  {% endfor %}
+		{% endif %}
+	</div>
+	<p>
+	  {{ post.content | strip_html | truncatewords: 30 }}
+	</p>
+  </div>
   {% endfor %}
 </div>
 <div class="pagination">
@@ -28,3 +44,36 @@ layout: default
 
   <span>{{ paginator.page }}</span>
 </div>
+<script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+$("[data-tag]").click(function(){
+  //currentTag = e.target.dataset.tag;
+  currentTag = $(this).find("a").attr("value");
+  filterByTagName(currentTag);
+})
+
+function filterByTagName(tagName) {
+/*
+$('.hidden').removeClass('hidden');
+  $('.post-wrapper').each((index, elem) => {
+    if (!elem.hasAttribute(`data-${tagName}`)) {
+      //$(elem).addClass('hidden');
+	  $(elem).css("display","none");
+    }
+  });
+  $('.tag').removeClass('selected');
+  $('.tag[data-tag=${tagName}]').addClass('selected');
+ */
+ 
+ $('.catalogue-item').each(function(){
+	if($(this).find('[data-' + tagName + ']').length) {
+		$(this).css("display", "");
+	} else {
+		$(this).css('display', "none");
+	}
+ });
+ 
+ $('.tag[data-tag] a').css("color", "silver");
+ $(`.tag[data-tag=${tagName}] a`).css("color", "black");
+}
+</script>
