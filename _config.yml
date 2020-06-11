@@ -1,6 +1,6 @@
 # Site settings
-title:          Tale
-description:    "Minimal Jekyll theme for storytellers"
+title:          Core-Research-Team
+description:    "ROAN Whitehat Core-Research-Team Blog"
 #baseurl:        "/tale"
 baseurl:        ""
 url:            "https://core-research-team.github.io/"
@@ -10,9 +10,9 @@ google_analytics: UA—XXXXXXXX-X
 
 # Author
 author:
-  name:         Chester How
-  url:          https://chester.how
-  email:        chesterhow@gmail.com
+  name:         Core-Research-Team
+  url:          https://core-research-team.github.io/
+  email:        core-research-team@gmail.com
 
 # Build settings
 markdown:       kramdown
