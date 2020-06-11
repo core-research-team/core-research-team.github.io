@@ -10,3 +10,6 @@ network : Network
 etc : ETC
 programming : Programming
 system : system
+android : Android
+frida : frida
+mac : MAC
