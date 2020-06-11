@@ -1,6 +1,11 @@
-# HTTP Request Smuggling & HTTP Desync Attack
+---
+layout: post
+title:  "HTTP Request Smuggling & HTTP Desync Attack"
+author: "zairo"
+comments: true
+tags: [web]
+---
 
-> 2020-06-02
 라온화이트햇 핵심연구팀 박의성 ([uspark@raonsecure.com](mailto:uspark@raonsecure.com))
 
 ## 1. 개요

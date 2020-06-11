@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "2020 Plaid CTF Catalog"
+title:  "2020 Plaid CTF - Catalog"
 author: "iwkang@raoncorp.com"
 comments: true
 tags: [ctf, write-up]
