@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "RAON Whitehat"
+title: "Core Research Team"
 author: "core research team"
 permalink: /about/
 ---
 
-<center><i>RAON Whitehat core-research-team blog</i></center>
+<center><i>RAON Whitehat CRT(core-research-team) blog</i></center>
 
 ## Why RAON Whitehat?
 
@@ -20,4 +20,4 @@ Thanks for reading!
 
 
 ## Team member
-![macarong](./macarong.jpg){: width="10px" height="10px"}
+![macarong](/assets/macarong.jpg){: width="100px" height="100px"}
