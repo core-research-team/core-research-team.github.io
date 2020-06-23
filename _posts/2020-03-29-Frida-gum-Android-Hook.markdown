@@ -6,8 +6,9 @@ comments: true
 tags: [android, frida]
 ---
 
-라온화이트햇 핵심연구팀 김재성
-public4d@gmail.com
+
+라온화이트햇 핵심연구팀 김재성([public4d@gmail.com](mailto:public4d@gmail.com))
+
 
 ## Frida-gum
 

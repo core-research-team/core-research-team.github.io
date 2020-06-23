@@ -6,8 +6,7 @@ comments: true
 tags: [etc]
 ---
 
-라온화이트햇 핵심연구팀 원요한
-kuroneko9505@gmail.com**
+라온화이트햇 핵심연구팀 원요한([kuroneko9505@gmail.com](mailto:kuroneko9505@gmail.com))
 
 ## 1. ssh tunneling
 

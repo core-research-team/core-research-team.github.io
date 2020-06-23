@@ -6,8 +6,7 @@ comments: true
 tags: [programming]
 ---
 
-라온화이트햇 핵심연구팀 황정식
-rootsik1221@gmail.com**
+라온화이트햇 핵심연구팀 황정식 ([rootsik1221@gmail.com](mailto:rootsik1221@gmail.com))
 
 # **Python GIL(Global Interpreter Lock)?**
 

@@ -6,7 +6,7 @@ comments: true
 tags: [web]
 ---
 
-라온화이트햇 핵심연구팀 박의성 ([uspark@raonsecure.com](mailto:uspark@raonsecure.com))
+라온화이트햇 핵심연구팀 박의성([uspark@raonsecure.com](mailto:uspark@raonsecure.com))
 
 ## 1. 개요
 

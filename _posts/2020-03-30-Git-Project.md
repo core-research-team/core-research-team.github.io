@@ -1,15 +1,13 @@
 ---
 layout: post
 title:  "Git Project"
-author: "kuroneko"
+author: "dongdonge"
 comments: true
 tags: [frida]
 ---
-# Git Project
 
-> 2020.03
-라온화이트햇 핵심연구팀 유선동
-dongdonge@d0ngd0nge.xyz
+라온화이트햇 핵심연구팀 유선동([dongdonge@d0ngd0nge.xyz](mailto:dongdonge@d0ngd0nge.xyz))
+
 
 본 자료의 참고 내용은 "**Do it! 지옥에서 온 문서 관리자 깃&깃허브 입문**", "**Git Pro**" 내용을 참고하여, 자주 쓰이는 명령어만 골라 요약  하였습니다.
 
