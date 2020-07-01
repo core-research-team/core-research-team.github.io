@@ -1,5 +1,5 @@
 ctf : CTF
-write-up : Write-up
+wargame : wargame
 cve : CVE
 research : Research
 web : Web
@@ -12,5 +12,5 @@ programming : Programming
 system : system
 android : Android
 frida : Frida
-mac : MAC
+mac : Mac
 reversing : Reversing

@@ -28,9 +28,11 @@ permalink: /about/
 
 [최규범(qbeom)](mailto:kbchoi@raoncorp.com)
 
-[김동민(gpsfly)](#)
+[김낙현(mathboy7)](https://blog.naver.com/mathboy7)
 
 [김동민(gpsfly)](https://blog.int80.kr)
+
+[김지섭(jskim)](#)
 
 [이영주(NextLine)](https://lordofpwn.kr/about/)
 
@@ -45,5 +47,3 @@ permalink: /about/
 [최용선(choiys)](https://blog.choiys.kr)
 
 [황정식(kkamikoon)](https://kkamikoon.tistory.com)
-
-[김낙현(mathboy7)](https://blog.naver.com/mathboy7)
