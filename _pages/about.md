@@ -6,7 +6,7 @@ permalink: /about/
 ---
 
 <center><i>RAON Whitehat CRT(core-research-team) blog</i></center>
-</br><center><i>contact : korea.hellsonic at gmail.com</i></center>
+<center><i>contact : korea.hellsonic at gmail.com</i></center>
 
 ## Why RAON Whitehat?
 
