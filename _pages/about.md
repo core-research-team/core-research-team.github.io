@@ -9,8 +9,8 @@ permalink: /about/
 
 ## Why RAON Whitehat?
 
-
 [About RAON Whitehat...](https://www.whitehat.co.kr/ko/)
+contact : korea.hellsonic at gmail.com
 
 ## Team leader
 [이종호(Hellsonic)](https://blog.hellsonic.kr/)
