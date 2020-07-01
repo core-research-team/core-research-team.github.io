@@ -6,11 +6,11 @@ permalink: /about/
 ---
 
 <center><i>RAON Whitehat CRT(core-research-team) blog</i></center>
+</br><center><i>contact : korea.hellsonic at gmail.com</i></center>
 
 ## Why RAON Whitehat?
 
 [About RAON Whitehat...](https://www.whitehat.co.kr/ko/)
-<br>contact : korea.hellsonic at gmail.com
 
 ## Team leader
 [이종호(Hellsonic)](https://blog.hellsonic.kr/)
