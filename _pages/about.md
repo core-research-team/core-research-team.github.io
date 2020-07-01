@@ -24,9 +24,11 @@ permalink: /about/
 
 [박의성(zairo)](https://zairo.tistory.com/)
 
-[지한별(onestar)](https://tblog.jeong.su/category/Profile)
+[지한별(onestar)](https://blog.1-star.kr)
 
 [최규범(qbeom)](mailto:kbchoi@raoncorp.com)
+
+[김동민(gpsfly)](#)
 
 [김동민(gpsfly)](https://blog.int80.kr)
 
@@ -36,7 +38,7 @@ permalink: /about/
 
 [원요한(KuroNeko)](https://nekoplu5.tistory.com)
 
-[조운삼(gurumi907)](https://tblog.jeong.su/category/Profile)
+[조운삼(gurumi907)](mailto:wscho@raoncorp.com)
 
 [조진호(wwwlk)](mailto:jhjo@raoncorp.com)
 
