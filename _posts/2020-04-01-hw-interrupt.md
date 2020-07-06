@@ -3,7 +3,7 @@ layout: post
 title:  "hw interrupt"
 author: "wwwlk"
 comments: true
-tags: [web]
+tags: [Research]
 ---
 
 라온화이트햇 핵심연구팀 조진호([jhjo@raoncorp.com](mailto:jhjo@raoncorp.com))
