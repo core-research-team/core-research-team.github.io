@@ -40,6 +40,6 @@ Python Flask와 Django의 경우 동기식 웹 프레임워크로써, 위와 같
 
 이에 대표적으로는 sanic과 vibora를 들 수 있습니다. 이 두 프레임워크는 앞서 말씀드린 프레임워크보다도 월등한 성능을 보여주며, 현재 카카오를 비롯한 다양한 기업이 이를 이용하여 생산단계에서 이용중인 프레임워크라고 합니다.
 
-![/assets/48bd2b02-116f-448a-967c-d0e5265e2b64/525e7686-3acf-4dcb-a254-0fbd66e2d12fUntitled.png](/assets/48bd2b02-116f-448a-967c-d0e5265e2b64/525e7686-3acf-4dcb-a254-0fbd66e2d12fUntitled.png)
+![/assets/d560474a-2ffd-44d1-96cf-811a77d78db6/03435ae4-074d-4066-a990-60f915cc9155.png](/assets/d560474a-2ffd-44d1-96cf-811a77d78db6/03435ae4-074d-4066-a990-60f915cc9155.png)
 
 이와 함께 눈여겨볼 수 있는 비동기식 웹 프레임워크로는 asyncio와 tornado가 있습니다.
