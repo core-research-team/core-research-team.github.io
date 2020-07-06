@@ -3,7 +3,7 @@ layout: post
 title:  "Git Project"
 author: "dongdonge"
 comments: true
-tags: [frida]
+tags: [programming]
 ---
 
 라온화이트햇 핵심연구팀 유선동([dongdonge@d0ngd0nge.xyz](mailto:dongdonge@d0ngd0nge.xyz))

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  Frida-gum을 이용한 Android Hook"
+title:  Frida-gum을 이용한 Android Hook
 author: "badspell"
 comments: true
 tags: [android, frida]
@@ -166,7 +166,7 @@ Frida releases에 prebuilt된 frida-gum을 내려받습니다. releases에는 `f
 
 기본적인 인젝션 원리는 `ptrace`를 이용해 대상 프로세스에  `dlopen("/path/to/hook.so");` 원격 호출을 유도하는 것입니다.
 
-[injector.zip](/assets/upload_image/injector.zip)
+[injector.zip](/assets/injector.zip)
 
     int main(int argc, char const *argv[]) {
         if (argc != 3) {
@@ -233,4 +233,4 @@ injector 압축을 풀고 `ndk-build`를 실행하면 `~/injector/libs/arm64-v8a
 문서에서는 앱별 권한 이슈가 있어 frida-gum-example을 /system/lib64/로 복사한다음 인젝션하였습니다.
 앱이 대상으로 정상적으로 인젝션되었다면 아래 그림과 같이 `logcat`을 통해 후킹 관련 로그를 확인할 수 있습니다.
 
-![/assets/upload_image/Untitled_js.png](/assets/upload_image/Untitled_js.png)
+![/assets/854e2126-15a6-4534-81d0-8f01c8fa7ffd/38d21ff2-ed89-4aaa-a696-40736273911f.png](/assets/854e2126-15a6-4534-81d0-8f01c8fa7ffd/38d21ff2-ed89-4aaa-a696-40736273911f.png)
