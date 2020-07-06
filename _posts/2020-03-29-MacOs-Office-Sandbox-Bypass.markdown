@@ -6,7 +6,7 @@ comments: true
 tags: [mac]
 ---
 
-라온화이트햇 핵심연구팀 강인욱([hkkiw0823@gmail.com](mailto:hkkiw0823@gmail.com))
+라온화이트햇 핵심연구팀 강인욱([iwkang@raoncorp.com](mailto:iwkang@raoncorp.com))
 
 
 Office 공격이 유행함에 따라 최근 공격자들은 Windows 뿐만 아니라 MacOs까지 호환되도록 범위를 넓혔습니다. 해외에서는 MacOs를 사용하는 유저들이 더 많아서 Windows 만으로는 공격 성공률이 낮습니다. 하지만 지금까지 MacOs에서 Office 공격이 왜 발생하지 않았는지에 대해서 알아보도록 합니다.
@@ -90,7 +90,7 @@ Mac에서는 자체적으로 App마다 SandBox가 있어서 특정 행동을 하
 
 MacOs에서는 아래와 같은 폴더에 plist파일을 등록하면 재부팅시 해당 바이너리를 실행하게 됩니다.
 
-![/assets/3f1a9809-588d-4a26-af2c-de70b1c99b27/1548c49d-9949-4c30-81c6-13f126c3ac12launchd_dirs.png](/assets/3f1a9809-588d-4a26-af2c-de70b1c99b27/1548c49d-9949-4c30-81c6-13f126c3ac12launchd_dirs.png)
+![/assets/launchd_dirs.png](/assets/launchd_dirs.png)
 
 /System 이나 /Library 는 기본적으로 권한이 없어서 실제 공격시엔 유저 권한인 ~/Library를 이용해야 합니다.
 

