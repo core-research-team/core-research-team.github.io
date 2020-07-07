@@ -1,12 +1,15 @@
 ---
 layout: post
-title:  "Dockerfile Docker Compose Project"
-author: "D0ngD0ngE"
+title: "Dockerfile, Docker-Compose Project"
+author: "DongDongE"
 comments: true
-tags: [programming]
+tags: [programming, docker]
 ---
 
 라온화이트햇 핵심연구팀 유선동([dongdonge@d0ngd0nge.xyz](mailto:dongdonge@d0ngd0nge.xyz))
+
+
+> **2020.05
 
 ## [Introduce]
 
@@ -18,71 +21,71 @@ Docker-Compose를 사용하여 여러 도커 컨테이너를 통해 환경을 �
 version: "3.5"
 
 services:
-    expert_web_3:
-        image: expert_web_3
-        container_name: expert_web_3
+    apache_web:
+        image: apache_web
+        container_name: apache_web
         restart: always
         depends_on:
-            - expert_db_3
+            - mysql_db
         links: 
-            - expert_db_3:expert_db_3
+            - mysql_db:mysql_db
         build:
-            context: ./expert_web_3
+            context: ./apache_web
             dockerfile: Dockerfile
         networks:
-            - expert_3
+            - pentest
         ports: 
             - "127.0.0.1:1127:80"
 
-    expert_db_3:
-        image: expert_db_3
-        container_name: expert_db_3
+    mysql_db:
+        image: mysql_db
+        container_name: mysql_db
         restart: always
         build:
-            context: ./expert_db_3
+            context: ./mysql_db
             dockerfile: Dockerfile
         environment:
-            - MYSQL_ROOT_PASSWORD=aaaaa
-            - MYSQL_DATABASE=aaaaa
-            - MYSQL_USER=aaaaa
-            - MYSQL_PASSWORD=aaaaa
+            - MYSQL_ROOT_PASSWORD=@@D@ngD@ngE!
+            - MYSQL_DATABASE=db_test
+            - MYSQL_USER=DongDongE
+            - MYSQL_PASSWORD=D@ngD@ngE
         networks:
-            - expert_3
+            - pentest
         
 
-    expert_ssti_3:
-        image: expert_ssti_3
-        container_name: expert_ssti_3
+    flask_web:
+        image: flask_web
+        container_name: flask_web
         restart: always
         depends_on:
-            - expert_db_3
-            - expert_web_3
+            - mysql_db
+            - apache_web
         links: 
-            - expert_web_3:expert_web_3
+            - apache_web:apache_web
         build:
-            context: ./expert_ssti_3
+            context: ./apache_web
             dockerfile: Dockerfile
         networks:
-            - expert_3
+            - pentest
 
-    expert_bot_3:
-        image: expert_bot_3
-        container_name: expert_bot_3
+    bots:
+        image: bots
+        container_name: bots
         restart: always
         depends_on:
-            - expert_db_3
-            - expert_web_3
-            - expert_ssti_3
+            - apache_web
+            - mysql_db
+            - flask_web
         links: 
-            - expert_web_3:expert_web_3
+            - apache_web:apache_web
         build:
-            context: ./expert_bot_3
+            context: ./bots
             dockerfile: Dockerfile
         networks:
-            - expert_3
+            - pentest
 
 networks:
-    expert_3:
+    pentest:
         driver: bridge
 ```
 
@@ -100,7 +103,7 @@ networks:
 
 도커 컨테이너가 프로세스(MySQL, Apache)가 비정상적으로 종료시 간혹 컨테이너도 죽는 현상이 있어 컨테이너가 꺼질시 자동으로 켜주기 위해 "**restart: always**"를 사용합니다.
 
-또한 컨테이너 부팅 순서를 `DB` → `Web` → `SSTI_Flask_Web` → `Bot` 순서로 부팅되어야 에러가 발생하지 않습니다. 하지만 도커 에서는 컨테이너를 우선순위 지정을 "**depends_on**" 로 지정할 수 있지만 컨테이너가 부팅되고 해당 프로세스도 정상적으로 올라갔는지는 검사하지 않습니다.  해당 문제를 해결 하기 위해 아래 "**wait-for**" 스크립트를 사용 하였습니다.
+또한 컨테이너 부팅 순서를 `DB` → `Web` → `Flask` → `Bot` 순서로 부팅 되어야 에러가 발생하지 않습니다. 하지만 도커 에서는 컨테이너를 우선순위 지정을 "**depends_on**" 로 지정할 수 있지만 컨테이너가 부팅 되고 해당 프로세스도 정상적으로 올라갔는지는 검사하지 않습니다.  해당 문제를 해결 하기 위해 아래 "**wait-for**" 스크립트를 사용 하였습니다.
 
 [Wait-for-it.sh]
 
@@ -298,16 +301,6 @@ Docker API 문서에도 해당 문제는 이슈로 등록되어 있었습니다.
 ```docker
 FROM ubuntu:18.04
 
-ARG OS_LOCALE=C.UTF-8
-
-# C.UTF-8
-CMD /usr/sbin/locale-gen ${OS_LOCALE}
-
-ENV DEBIAN_FRONTEND=noninteractive \
-    DEBCONF_NONINTERACTIVE_SEEN=true \
-    LC_ALL=${OS_LOCALE} \
-    LANG=${OS_LOCALE}
-
 RUN useradd -m -c "bot aaaa" -s "/usr/sbin/nologin" raon_bot
 
 WORKDIR /home/raon_bot
@@ -322,40 +315,17 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y supervisor \
     python3-minimal \
     python3-pip \
-    ca-certificates \
-    fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
-    libdrm2 \
-    libgbm1 \
-    libx11-xcb1 \
-    libxcb-dri3-0 \
-    wget \
-    xdg-utils \
-    libxss1 libgconf2-4 libappindicator1 libindicator7 libindicator3-7 liblcms2-2 libnss3 libxtst6 && \
-    python3 -m pip install selenium requests && \
-    mkdir /home/raon_bot/bot/log && \
-    chmod 700 /home/raon_bot/bot/log && \
-    dpkg -i /home/raon_bot/bot/google-chrome-stable_current_amd64.deb && \
-    chmod o+x /home/raon_bot/bot/chromedriver && \
-    chmod o+x /home/raon_bot/bot/bot.py && \
     chmod 700 /sbin/wait-for-it.sh
 
-# RUN chmod 777 /root/bot/chromedriver
-# RUN chmod 777 /tmp/google-chrome-stable_current_amd64.deb
-
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /home/raon_bot/bot/google-chrome-stable_current_amd64.deb /var/tmp/*
-
 # Wait for DB Container 활성화후 MySQL Process 대기
-CMD [ "/sbin/wait-for-it.sh", "-h", "expert_web_3", "-p", "80", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf" ]
+CMD [ "/sbin/wait-for-it.sh", "-h", "apache_web", "-p", "80", "--", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf" ]
 ```
 
 **bot_Dockerfile**
 
-사용된 인자를 살펴보면 "`/sbin/wait-for-it.sh -h expert_web_3 -p 80 — /usr/bin/supervisord -c '/etc/supervisor/conf.d/supervisord.conf`"를 사용합니다.
+사용된 인자를 살펴보면 "`/sbin/wait-for-it.sh -h apache_web -p 80 — /usr/bin/supervisord -c '/etc/supervisor/conf.d/supervisord.conf`"를 사용합니다.
 
-즉 host인 "expert_web_3" 컨테이너의 80번 포트로 통신을 하며, 정상적으로 프로세스가 구동되어 통신이 될 시 "—" 옵션을 통해 Supervisor 프로세스를 구동시키게 됩니다.
+즉 host인 "apache_web" 컨테이너의 80번 포트로 통신을 하며, 정상적으로 프로세스가 구동되어 통신이 될 시 "—" 옵션을 통해 Supervisor 프로세스를 구동시키게 됩니다.
 
 또한 Bot Dockerfile를 최적화 작업을 진행하였으며, 최적화를 진행하기전 도커 허브에 올라온 chromedriver 이미지의 용량이 대략 **1.4**GB 정도 불필요한 데이터가 많아 직접 **chromedriver** 이미지를 제작 하였으며 용량은 602MB로 축소 시켰습니다.
 
