@@ -9,8 +9,6 @@ tags: [programming, docker]
 라온화이트햇 핵심연구팀 유선동([dongdonge@d0ngd0nge.xyz](mailto:dongdonge@d0ngd0nge.xyz))
 
 
-> **2020.05
-
 ## [Introduce]
 
 Docker-Compose를 사용하여 여러 도커 컨테이너를 통해 환경을 구축시 컨테이너 프로세스 충돌로 인하여 정상 구동이 되지 않아 충돌 문제 관련 연구를 하였습니다.
