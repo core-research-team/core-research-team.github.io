@@ -3,7 +3,7 @@ layout: post
 title:  "MacOs에서 Office Sandbox Bypass"
 author: "hkkiw0823"
 comments: true
-tags: [mac]
+tags: [ctf]
 ---
 
 라온화이트햇 핵심연구팀 강인욱([iwkang@raoncorp.com](mailto:iwkang@raoncorp.com))

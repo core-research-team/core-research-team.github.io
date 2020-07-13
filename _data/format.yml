@@ -4,7 +4,6 @@ cve : CVE
 research : Research
 web : Web
 pwn : pwnable
-rev : Reverse-Engineering
 system : system
 network : Network
 etc : ETC
@@ -15,3 +14,8 @@ frida : Frida
 mac : Mac
 reversing : Reversing
 docker : Doker
+windows : Windows 
+tools : tools
+misc : misc
+php : PHP
+write-up : write-up
