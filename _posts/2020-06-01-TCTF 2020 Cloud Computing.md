@@ -15,11 +15,11 @@ tags: [ctf, misc, php]
 
 # 1. 문제 설명
 
-![/assets/1_.png](/assets/1_.png)
+![/assets/choi600.png](/assets/choi600.png)
 
 **Cloud Computing**
 
-![/assets/2_.png](/assets/2_.png)
+![/assets/choi601.png](/assets/choi601.png)
 
 **Cloud Computing 문제 설명**
 
