@@ -6,7 +6,7 @@ comments: true
 tags: [web]
 ---
 
-라온화이트햇 핵심연구팀 최정수([jeon95u@gmail.com](mailto:jeon95u@gmail.com))
+라온화이트햇 핵심연구팀 최정수
 
 
 이 글은 [Vinoth Kumar](https://vinothkumar.me/)가 지난 4월 Facebook의 DOM XSS를 발견하여 제보하고 2만 달러의 포상금을 받은 [게시글](https://vinothkumar.me/20000-facebook-dom-xss/)을 번역한 내용이 포함되어 있습니다. 추가로 해당 취약점을 찾기 위해 [Vinoth Kumar](https://vinothkumar.me/)가 개발한 Iframe과 Cross Window communications 로그를 쉽게 확인 할 수 있는 크롬 익스텐션을 사용하고 어떻게 적용할 수 있을지 고민했습니다.

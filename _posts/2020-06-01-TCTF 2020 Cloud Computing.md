@@ -6,7 +6,7 @@ comments: true
 tags: [ctf, misc, php]
 ---
 
-라온화이트햇 핵심연구팀 최용선([hcy3bkj@gmail.com](mailto:hcy3bkj@gmail.com))
+라온화이트햇 핵심연구팀 최용선
 
 
 # 0. 개요

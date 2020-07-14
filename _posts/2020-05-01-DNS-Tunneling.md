@@ -6,7 +6,7 @@ comments: true
 tags: [research, network]
 ---
 
-라온화이트햇 핵심연구팀 최규범([kbchoi@raoncorp.com](mailto:kbchoi@raoncorp.com))
+라온화이트햇 핵심연구팀 최규범
 
 
 - **목차**

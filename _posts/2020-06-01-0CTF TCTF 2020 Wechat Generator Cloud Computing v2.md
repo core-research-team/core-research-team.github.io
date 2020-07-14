@@ -6,7 +6,7 @@ comments: true
 tags: [ctf, writeup, web, reversing]
 ---
 
-라온화이트햇 핵심연구팀 최정수 ([jeon95u@gmail.com](mailto:jeon95u@gmail.com))
+라온화이트햇 핵심연구팀 최정수
 
 
 ## 0CTF/TCTF 2020 Quals

@@ -6,7 +6,7 @@ comments: true
 tags: [ctf, write-up]
 ---
 
-라온화이트햇 핵심연구팀 강인욱([iwkang@raoncorp.com](mailto:iwkang@raoncorp.com))
+라온화이트햇 핵심연구팀 강인욱
 
 2020 Plaid CTF에 출제된 문제중 0 솔버였던 흥미로운 문제이다.
 

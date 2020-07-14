@@ -6,7 +6,7 @@ comments: true
 tags: [web]
 ---
 
-라온화이트햇 핵심연구팀 지한별 ([ghb202@gmail.com](mailto:ghb202@gmail.com))
+라온화이트햇 핵심연구팀 지한별
 
 - Padding Oracle Attack에 대한 취약점 설명과 관련된 문제풀이
 - 참고 자료(오라클 패딩 공격에 대한 이해) : [https://laughfool.tistory.com/31](https://laughfool.tistory.com/31)

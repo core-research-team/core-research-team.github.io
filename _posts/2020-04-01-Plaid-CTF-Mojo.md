@@ -6,7 +6,7 @@ comments: true
 tags: [ctf, write-up]
 ---
 
-라온화이트햇 핵심연구팀 이영주([boright77@naver.com](mailto:boright77@naver.com))
+라온화이트햇 핵심연구팀 이영주
 
 # 1. Vulnerability
 

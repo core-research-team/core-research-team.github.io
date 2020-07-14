@@ -6,8 +6,7 @@ comments: true
 tags: [ctf]
 ---
 
-라온화이트햇 핵심연구팀 강인욱([iwkang@raoncorp.com](mailto:iwkang@raoncorp.com))
-
+라온화이트햇 핵심연구팀 강인욱
 
 Office 공격이 유행함에 따라 최근 공격자들은 Windows 뿐만 아니라 MacOs까지 호환되도록 범위를 넓혔습니다. 해외에서는 MacOs를 사용하는 유저들이 더 많아서 Windows 만으로는 공격 성공률이 낮습니다. 하지만 지금까지 MacOs에서 Office 공격이 왜 발생하지 않았는지에 대해서 알아보도록 합니다.
 
