@@ -2,6 +2,15 @@
 layout: default
 ---
 
+<div style="float:right;position: relative;margin-top:10px">
+	<input id="s" class="form-control" style="font-size:11px;padding-left:25px;width:140px;height:25px;">
+	<svg class="bi bi-search" width="1.0em" height="1.0em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:3px;pointer-events: none;top: 5px;">
+	  <path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"></path>
+	  <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"></path>
+	</svg>
+</div>
+
+
 <i class="fas fa-atlas"></i>Tags
 
 {% for tag in site.data.tags %}
@@ -76,4 +85,32 @@ $('.hidden').removeClass('hidden');
  $('.tag[data-tag] a').css("color", "silver");
  $(`.tag[data-tag=${tagName}] a`).css("color", "black");
 }
+
+ $('.catalogue-item').each(function(){
+	if($(this).find('[data-' + tagName + ']').length) {
+		$(this).css("display", "");
+	} else {
+		$(this).css('display', "none");
+	}
+ });
+ 
+ $('.tag[data-tag] a').css("color", "silver");
+ $(`.tag[data-tag=${tagName}] a`).css("color", "black");
+}
+
+$('#s').keyup(function(){
+    searchval = $(this).val();
+
+    $('.catalogue .catalogue-item').each(function(){
+        s = '';
+        s += $(this).find('.catalogue-title').html();
+        s += $(this).find('p').html();
+
+        if( s.indexOf(searchval) == -1 ){
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+});
 </script>
