@@ -74,25 +74,13 @@ $('.hidden').removeClass('hidden');
 	$('.tag[data-tag=${tagName}]').addClass('selected');
  */
  
- $('.catalogue-item').each(function(){
-	if($(this).find('[data-' + tagName + ']').length) {
-		$(this).css("display", "");
-	} else {
-		$(this).css('display', "none");
-	}
- });
- 
- $('.tag[data-tag] a').css("color", "silver");
- $(`.tag[data-tag=${tagName}] a`).css("color", "black");
-}
-
- $('.catalogue-item').each(function(){
-	if($(this).find('[data-' + tagName + ']').length) {
-		$(this).css("display", "");
-	} else {
-		$(this).css('display', "none");
-	}
- });
+	$('.catalogue-item').each(function(){
+	 if($(this).find('[data-' + tagName + ']').length) {
+			$(this).css("display", "");
+		} else {
+			$(this).css('display', "none");
+		}
+    });
  
  $('.tag[data-tag] a').css("color", "silver");
  $(`.tag[data-tag=${tagName}] a`).css("color", "black");
