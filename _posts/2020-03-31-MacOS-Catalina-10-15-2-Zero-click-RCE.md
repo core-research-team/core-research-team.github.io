@@ -17,13 +17,13 @@ tags: [mac]
 
 # 2. Bluetooth
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled.png)
+![/assets/joo30.png](/assets/joo30.png)
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%201.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%201.png)
+![/assets/joo31.png](/assets/joo31.png)
 
 먼저 취약점을 이해하기 전에 블루투스에 대해 간략히 소개하겠습니다. 블루투스는 위와 같은 프로토콜 스택을 가지고 있습니다. 프로토콜 스택이란 소포트웨어나 하드웨어가 제대로 동작할 수 있게 하기 위한 프로토콜들들의 집합입니다. 여기서 집중적으로 볼 프로토콜은 L2CAP  (Logical Link Control and Adaption Protocol) 입니다.
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%202.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%202.png)
+![/assets/joo32.png](/assets/joo32.png)
 
 macOS에서 L2CAP은 IOBluetoothFamily 라는 커널 드라이버에 의해 처리되고, SDP나 BNEP같은 L2CAP의 데이터들은 bluetoothd라는 루트 권한의 프로세스에서 처리합니다.
 
@@ -33,11 +33,11 @@ CVE-2020-3847은 리모트 out-of-bounds read 취약점으로 특정 패킷을 �
 
 [ 그림 1 ]
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%203.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%203.png)
+![/assets/joo33.png](/assets/joo33.png)
 
 [ 그림 2 ]
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%204.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%204.png)
+![/assets/joo34.png](/assets/joo34.png)
 
 ### 첫번째 요청
 
@@ -54,7 +54,7 @@ CVE-2020-3847은 리모트 out-of-bounds read 취약점으로 특정 패킷을 �
 5. [그림 2] 280번째 줄: 마지막으로 is_cont_pkt 또한 맘대로 설정할 수 있으므로 true로 만들어 if 내용을 실행하지 않도록 합니다.
 6. 그럼 마지막으로 아래와 같은 코드가 실행됩니다.
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%205.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%205.png)
+![/assets/joo35.png](/assets/joo35.png)
 
 7. 여기서 cont_offset은 저희가 컨트롤 할 수 있는 값이므로 out-of-bounds read를 할 수 있는데, v74값이 max_list_len이기 때문에 원하는 만큼 결과 버퍼에 저장할 수 있습니다. ServiceAttributeResults가 아까 위에서 rem_len만큼 할당한 chunk (malloc 0x10) 이기 때문에 힙에있는 데이터들을 읽어오는게 가능합니다.
 
@@ -64,11 +64,11 @@ CVE-2020-3848은 remote memory corruption 취약점 입니다. 이 취약점은 
 
 [그림 1]
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%206.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%206.png)
+![/assets/joo36.png](/assets/joo36.png)
 
 [그림 2]
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%207.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%207.png)
+![/assets/joo37.png](/assets/joo37.png)
 
 1. [그림 1] 105번째 줄: v44 값을 패킷에서 원하는대로 설정할 수 있습니다.
 2. [그림 1] 116번째 줄: v44 값이 있으면 v43을 true로 셋팅합니다.
@@ -80,11 +80,11 @@ CVE-2020-3848은 remote memory corruption 취약점 입니다. 이 취약점은 
 
 먼저 위 두개의 취약점이 heap 영역에서 발생하는 취약점 이므로 heap feng shui 기법을 사용하였습니다. 하지만 Zero-click으로 exploit을 해야 했기 때문에 할당할 수 있는 heap이 매우 제한적이며 따라서 exploit 확률도 올리기가 쉽지 않았다고 합니다.
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%208.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%208.png)
+![/assets/joo38.png](/assets/joo38.png)
 
 결국 chunk를 할당할 때, macOS에 많은 SDP 소켓 커넥션을 맺어서 SDPServerConnection 오브젝트를 여러개 할당하였습니다. 그리고 아래와 같은 순서를 통해 최종적으로 exploit을 했다고 합니다.
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%209.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%209.png)
+![/assets/joo39.png](/assets/joo39.png)
 
 1. 위 그림처럼 heap feng shui 기법을 통해 heap overflow가 발생하는 chunk의 위치를 특정할 수 있게 합니다.
 2. 비교적 자유로운 heap leak (0xff)를 통해 heap feng shui가 성공했는지 계속 체크합니다.
@@ -92,7 +92,7 @@ CVE-2020-3848은 remote memory corruption 취약점 입니다. 이 취약점은 
 
  
 
-![/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%2010.png](/assets/07a6bd10-696c-4843-b1a7-39a2eafbea23/92c099ee-b4f6-4c6d-a974-28623b447859Untitled%2010.png)
+![/assets/joo10.png](/assets/joo10.png)
 
 마지막으로 한번더 정리하자면 CVE-2020-3847로 heap memory를 leak할때는 공격자가 client 역할을 해야하고, CVE-2020-3848로 overflow 취약점을 트리거 할때는 attacker가 server 역할을 해야합니다. 
 
