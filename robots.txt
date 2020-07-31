@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://core-research-team.github.io/sitemap.xml
