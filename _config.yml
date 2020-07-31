@@ -3,7 +3,7 @@ title:          Core-Research-Team
 description:    "RAON Whitehat Core-Research-Team Blog"
 #baseurl:        "/tale"
 baseurl:        ""
-url:            "https://core-research-team.github.io/"
+url:            "https://core-research-team.github.io"
 
 # Google Analytics
 google_analytics: UA—XXXXXXXX-X
@@ -11,7 +11,7 @@ google_analytics: UA—XXXXXXXX-X
 # Author
 author:
   name:         Core-Research-Team
-  url:          https://core-research-team.github.io/
+  url:          https://core-research-team.github.io
   email:        core-research-team@gmail.com
 
 # Build settings
