@@ -4,6 +4,18 @@ layout: null
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+	<loc>https://core-research-team.github.io/</loc>
+	<lastmod>2020-08-05T04:56:28+00:00</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.50</priority>
+</url>
+<url>
+	<loc>https://core-research-team.github.io/about/</loc>
+	<lastmod>2020-08-05T04:56:28+00:00</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.50</priority>
+</url>
   {% for post in site.posts %}
     <url>
       <loc>{{ site.url }}{{ post.url }}</loc>
