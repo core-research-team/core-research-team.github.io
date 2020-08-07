@@ -19,3 +19,5 @@ tools : tools
 misc : misc
 php : PHP
 write-up : write-up
+mobile : mobile
+pentest : pen-test
