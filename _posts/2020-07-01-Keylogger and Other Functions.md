@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Keylogger & Other Functions"
+title: "Keylogger and Other Functions"
 author: "Gurumi"
 comments: true
 tags: [programming, etc]

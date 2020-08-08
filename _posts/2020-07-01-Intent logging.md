@@ -8,8 +8,6 @@ tags: [android, mobile, pentest]
 
 라온화이트햇 핵심연구팀 원요한
 
-## TL;DR
-
 이 문서는 Intent를 활용하여 Activity 전환 시, 요청하는 외부 HTTP 요청을 얻기 위한 아이디어 및 구현 방법, 한계점에 대해서 작성되었습니다.
 
 ## Intent
