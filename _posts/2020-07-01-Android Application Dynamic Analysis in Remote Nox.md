@@ -20,7 +20,7 @@ Android Application을 동적으로 분석하고자 할 때 Android OS의 Device
 
 ### # ADB Connect
 
-![/assets/soo0700.png](/assets/soo0700.png])
+![/assets/soo0700.png](/assets/soo0700.png)
 
 NoxPlayer의 Device에 ADB를 사용하고자 할 때 Device를 실행한 상태에서  `adb devices` 명령어를 사용하면 위와 같이 devices를 찾을 수 없습니다.
 
@@ -34,7 +34,7 @@ NoxPlayer의 Device들의 **Process 이름은 `NoxVMHandle.exe`**입니다.
 
 `NoxVMHandle.exe`가 LISTENING 하고 있는 Port를 찾아보니 위와 같습니다.
 
-![/assets/soo0702.png](/assets/soo0702.png])
+![/assets/soo0702.png](/assets/soo0702.png)
 
 LISTENING 하고 있는 Port를 1개씩 `adb connect 127.0.0.1:{PORT}` 하고 나서 `adb devices` 명령어로 devices 리스트를 확인 해본 결과 `62001` 이 ADB를 접속할 수 있는 Port 였습니다.
 
