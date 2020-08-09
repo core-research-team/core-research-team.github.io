@@ -28,7 +28,7 @@ NoxPlayer의 Device는 **ADB 접속을 USB 통신이 아닌 Network 통신**을 
 
 따라서 **Network 통신을 위한 ADB Port**를 찾아야합니다.
 
-![/assets/soo0701.png](/assets/soo0701.png])
+![/assets/soo0701.png](/assets/soo0701.png)
 
 NoxPlayer의 Device들의 **Process 이름은 `NoxVMHandle.exe`**입니다.
 
@@ -38,7 +38,7 @@ NoxPlayer의 Device들의 **Process 이름은 `NoxVMHandle.exe`**입니다.
 
 LISTENING 하고 있는 Port를 1개씩 `adb connect 127.0.0.1:{PORT}` 하고 나서 `adb devices` 명령어로 devices 리스트를 확인 해본 결과 `62001` 이 ADB를 접속할 수 있는 Port 였습니다.
 
-![/assets/soo0703.png](/assets/soo0703.png])
+![/assets/soo0703.png](/assets/soo0703.png)
 
 `adb connect`를 여러번 했기 때문에 여러 device가 등록되어 있고 adb에 `-s` 옵션을 통해서 원하는 device를 선택해야합니다. 또는 `adb kill-server` 명령어를 통해서 연결된 모든 device를 초기화 시킬 수 있습니다.
 
@@ -46,11 +46,11 @@ LISTENING 하고 있는 Port를 1개씩 `adb connect 127.0.0.1:{PORT}` 하고 �
 
 NoxPlayer의 경우 멀티 앱플레이어 기능을 통해 여러 Device를 동시에 실행 할 수 있습니다. 여러 Device를 동시에 실행하고 있을 경우 각각의 ADB Connect를 위한 Port는 아래와 같습니다.
 
-![/assets/soo0704.png](/assets/soo0704.png])
+![/assets/soo0704.png](/assets/soo0704.png)
 
 LISTENING 하고 있는 Port 중에서 위 과정을 반복한 결과 `62025`가 다른 Device의 ADB 접속 Port 입니다.
 
-![/assets/soo0705.png](/assets/soo0705.png])
+![/assets/soo0705.png](/assets/soo0705.png)
 
 LISTENING 하고 있는 Port 중에서 위 과정을 반복한 결과 `62026`가 다른 Device의 ADB 접속 Port 입니다.
 
