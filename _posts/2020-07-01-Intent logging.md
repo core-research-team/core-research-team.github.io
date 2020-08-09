@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Intent를 활용한 외부 요청 패킷 로깅"
+title: "Intent를 활용한 외부요청 패킷 로깅"
 author: "KuroNeko"
 comments: true
 tags: [android, mobile, pentest]
