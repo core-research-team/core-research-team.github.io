@@ -179,7 +179,7 @@ meltdown, spectre가 나온 뒤 Transient execution취약점이 더 많이 발�
 
 [https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html](https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html)
 
-[https://en.wikipedia.org/wiki/Transient_execution_CPU_vulnerability#Vulnerabilities_&_Mitigations_Summary](https://en.wikipedia.org/wiki/Transient_execution_CPU_vulnerability#Vulnerabilities_&_Mitigations_Summary)
+[https://en.wikipedia.org/wiki/Transient_execution_CPU_vulnerability](https://en.wikipedia.org/wiki/Transient_execution_CPU_vulnerability)
 
 [https://meltdownattack.com/meltdown.pdf](https://meltdownattack.com/meltdown.pdf)
 
