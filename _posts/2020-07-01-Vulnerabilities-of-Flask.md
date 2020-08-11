@@ -235,7 +235,7 @@ if __name__ == "__main__":
 # 2. Rendering
 
  렌더링 방법 중에서 취약한 함수를 취약한 방법으로 사용하게 될 시 발생하는 취약점이 있습니다. 취약한 렌더링 함수는 render_template_string 함수가 있습니다.
-
+{% raw %}
 ```python
 #/app/main/__init__.py
 from flask import current_app as app
@@ -265,6 +265,7 @@ def search():
 # if method is GET
 return render_template("/main/search.html")
 ```
+{% endraw %}
 
  위와 같이 render_template_string 함수에 이용자가 입력한 값이 들어가게 되면, 각별히 주의해야 합니다. keyword 라는 값에 적절한 필터링이 이루어지지 않으면 SSTI(Server Side Template Injection)취약점이 발생하게 됩니다. 
 

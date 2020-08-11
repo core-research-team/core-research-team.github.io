@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-03-30T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Git Project","datePublished":"2020-03-30T00:00:00+00:00","dateModified":"2020-03-30T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-03-30/Git-Project"},"author":{"@type":"Person","name":"dongdonge"},"url":"http://localhost:4000/2020-03-30/Git-Project","description":"라온화이트햇 핵심연구팀 유선동","@context":"https://schema.org"}</script>
+{"headline":"Git Project","dateModified":"2020-03-30T00:00:00+00:00","datePublished":"2020-03-30T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-03-30/Git-Project"},"author":{"@type":"Person","name":"dongdonge"},"url":"http://localhost:4000/2020-03-30/Git-Project","description":"라온화이트햇 핵심연구팀 유선동","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -90,7 +90,7 @@
 
 <h3 id="기존-프로젝트-저장소-clone-하기">[기존 프로젝트 저장소 Clone 하기]</h3>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled.png" /></p>
+<p><img src="/assets/dong0300.png" alt="/assets/dong0300.png" /></p>
 
 <p>Github, Gitlab Project Clone URL를 복사하여 아래 명령어를 통해 Clone 작업을 진행합니다.</p>
 
@@ -191,7 +191,7 @@ origin	ssh://git@git.d0ngd0nge.xyz:3005/DongDongE/Flask_Development_Web.git (pus
 
 <h3 id="스테이지와-커밋-원리-이해">[스테이지와 커밋 원리 이해]</h3>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%201.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%201.png" /></p>
+<p><img src="/assets/dong0301.png" alt="/assets/dong0301.png" /></p>
 
 <ul>
   <li>Working Tree (작업 트리)
@@ -202,13 +202,11 @@ Git Version으로 만들 파일이 대기하는 곳이며, 작업 트리에서 �
 스테이지에서 대기하고 있던 파일들을 버전으로 만들어 저장하며 “.git” 디렉터리안에 숨은 파일 형태로 존재한다.</li>
 </ul>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%202.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%202.png" /></p>
+<p><img src="/assets/dong0302.png" alt="/assets/dong0302.png" />
+“hello.txt” 파일을 수정하고 저장하면 해당 파일은 <strong>작업 트리</strong>에 있게 되며. “git add” 명령어를 통해 수정한 “hello.txt” 파일을 버전으로 만들기 위해 <strong>스테이지</strong>에 넣는다.</p>
 
-<p>“hello.txt” 파일을 수정하고 저장하면 해당 파일은 <strong>작업 트리</strong>에 있게 되며. “git add” 명령어를 통해 수정한 “hello.txt” 파일을 버전으로 만들기 위해 <strong>스테이지</strong>에 넣는다.</p>
-
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%203.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%203.png" /></p>
-
-<p>“git commit” 명령을 사용하여 새로운 버전이 생성되면서 <strong>스테이지</strong>에 대기하던 “hello.txt” 파일이 모두 저장소에 저장된다.</p>
+<p><img src="/assets/dong0303.png" alt="/assets/dong0303.png" />
+“git commit” 명령을 사용하여 새로운 버전이 생성되면서 <strong>스테이지</strong>에 대기하던 “hello.txt” 파일이 모두 저장소에 저장된다.</p>
 
 <h3 id="수정생성-파일-스테이징하기---git-add">[수정/생성 파일 스테이징하기 - git add]</h3>
 
@@ -527,7 +525,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAEAQDMMxcWlJo9QmhgMvyjUqfXAbyP05xSueBas8W509o2
 
 <p>Github 또는 Gitlab에 SSH Keys 등록 하기 위해 공개키를 복사합니다.</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%204.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%204.png" /></p>
+<p><img src="/assets/dong0304.png" alt="/assets/dong0304.png" /></p>
 
 <p>복사한 공개키는 Gitlab에 붙여 넣어 주고 “Add Key”를 눌러 등록 합니다.</p>
 
@@ -1039,7 +1037,7 @@ Date:   Tue Mar 17 12:11:29 2020 +0900
 
 <p>대규모 및 정식 버전으로 릴리즈 후 공개될 프로젝트에서는 많이 사용됩니다.</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%205.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%205.png" /></p>
+<p><img src="/assets/dong0305.png" alt="/assets/dong0305.png" /></p>
 
 <p>MS사의 Git Project 중 태그 리스트</p>
 
@@ -1206,9 +1204,9 @@ user.email=DongDongE@d0ngd0nge.xyz
 
 <p>아래는 관리자 처럼 변경하여 커밋한 내용입니다.</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%206.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%206.png" /></p>
+<p><img src="/assets/dong0306.png" alt="/assets/dong0306.png" /></p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%207.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%207.png" /></p>
+<p><img src="/assets/dong0307.png" alt="/assets/dong0307.png" /></p>
 
 <p>“DongDongE” 사용자를 “Administrator”로 변경하여 커밋시 사용자명이 변경된 걸 확인할 수 있습니다.</p>
 
@@ -1382,7 +1380,7 @@ ay3hvoHoa94Q5KwhXA3VT0IXMljYMnE=
 
 <p>위 GPG public key를 복사합니다.</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%208.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%208.png" /></p>
+<p><img src="/assets/dong0308.png" alt="/assets/dong0308.png" /></p>
 
 <p>복사한 GPG Public Key를 Gitlab, Github 계정에 Key 목록을 추가 합니다.</p>
 
@@ -1454,7 +1452,7 @@ export GPG_TTY=$(tty)
 $ source ~/.zshrc   또는    source ~/.bashrc
 </code></pre></div></div>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%209.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%209.png" /></p>
+<p><img src="/assets/dong0309.png" alt="/assets/dong0309.png" /></p>
 
 <p>서명된 태그</p>
 
@@ -1524,11 +1522,11 @@ Delete this key from the keyring? (y/N) **y**
 
 <p>즉, Branch는 나무가 가지에서 새로운 줄기를 뻗어 나가 여러 갈래로 퍼지는 데이터 흐름을 말합니다.</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%2010.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%2010.png" /></p>
+<p><img src="/assets/dong0310.png" alt="/assets/dong0310.png" /></p>
 
 <p>“브랜치 분기 과정”의 사진처럼 기존 소스코드 “master” Branch에 그대로 유지하면서 기존 파일의 내용을 수정/추가로 Branch에서 뻗어 나와 새로운 Branch를 만들 수 있습니다. (새로운 branch 생성은 분기라고 합니다.)</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%2011.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%2011.png" /></p>
+<p><img src="/assets/dong0311.png" alt="/assets/dong0311.png" /></p>
 
 <p>예를 들어 “A” Branch의 a1와 a2에서 게시판 삭제/수정 페이지를 만들고, “B” Branch의 “b1”에서 게시판 리스트 기능을 만들었다고 가정한다면 “병합 (merge)”를 통해 master 최종 합칠 수 있습니다.</p>
 
@@ -1812,7 +1810,7 @@ $ git branch
 
 <p>“<strong>git checkout -b</strong>” 명령을 사용하여 원격 저장소에 존재하는 브랜치 “<strong>white</strong>“를 로컬 저장소로 checkout시 “<strong>black</strong>“으로 저장합니다.  해당 옵션은 아래 사진와 같이 단점이 존재합니다.</p>
 
-<p><img src="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%2012.png" alt="/assets/e8027bd8-3021-404c-a7a3-8a113b092615/f7d2a421-d46a-4508-b65c-6c42360dcaa2Untitled%2012.png" /></p>
+<p><img src="/assets/dong0312.png" alt="/assets/dong0312.png" /></p>
 
 <p>만약 팀원와 기존 브랜치명을 이어서 개발을 진행하고자 할 때 “<strong>-b</strong>” 옵션으로 브랜치명을 변경하여 Push를 진행할 시 새로운 브랜치가 생성됩니다.</p>
 
@@ -1893,7 +1891,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-07-31 09:13:05 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-08-11 05:29:28 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

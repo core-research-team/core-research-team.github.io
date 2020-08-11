@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Intent를 활용한 외부 요청에 대한 패킷 로깅 | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Intent를 활용한 외부 요청에 대한 패킷 로깅" />
+<meta name="author" content="KuroNeko" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 원요한" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 원요한" />
+<link rel="canonical" href="http://localhost:4000/2020-07-01/Intent-logging" />
+<meta property="og:url" content="http://localhost:4000/2020-07-01/Intent-logging" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-07-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Intent를 활용한 외부 요청에 대한 패킷 로깅","dateModified":"2020-07-01T00:00:00+00:00","datePublished":"2020-07-01T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-07-01/Intent-logging"},"author":{"@type":"Person","name":"KuroNeko"},"url":"http://localhost:4000/2020-07-01/Intent-logging","description":"라온화이트햇 핵심연구팀 원요한","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+	<h1 class="post-title">Intent를 활용한 외부 요청에 대한 패킷 로깅</h1>
+	<div class="post-line"></div>
+
+	
+		
+			
+				<span class="tag"><center><i>Android</i></center></span>
+			
+		
+			
+				<span class="tag"><center><i>mobile</i></center></span>
+			
+		
+			
+				<span class="tag"><center><i>pen-test</i></center></span>
+			
+		
+	
+
+	<p>라온화이트햇 핵심연구팀 원요한</p>
+
+<p>이 문서는 Intent를 활용하여 Activity 전환 시, 요청하는 외부 HTTP 요청을 얻기 위한 아이디어 및 구현 방법, 한계점에 대해서 작성되었습니다.</p>
+
+<h2 id="intent">Intent</h2>
+
+<p>Intent란 Android에서 흔히 스크린이라고 하는 Activity간 전환을 위해서 사용되는 객체입니다. 해당 객체를 통해 <code class="highlighter-rouge">어떤 Activity로 전환할지</code> , 전환시 <code class="highlighter-rouge">전달할 데이터를 저장</code> 하게 됩니다. 사용방법은 아래와 같습니다.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="nn">kuroneko.com.sampleapp</span>
+
+<span class="k">import</span> <span class="nn">android.content.Intent</span>
+<span class="k">import</span> <span class="nn">android.support.v7.app.AppCompatActivity</span>
+<span class="k">import</span> <span class="nn">android.os.Bundle</span>
+<span class="k">import</span> <span class="nn">android.widget.Button</span>
+
+<span class="kd">class</span> <span class="nc">MainActivity</span> <span class="p">:</span> <span class="nc">AppCompatActivity</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onCreate</span><span class="p">(</span><span class="n">savedInstanceState</span><span class="p">:</span> <span class="nc">Bundle</span><span class="p">?)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">.</span><span class="nf">onCreate</span><span class="p">(</span><span class="n">savedInstanceState</span><span class="p">)</span>
+        <span class="nf">setContentView</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">layout</span><span class="p">.</span><span class="n">activity_main</span><span class="p">)</span>
+
+        <span class="kd">val</span> <span class="py">button</span><span class="p">:</span> <span class="nc">Button</span> <span class="p">=</span> <span class="nf">findViewById</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">id</span><span class="p">.</span><span class="n">button2</span><span class="p">)</span>
+        <span class="n">button</span><span class="p">.</span><span class="nf">setOnClickListener</span> <span class="p">{</span>
+            <span class="kd">val</span> <span class="py">intent</span> <span class="p">=</span> <span class="nc">Intent</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nc">ActivityTwo</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">).</span><span class="nf">apply</span> <span class="p">{</span>
+								<span class="nf">putExtra</span><span class="p">(</span><span class="s">"some"</span><span class="p">,</span> <span class="s">"thing"</span><span class="p">);</span>
+						<span class="p">}</span>
+		        <span class="nf">startActivity</span><span class="p">(</span><span class="n">intent</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="nn">kuroneko.com.sampleapp</span>
+
+<span class="k">import</span> <span class="nn">android.support.v7.app.AppCompatActivity</span>
+<span class="k">import</span> <span class="nn">android.os.Bundle</span>
+
+<span class="kd">class</span> <span class="nc">ActivityTwo</span> <span class="p">:</span> <span class="nc">AppCompatActivity</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onCreate</span><span class="p">(</span><span class="n">savedInstanceState</span><span class="p">:</span> <span class="nc">Bundle</span><span class="p">?)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">.</span><span class="nf">onCreate</span><span class="p">(</span><span class="n">savedInstanceState</span><span class="p">)</span>
+        <span class="nf">setContentView</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">layout</span><span class="p">.</span><span class="n">activity_two</span><span class="p">)</span>
+
+				<span class="kd">val</span> <span class="py">message</span> <span class="p">=</span> <span class="n">intent</span><span class="p">.</span><span class="nf">getStringExtra</span><span class="p">(</span><span class="s">"some"</span><span class="p">)</span>
+				<span class="nc">System</span><span class="p">.</span><span class="k">out</span><span class="p">.</span><span class="nf">println</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="c1">// print -&gt; thing</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Intent의 첫번째 인자로 현재 context와 두 번째 인자로 이동할 클래스를 지정한 이후, startActivity 함수를 호출해 지정된 Activity로 이동하게 됩니다. 따라서, 데이터를 전달하며 여러가지 작업들을 화면전환하며 처리할 수 있게 되었습니다. 또한, 모든 Activity들은 아래와 같이 AndroidManifest.xml에서 정의되어있습니다.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+          <span class="na">package=</span><span class="s">"kuroneko.com.sampleapp"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;application</span>
+            <span class="na">android:allowBackup=</span><span class="s">"true"</span>
+            <span class="na">android:icon=</span><span class="s">"@mipmap/ic_launcher"</span>
+            <span class="na">android:label=</span><span class="s">"@string/app_name"</span>
+            <span class="na">android:roundIcon=</span><span class="s">"@mipmap/ic_launcher_round"</span>
+            <span class="na">android:supportsRtl=</span><span class="s">"true"</span>
+            <span class="na">android:theme=</span><span class="s">"@style/AppTheme"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;intent-filter&gt;</span>
+                <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">"android.intent.action.MAIN"</span><span class="nt">/&gt;</span>
+
+                <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">"android.intent.category.LAUNCHER"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/intent-filter&gt;</span>
+        <span class="nt">&lt;/activity&gt;</span>
+        <span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">".ActivityTwo"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;/activity&gt;</span>
+    <span class="nt">&lt;/application&gt;</span>
+
+<span class="nt">&lt;/manifest&gt;</span>
+</code></pre></div></div>
+
+<p>activity tag를 살펴보게 되면, intent-filter를 children으로 가지게 되며 intent를 처리할 때 어떤 방식으로 처리할지 정의하게 됩니다. 또한, 어떤 <a href="https://developer.android.com/guide/topics/manifest/activity-element?hl=ko">attribute</a>를 가질 수 있는지 구글링을 통해 찾아보았습니다.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;activity</span> <span class="na">android:allowEmbedded=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:allowTaskReparenting=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:alwaysRetainTaskState=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:autoRemoveFromRecents=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:banner=</span><span class="s">"drawable resource"</span>
+          <span class="na">android:clearTaskOnLaunch=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:colorMode=</span><span class="s">[</span> <span class="err">"hdr"</span> <span class="err">|</span> <span class="err">"wideColorGamut"]</span>
+          <span class="na">android:configChanges=</span><span class="s">["mcc",</span> <span class="err">"mnc",</span> <span class="err">"locale",</span>
+                                 <span class="err">"touchscreen",</span> <span class="err">"keyboard",</span> <span class="err">"keyboardHidden",</span>
+                                 <span class="err">"navigation",</span> <span class="err">"screenLayout",</span> <span class="err">"fontScale",</span>
+                                 <span class="err">"uiMode",</span> <span class="err">"orientation",</span> <span class="err">"density",</span>
+                                 <span class="err">"screenSize",</span> <span class="err">"smallestScreenSize"]</span>
+          <span class="na">android:directBootAware=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:documentLaunchMode=</span><span class="s">["intoExisting"</span> <span class="err">|</span> <span class="err">"always"</span> <span class="err">|</span>
+                                  <span class="err">"none"</span> <span class="err">|</span> <span class="err">"never"]</span>
+          <span class="na">android:enabled=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:excludeFromRecents=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:exported=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:finishOnTaskLaunch=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:hardwareAccelerated=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:icon=</span><span class="s">"drawable resource"</span>
+          <span class="na">android:immersive=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:label=</span><span class="s">"string resource"</span>
+          <span class="na">android:launchMode=</span><span class="s">["standard"</span> <span class="err">|</span> <span class="err">"singleTop"</span> <span class="err">|</span>
+                              <span class="err">"singleTask"</span> <span class="err">|</span> <span class="err">"singleInstance"]</span>
+          <span class="na">android:lockTaskMode=</span><span class="s">["normal"</span> <span class="err">|</span> <span class="err">"never"</span> <span class="err">|</span>
+                              <span class="err">"if_whitelisted"</span> <span class="err">|</span> <span class="err">"always"]</span>
+          <span class="na">android:maxRecents=</span><span class="s">"integer"</span>
+          <span class="na">android:maxAspectRatio=</span><span class="s">"float"</span>
+          <span class="na">android:multiprocess=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:name=</span><span class="s">"string"</span>
+          <span class="na">android:noHistory=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>  
+          <span class="na">android:parentActivityName=</span><span class="s">"string"</span> 
+          <span class="na">android:persistableMode=</span><span class="s">["persistRootOnly"</span> <span class="err">|</span> 
+                                   <span class="err">"persistAcrossReboots"</span> <span class="err">|</span> <span class="err">"persistNever"]</span>
+          <span class="na">android:permission=</span><span class="s">"string"</span>
+          <span class="na">android:process=</span><span class="s">"string"</span>
+          <span class="na">android:relinquishTaskIdentity=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:resizeableActivity=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:screenOrientation=</span><span class="s">["unspecified"</span> <span class="err">|</span> <span class="err">"behind"</span> <span class="err">|</span>
+                                     <span class="err">"landscape"</span> <span class="err">|</span> <span class="err">"portrait"</span> <span class="err">|</span>
+                                     <span class="err">"reverseLandscape"</span> <span class="err">|</span> <span class="err">"reversePortrait"</span> <span class="err">|</span>
+                                     <span class="err">"sensorLandscape"</span> <span class="err">|</span> <span class="err">"sensorPortrait"</span> <span class="err">|</span>
+                                     <span class="err">"userLandscape"</span> <span class="err">|</span> <span class="err">"userPortrait"</span> <span class="err">|</span>
+                                     <span class="err">"sensor"</span> <span class="err">|</span> <span class="err">"fullSensor"</span> <span class="err">|</span> <span class="err">"nosensor"</span> <span class="err">|</span>
+                                     <span class="err">"user"</span> <span class="err">|</span> <span class="err">"fullUser"</span> <span class="err">|</span> <span class="err">"locked"]</span>
+          <span class="na">android:showForAllUsers=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:stateNotNeeded=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:supportsPictureInPicture=</span><span class="s">["true"</span> <span class="err">|</span> <span class="err">"false"]</span>
+          <span class="na">android:taskAffinity=</span><span class="s">"string"</span>
+          <span class="na">android:theme=</span><span class="s">"resource or theme"</span>
+          <span class="na">android:uiOptions=</span><span class="s">["none"</span> <span class="err">|</span> <span class="err">"splitActionBarWhenNarrow"]</span>
+          <span class="na">android:windowSoftInputMode=</span><span class="s">["stateUnspecified",</span>
+                                       <span class="err">"stateUnchanged",</span> <span class="err">"stateHidden",</span>
+                                       <span class="err">"stateAlwaysHidden",</span> <span class="err">"stateVisible",</span>
+                                       <span class="err">"stateAlwaysVisible",</span> <span class="err">"adjustUnspecified",</span>
+                                       <span class="err">"adjustResize",</span> <span class="err">"adjustPan"]</span><span class="nt">&gt;</span>   
+<span class="nt">&lt;/activity&gt;</span>
+</code></pre></div></div>
+
+<p>위와 같이 수많은 attribute를 지정할 수 있는데, 주목해야할 attr은 <code class="highlighter-rouge">android:exported</code> 입니다. 해당 attribute가 설정되었다면, 외부에서 intent를 통한 attribute 호출 할 수 없습니다. 내부에서 intent를 통해 Activity 전환을 해야합니다.</p>
+
+<h2 id="외부-요청http-패킷-획득방법">외부 요청(HTTP) 패킷 획득방법</h2>
+
+<p>제일 먼저 떠올릴 수 있는 방법으로 burp suite나 fiddler의 인증서를  시스템 인증서로 등록한 이후, Proxy를 설정해 모든 기능들을 수동으로 외부 요청을 발생시켜 로깅하는 것입니다. 하지만 수많은 기능들이 존재할 경우, 어느정도의 자동화가 필요합니다. 아래는 자동화에 대한 아이디어 세 가지를 제시합니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. Intent를 통해 Activity 전환 시 발생하는 외부 요청 패킷 로깅
+2. adb를 통해 Activity 전환 시 발생하는 외부 요청 패킷 로깅
+3. Component 이벤트 처리시 발생하는 외부 요청 패킷 로깅
+</code></pre></div></div>
+
+<h3 id="1-intent를-통해-activity-전환-시-발생하는-외부-요청-패킷-로깅">1. Intent를 통해 Activity 전환 시 발생하는 외부 요청 패킷 로깅</h3>
+
+<p>Intent를 발생시키기 위해서는 코드 내에서 startActivity함수를 호출해야합니다. 따라서, frida를 사용하여 처리할 수 있음을 알 수 있습니다. 아래는 그 예시입니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// intent 발생시키는 frida 코드</span>
+<span class="kd">function</span> <span class="nx">getContext</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">try</span><span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">ActivityThread</span> <span class="o">=</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">android.app.ActivityThread</span><span class="dl">'</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">application</span> <span class="o">=</span> <span class="nx">ActivityThread</span><span class="p">.</span><span class="nx">currentApplication</span><span class="p">();</span>
+        <span class="k">return</span> <span class="nx">application</span><span class="p">.</span><span class="nx">getApplicationContext</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">getAllActivities</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">send</span><span class="p">(</span><span class="dl">"</span><span class="s2">activities</span><span class="dl">"</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nx">recv</span><span class="p">(</span><span class="dl">"</span><span class="s2">activities</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nx">wait</span><span class="p">();</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">callActivity</span><span class="p">(</span><span class="nx">activityName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">try</span><span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">getContext</span><span class="p">();</span>
+        <span class="kd">var</span> <span class="nx">intent</span> <span class="o">=</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">"</span><span class="s2">android.content.Intent</span><span class="dl">"</span><span class="p">).</span><span class="nx">$new</span><span class="p">(</span>
+            <span class="nx">context</span><span class="p">,</span>
+            <span class="nx">Java</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">activityName</span><span class="p">).</span><span class="kd">class</span>
+        <span class="p">);</span>
+        <span class="nx">intent</span><span class="p">.</span><span class="nx">addFlags</span><span class="p">(</span><span class="nx">intent</span><span class="p">.</span><span class="nx">FLAG_ACTIVITY_NEW_TASK</span><span class="p">.</span><span class="nx">value</span> <span class="o">|</span> <span class="nx">intent</span><span class="p">.</span><span class="nx">FLAG_ACTIVITY_CLEAR_TOP</span><span class="p">.</span><span class="nx">value</span> <span class="o">|</span> <span class="nx">intent</span><span class="p">.</span><span class="nx">FLAG_ACTIVITY_SINGLE_TOP</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+        <span class="nx">context</span><span class="p">.</span><span class="nx">startActivity</span><span class="p">(</span><span class="nx">intent</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<p>해당 코드를 사용하여 activity를 호출할 수 있게 되었지만, 보통 앱에서는 여러 파라미터(Action, Category, Extra)를 설정해야 정상적으로 activity가 이벤트를 처리하도록 되어있습니다. 따라서, 모든 Activity의 <code class="highlighter-rouge">Action/Category</code> 를 확인하기 위해서 AndroidManifest.xml를 파싱해야합니다. 아래는 AndroidManifest.xml를 파싱하여 frida script로 전달하는 코드입니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># androidmanifest.xml 파싱 -&gt; frida script 코드
+</span><span class="kn">import</span> <span class="nn">frida</span><span class="p">,</span> <span class="n">sys</span><span class="p">,</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+
+<span class="n">code</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"run.js"</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+	<span class="k">print</span><span class="p">(</span><span class="s">"[Usage] python run.py [androidmanifest.xml]"</span><span class="p">)</span>
+	<span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"send"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="s">"payload"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"activities"</span><span class="p">:</span>
+            <span class="n">script</span><span class="p">.</span><span class="n">post</span><span class="p">({</span> <span class="s">"type"</span><span class="p">:</span> <span class="s">"activities"</span><span class="p">,</span> <span class="s">"payload"</span><span class="p">:</span> <span class="n">activities</span><span class="p">})</span>
+
+<span class="n">manifest</span> <span class="o">=</span> <span class="n">ET</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]).</span><span class="n">getroot</span><span class="p">()</span>
+<span class="n">package</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">"package"</span><span class="p">]</span>
+<span class="n">application</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">"application"</span><span class="p">)</span>
+<span class="n">android</span> <span class="o">=</span> <span class="s">"http://schemas.android.com/apk/res/android"</span>
+
+<span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="n">elem</span><span class="p">:</span> <span class="n">ET</span><span class="p">.</span><span class="n">Element</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">elem</span><span class="p">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">f"{{</span><span class="si">{</span><span class="n">android</span><span class="si">}</span><span class="s">}}name"</span><span class="p">]</span>
+
+<span class="n">activities</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">application</span><span class="p">:</span>
+    <span class="n">item</span><span class="p">:</span> <span class="n">ET</span><span class="p">.</span><span class="n">Element</span> <span class="o">=</span> <span class="n">item</span>
+    <span class="k">if</span> <span class="n">item</span><span class="p">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">"activity"</span><span class="p">:</span>
+        <span class="n">intent_filter</span> <span class="o">=</span> <span class="n">item</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="s">"intent-filter"</span><span class="p">)</span>
+        <span class="n">act_name</span> <span class="o">=</span> <span class="n">item</span><span class="p">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">f"{{</span><span class="si">{</span><span class="n">android</span><span class="si">}</span><span class="s">}}name"</span><span class="p">]</span>
+        <span class="n">tname</span> <span class="o">=</span> <span class="n">act_name</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span>
+        <span class="n">activities</span><span class="p">[</span> <span class="n">act_name</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">pitem</span> <span class="ow">in</span> <span class="n">intent_filter</span><span class="p">:</span>
+            <span class="n">activities</span><span class="p">[</span> <span class="n">act_name</span> <span class="p">][</span><span class="s">"action"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pitem</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="s">"action"</span><span class="p">)))</span>
+            <span class="n">activities</span><span class="p">[</span> <span class="n">act_name</span> <span class="p">][</span><span class="s">"category"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pitem</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="s">"category"</span><span class="p">)))</span>
+            <span class="n">activities</span><span class="p">[</span> <span class="n">act_name</span> <span class="p">][</span><span class="s">"data"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># pitem.findall("data")
+</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">frida</span><span class="p">.</span><span class="n">get_usb_device</span><span class="p">()</span>
+<span class="n">pid</span> <span class="o">=</span> <span class="n">device</span><span class="p">.</span><span class="n">spawn</span><span class="p">([</span><span class="n">package</span><span class="p">])</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">device</span><span class="p">.</span><span class="n">attach</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+<span class="n">script</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="n">create_script</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+<span class="n">script</span><span class="p">.</span><span class="n">on</span><span class="p">(</span><span class="s">"message"</span><span class="p">,</span> <span class="n">on_message</span><span class="p">)</span>
+<span class="n">script</span><span class="p">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="n">device</span><span class="p">.</span><span class="n">resume</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+
+<span class="n">sys</span><span class="p">.</span><span class="n">stdin</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>위의 코드를 활용하면, <code class="highlighter-rouge">Extra파라미터를 사용하지않는 Activity가 동작</code>하게 됩니다. 따라서, Activity에서 외부로 요청을 여러번 할 수 있다는 점을 고려하여 어느 정도의 시간 조절이 필요합니다.</p>
+
+<h3 id="2-adb를-통해-activity-전환-시-발생하는-외부-요청-패킷-로깅">2. adb를 통해 Activity 전환 시 발생하는 외부 요청 패킷 로깅</h3>
+
+<p>adb는 Android Device Bridge의 약자로 기기와 통신할 수 있는 도구입니다. 해당 툴에서는 여러 기능을 지원하는데, intent를 특정 앱에 전송, broadcast 등을 수행할 수 있습니다. 아래는 activity 실행을 위한 adb 옵션입니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># activity 실행하는 adb 커맨드</span>
+adb shell am start <span class="nt">-a</span> <span class="o">{</span>action<span class="o">}</span> <span class="nt">-c</span> <span class="o">{</span>category<span class="o">}</span> <span class="nt">-n</span> <span class="o">{</span>package<span class="o">}</span>/<span class="o">{</span>activity_name<span class="o">}</span>
+</code></pre></div></div>
+
+<p>하지만 위의 명렁어는 AndroidManifest.xml에서 activity tag의 attribute가 <code class="highlighter-rouge">android:exported=true</code> 으로 설정되어 있어야 하며, 해당 옵션이 설정되지 않을 경우 아래와 같이 실패하는 것을 확인할 수 있습니다.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- Sample AnroidManifest.xml --&gt;</span>
+<span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">package=</span><span class="s">"kr.nekop.testapp"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;application</span>
+        <span class="na">android:allowBackup=</span><span class="s">"true"</span>
+        <span class="na">android:icon=</span><span class="s">"@mipmap/ic_launcher"</span>
+        <span class="na">android:label=</span><span class="s">"@string/app_name"</span>
+        <span class="na">android:roundIcon=</span><span class="s">"@mipmap/ic_launcher_round"</span>
+        <span class="na">android:supportsRtl=</span><span class="s">"true"</span>
+        <span class="na">android:theme=</span><span class="s">"@style/AppTheme"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">".TestActivity"</span> <span class="na">android:exported=</span><span class="s">"false"</span><span class="nt">&gt;&lt;/activity&gt;</span>
+        <span class="nt">&lt;activity</span>
+            <span class="na">android:name=</span><span class="s">".MainActivity"</span>
+            <span class="na">android:label=</span><span class="s">"@string/title_activity_main"</span>
+            <span class="na">android:theme=</span><span class="s">"@style/AppTheme.NoActionBar"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/application&gt;</span>
+
+<span class="nt">&lt;/manifest&gt;</span>
+</code></pre></div></div>
+
+<p><img src="/assets/yo0700.png" alt="/assets/yo0700.png" /></p>
+
+<h3 id="3-component-이벤트-처리시-발생하는-외부-요청-패킷-로깅">3. Component 이벤트 처리시 발생하는 외부 요청 패킷 로깅</h3>
+
+<p>Activity는 여러가지의 Component로 구성됩니다. Button, List, Layout 등으로 여러 기능들을 시각화해서 사용자가 접근 및 사용하기 쉽게 만듭니다. 따라서, 해당 기능들은 Component에 종속적으로 구현되어있습니다.  그러므로 Component의 이벤트를 강제로 발생시켜 여러가지 기능들을 수행할 수 있도록 만들면 더욱 많은 외부 요청을 할 수 있을 것으로 보입니다. Layout을 확인하기 위해서는 디컴파일 이후, resource 폴더 내의 layout을 확인하면 됩니다. 아래는 그 예시입니다.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- sample layout.xml --&gt;</span>
+<span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;androidx.coordinatorlayout.widget.CoordinatorLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
+    <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+    <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+    <span class="na">tools:context=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;com.google.android.material.appbar.AppBarLayout</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span>
+        <span class="na">android:theme=</span><span class="s">"@style/AppTheme.AppBarOverlay"</span><span class="nt">&gt;</span>
+
+        <span class="nt">&lt;androidx.appcompat.widget.Toolbar</span>
+            <span class="na">android:id=</span><span class="s">"@+id/toolbar"</span>
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"?attr/actionBarSize"</span>
+            <span class="na">android:background=</span><span class="s">"?attr/colorPrimary"</span>
+            <span class="na">app:popupTheme=</span><span class="s">"@style/AppTheme.PopupOverlay"</span> <span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;TextView</span>
+            <span class="na">android:id=</span><span class="s">"@+id/textView"</span>
+            <span class="na">android:layout_width=</span><span class="s">"wrap_content"</span>
+            <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span>
+            <span class="na">android:text=</span><span class="s">"MainActivity!!!"</span> <span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;Button</span>
+            <span class="na">android:id=</span><span class="s">"@+id/button"</span>
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span>
+            <span class="na">android:text=</span><span class="s">"Button"</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;/com.google.android.material.appbar.AppBarLayout&gt;</span>
+
+    <span class="nt">&lt;include</span> <span class="na">layout=</span><span class="s">"@layout/content_main"</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;com.google.android.material.floatingactionbutton.FloatingActionButton</span>
+        <span class="na">android:id=</span><span class="s">"@+id/fab"</span>
+        <span class="na">android:layout_width=</span><span class="s">"wrap_content"</span>
+        <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span>
+        <span class="na">android:layout_gravity=</span><span class="s">"bottom|end"</span>
+        <span class="na">android:layout_margin=</span><span class="s">"@dimen/fab_margin"</span>
+        <span class="na">app:srcCompat=</span><span class="s">"@android:drawable/ic_dialog_email"</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/androidx.coordinatorlayout.widget.CoordinatorLayout&gt;</span>
+</code></pre></div></div>
+
+<p>위의 xml파일을 파싱한 이후, frida script로 전달해서 component 타입별로 이벤트를 강제로 발생하도록 아래와 같이 코드를 작성합니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">getContext</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">try</span><span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">ActivityThread</span> <span class="o">=</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">android.app.ActivityThread</span><span class="dl">'</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">application</span> <span class="o">=</span> <span class="nx">ActivityThread</span><span class="p">.</span><span class="nx">currentApplication</span><span class="p">();</span>
+        <span class="k">return</span> <span class="nx">application</span><span class="p">.</span><span class="nx">getApplicationContext</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">findViewById</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">activity</span> <span class="o">=</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">cast</span><span class="p">(</span><span class="nx">getContext</span><span class="p">(),</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">"</span><span class="s2">android.app.Activity</span><span class="dl">"</span><span class="p">));</span>
+    <span class="k">return</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">cast</span><span class="p">(</span><span class="nx">activity</span><span class="p">.</span><span class="nx">findViewById</span><span class="p">(</span><span class="nx">id</span><span class="p">),</span> <span class="nx">type</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">typeInfo</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">button</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">_class</span><span class="p">:</span> <span class="nx">Java</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">"</span><span class="s2">android.widget.Button</span><span class="dl">"</span><span class="p">),</span>
+        <span class="na">handle</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">btn</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">btn</span><span class="p">.</span><span class="nx">performClick</span><span class="p">();</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">componentEvent</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">typeInfo</span><span class="p">[</span><span class="nx">type</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">view</span> <span class="o">=</span> <span class="nx">findViewById</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">_class</span><span class="p">);</span>
+    <span class="nx">info</span><span class="p">.</span><span class="nx">handle</span><span class="p">(</span><span class="nx">view</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">fuzz</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">send</span><span class="p">(</span><span class="dl">"</span><span class="s2">component</span><span class="dl">"</span><span class="p">);</span>
+    <span class="cm">/*
+    {
+        "type": "button",
+        "id": 123124123
+    }
+    */</span>
+    <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nx">recv</span><span class="p">(</span><span class="dl">"</span><span class="s2">component</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nx">wait</span><span class="p">();</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">result</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">componentEvent</span><span class="p">(</span><span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">id</span><span class="p">,</span> <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">type</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>해당 코드를 사용하여 여러 앱에 적용하면 어느 정도의 외부 요청을 기대할 수 있습니다.</p>
+
+<h2 id="한계점">한계점</h2>
+
+<p>각각의 방식은 모든 외부 요청을 발생시킬 수 없다는 공통적인 한계점이 존재합니다. 따라서 어느 정도 많은 양의 외부 요청을 발생시킬 수 있는지에 대해서 고려되어야합니다. 또한, Activity별 외부 요청에 대한 처리와 빠른 시간 내에 많은 외부 요청 URL을 파악할 수 있어야합니다.</p>
+
+<p>1번 방식의 경우, <code class="highlighter-rouge">extra를 사용하지 않는 activity</code>에서 외부 요청을 할 수 있으므로 적은 양의 URL을 로깅할 수 있을 것으로 보이며, 2번 방식의 경우 <code class="highlighter-rouge">android:exported=true 옵션이 설정되어있지 않은 activity</code>와 <code class="highlighter-rouge">extra를 사용하지 않는 activity</code>에 대해서 처리할 수 있으므로 1번의 방식보다 적은 양의 URL을 로깅할 수 있을 것으로 보입니다. 3번의 방식으로 코드를 작성할 경우, 사용자가 직접 조작하는 것처럼 할 수 있다면 많은 양의 외부 요청을 가져올 수 있을 것으로 보입니다. 하지만 이는 각 component별 상관관계(ex. 로그인, 검색 등)가 전혀 고려되어있지 않습니다. 따라서, activity별 component 수에 따라서 모든 URL을 로깅하기 위한 시간이 결정됩니다. 그러므로 많은 component가 존재한다면 모든 요청을 위해서 수많은 요청이 필요하게 되며 효율성이 떨어지게 됩니다.</p>
+
+	</div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+	<a href="/2020-07-01/Keylogger-and-Other-Functions" class="left arrow">&#8592;</a>
+  
+  
+	<a href="/2020-07-01/Fiddler-Extension" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-08-11 05:29:28 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

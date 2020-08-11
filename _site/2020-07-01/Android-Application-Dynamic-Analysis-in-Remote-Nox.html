@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Android Application Dynamic Analysis in Remote NoxPlayer | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Android Application Dynamic Analysis in Remote NoxPlayer" />
+<meta name="author" content="jeong.su" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 최정수" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 최정수" />
+<link rel="canonical" href="http://localhost:4000/2020-07-01/Android-Application-Dynamic-Analysis-in-Remote-Nox" />
+<meta property="og:url" content="http://localhost:4000/2020-07-01/Android-Application-Dynamic-Analysis-in-Remote-Nox" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-07-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Android Application Dynamic Analysis in Remote NoxPlayer","dateModified":"2020-07-01T00:00:00+00:00","datePublished":"2020-07-01T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-07-01/Android-Application-Dynamic-Analysis-in-Remote-Nox"},"author":{"@type":"Person","name":"jeong.su"},"url":"http://localhost:4000/2020-07-01/Android-Application-Dynamic-Analysis-in-Remote-Nox","description":"라온화이트햇 핵심연구팀 최정수","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+	<h1 class="post-title">Android Application Dynamic Analysis in Remote NoxPlayer</h1>
+	<div class="post-line"></div>
+
+	
+		
+			
+				<span class="tag"><center><i>Android</i></center></span>
+			
+		
+			
+				<span class="tag"><center><i>Frida</i></center></span>
+			
+		
+	
+
+	<p>라온화이트햇 핵심연구팀 최정수</p>
+
+<h1 id="noxplayer">NoxPlayer?</h1>
+
+<p>Nox App Player는 PC에서 모바일 게임을 비롯한 모바일 Application들을 실행할 수 있게 하는 Emulator 입니다.</p>
+
+<h1 id="android-app-dynamic-analysis-with-noxplayer">Android App Dynamic Analysis with NoxPlayer</h1>
+
+<p>Android Application을 동적으로 분석하고자 할 때 Android OS의 Device가 없는 경우 NoxPlayer를 사용하여 분석 할 수 있습니다. ADB, Frida, gdb를 모두 사용할 수 있습니다. 각각의 사용 방법은 아래와 같습니다.</p>
+
+<h2 id="1-adb">1. ADB</h2>
+
+<h3 id="-adb-connect"># ADB Connect</h3>
+
+<p><img src="/assets/soo0700.png" alt="/assets/soo0700.png" /></p>
+
+<p>NoxPlayer의 Device에 ADB를 사용하고자 할 때 Device를 실행한 상태에서  <code class="highlighter-rouge">adb devices</code> 명령어를 사용하면 위와 같이 devices를 찾을 수 없습니다.</p>
+
+<p>NoxPlayer의 Device는 <strong>ADB 접속을 USB 통신이 아닌 Network 통신</strong>을 합니다.</p>
+
+<p>따라서 <strong>Network 통신을 위한 ADB Port</strong>를 찾아야합니다.</p>
+
+<p><img src="/assets/soo0701.png" alt="/assets/soo0701.png" /></p>
+
+<p>NoxPlayer의 Device들의 <strong>Process 이름은 <code class="highlighter-rouge">NoxVMHandle.exe</code></strong>입니다.</p>
+
+<p><code class="highlighter-rouge">NoxVMHandle.exe</code>가 LISTENING 하고 있는 Port를 찾아보니 위와 같습니다.</p>
+
+<p><img src="/assets/soo0702.png" alt="/assets/soo0702.png" /></p>
+
+<p>LISTENING 하고 있는 Port를 1개씩 <code class="highlighter-rouge">adb connect 127.0.0.1:{PORT}</code> 하고 나서 <code class="highlighter-rouge">adb devices</code> 명령어로 devices 리스트를 확인 해본 결과 <code class="highlighter-rouge">62001</code> 이 ADB를 접속할 수 있는 Port 였습니다.</p>
+
+<p><img src="/assets/soo0703.png" alt="/assets/soo0703.png" /></p>
+
+<p><code class="highlighter-rouge">adb connect</code>를 여러번 했기 때문에 여러 device가 등록되어 있고 adb에 <code class="highlighter-rouge">-s</code> 옵션을 통해서 원하는 device를 선택해야합니다. 또는 <code class="highlighter-rouge">adb kill-server</code> 명령어를 통해서 연결된 모든 device를 초기화 시킬 수 있습니다.</p>
+
+<h3 id="-adb-connect-with-multi-device"># ADB Connect with Multi Device</h3>
+
+<p>NoxPlayer의 경우 멀티 앱플레이어 기능을 통해 여러 Device를 동시에 실행 할 수 있습니다. 여러 Device를 동시에 실행하고 있을 경우 각각의 ADB Connect를 위한 Port는 아래와 같습니다.</p>
+
+<p><img src="/assets/soo0704.png" alt="/assets/soo0704.png" /></p>
+
+<p>LISTENING 하고 있는 Port 중에서 위 과정을 반복한 결과 <code class="highlighter-rouge">62025</code>가 다른 Device의 ADB 접속 Port 입니다.</p>
+
+<p><img src="/assets/soo0705.png" alt="/assets/soo0705.png" /></p>
+
+<p>LISTENING 하고 있는 Port 중에서 위 과정을 반복한 결과 <code class="highlighter-rouge">62026</code>가 다른 Device의 ADB 접속 Port 입니다.</p>
+
+<p>따라서 <strong>NoxPlayer에서 ADB를 Connect 하기 위한 PORT</strong>는 아래와 같습니다.</p>
+
+<ul>
+  <li><strong>127.0.0.1:62001</strong></li>
+  <li><strong>127.0.0.1:62025</strong></li>
+  <li><strong>127.0.0.1:62026</strong></li>
+  <li><strong>127.0.0.1:62027</strong></li>
+  <li><strong>127.0.0.1:62028</strong></li>
+</ul>
+
+<h2 id="2-frida">2. Frida</h2>
+
+<p>NoxPlayer의 Device에서도 일반적인 Android OS의 Device처럼 frida-server를 설치하는 방법으로 Frida를 사용할 수 있습니다.</p>
+
+<p>frida-server는 <a href="https://github.com/frida/frida/releases">https://github.com/frida/frida/releases</a> 에서 다운로드 가능하며 NoxPlayer의 경우 x86 기반의 에뮬레이터이기 때문에</p>
+
+<p><code class="highlighter-rouge">frida-server-{version}-android-x86</code></p>
+
+<p>를 다운로드 받아서 ADB를 통해 NoxPlayer의 Device에 아래와 같이 넣어준뒤 실행합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># frida-server download &amp; push</span>
+curl <span class="nt">-L</span> <span class="nt">-O</span> https://github.com/frida/frida/releases/download/12.11.6/frida-server-12.11.6-android-x86.xz
+xz <span class="nt">-d</span> frida-server-12.11.6-android-x86.xz
+adb <span class="nt">-s</span> 127.0.0.1:62001 push frida-server-12.11.6-android-x86 /data/local/tmp/
+
+<span class="c"># frida-server chmod &amp; run</span>
+<span class="nb">cd</span> /data/local/tmp/
+<span class="nb">chmod </span>755 frida-server-12.8.7-android-x86
+./frida-server-12.8.7-android-x86
+</code></pre></div></div>
+
+<h2 id="3-gdb">3. GDB</h2>
+
+<p>NoxPlayer에서도 gdb-server를 이용하여 gdb를 통한 디버깅을 할 수 있습니다.</p>
+
+<p><a href="https://chromium.googlesource.com/android_tools/+/refs/heads/2403/ndk/prebuilt/android-x86/gdbserver">https://chromium.googlesource.com/android_tools/+/refs/heads/2403/ndk/prebuilt/android-x86/gdbserver</a>에서 x86 gdbserver를 다운로드 받은 뒤 실행합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># gdbserver download &amp; push</span>
+curl <span class="nt">-L</span> <span class="nt">-O</span> https://chromium.googlesource.com/android_tools/+archive/refs/heads/2403/ndk/prebuilt/android-x86/gdbserver.tar.gz
+<span class="nb">tar</span> <span class="nt">-xvf</span> gdbserver.tar.gz
+adb <span class="nt">-s</span> 127.0.0.1:62001 push gdbserver /data/local/tmp/
+
+<span class="c"># gdbserver chmod &amp; run</span>
+<span class="nb">cd</span> /data/local/tmp/
+<span class="nb">chmod </span>755 gdbserver 
+./gdbserver 0.0.0.0:62002 <span class="nt">--attach</span> <span class="o">[</span>PID]
+</code></pre></div></div>
+
+<h1 id="android-app-dynamic-analysis-with-remote-noxplayer">Android App Dynamic Analysis with Remote NoxPlayer</h1>
+
+<p>NoxPlayer가 분석 환경에서 설치되지 않은 경우 Server에 NoxPlayer를 설치하고 Remote 환경에서 접속하여 분석할 수 있습니다. 따라서 Androd OS의 기기가 없으며 NoxPlayer를 사용할 수 없는 환경에서도 Server에 설치된 NoxPlayer를 이용하여 안드로이드 어플리케이션을 동적으로 분석 할 수 있습니다.</p>
+
+<p>최종적으로 Frida Server, ADB, GDB Server를 사용할 PORT는 아래와 같습니다.</p>
+
+<ul>
+  <li>62000 - Frida Server</li>
+  <li>62001 - Nox ADB</li>
+  <li>62002 - GDB Server</li>
+</ul>
+
+<h2 id="1-windows-환경의-noxplayer가-설치된-server">1. <strong>Windows 환경의 NoxPlayer가 설치된 Server</strong></h2>
+
+<h3 id="-reverse-tunneling"># Reverse Tunneling</h3>
+
+<p>NoxPlayer는 ADB 를 127.0.0.1을 LISTENING 하고 있기 때문에 리버스 터널링을 필요로 합니다. 따라서 NoxPlayer가 설치된 서버에서는 아래와 같이 NoxPlayer의 ADB port를 Reverse Tunneling 해주면 됩니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># NoxPlayer ADB PORT Reverse Tunneling</span>
+ssh <span class="nt">-N</span> jeon95u@jeong.su <span class="nt">-R</span> 0.0.0.0:62001:127.0.0.1:62001
+</code></pre></div></div>
+
+<h2 id="2-분석-pc">2. 분석 PC</h2>
+
+<h3 id="1-adb-1">1. ADB</h3>
+
+<p>분석을 진행할 PC에서는 리버스 터널링된 서버와 포트를 통해 서버에서 NoxPlayer가 실행중인 Device의 ADB에 접속할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># ADB kill server</span>
+adb kill-server
+
+<span class="c"># ADB remote connect &amp; port forwarding (frida-server, gdbserver)</span>
+adb connect jeong.su:62001
+adb forward tcp:62000 tcp:62000
+adb forward tcp:62002 tcp:62002
+adb shell
+</code></pre></div></div>
+
+<h3 id="2-frida-1">2. Frida</h3>
+
+<p>Frida가 서버에 있는 NoxPlayer에 설치되어 있지 않는 경우 위와 똑같은 방법으로 설치를 해줍니다. 설치가 되어 있다면 아래와 같이 frida-server를 실행 시켜줍니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mv</span> /data/local/tmp/
+./frida-server-12.8.7-android-x86 <span class="nt">-l</span> 0.0.0.0:62000
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">1. ADB</code>에서 adb forward 명령어를 사용하여 분석 PC에 62000을 접속하게 되면 ADB를 타고 리모트에 있는 NoxPlayer의 Device의 62000을 포워딩 해줍니다.</p>
+
+<p>따라서 분석 PC에서 바로 아래와 같이 frida 사용을 할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>frida <span class="nt">-H</span> 127.0.0.1:62000
+frida-ps <span class="nt">-H</span> 127.0.0.1:62000
+
+frida <span class="nt">-H</span> 127.0.0.1:62000 com.example.app <span class="nt">-l</span> test.js
+</code></pre></div></div>
+
+<h3 id="3-gdb-1">3. GDB</h3>
+
+<p>GDB가 서버에 있는 NoxPlayer에 설치되어 있지 않는 경우 위와 똑같은 방법으로 설치를 해줍니다. 설치가 되어 있다면 아래와 같이 gdbserver를 실행 시켜줍니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mv</span> /data/local/tmp
+./gdbserver 0.0.0.0:62002 <span class="nt">--attach</span> <span class="o">[</span>PID]
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">1. ADB</code>에서 adb forward 명령어를 사용하여 분석 PC에 62002을 접속하게 되면 ADB를 타고 리모트에 있는 NoxPlayer의 Device의 62002을 포워딩 해줍니다.</p>
+
+<p>따라서 분석 PC에서 바로 아래와 같이 gdb 사용을 할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gdb
+target remote 127.0.0.1:62002
+</code></pre></div></div>
+
+<h1 id="마무리--추가-연구-과제">마무리 &amp; 추가 연구 과제</h1>
+
+<p>iOS 환경의 스마트폰을 사용하는 경우 급하게 Android 어플리케이션을 동적으로 분석하고자 할 때 요긴하게 쓰이고자 작성된 문서입니다.</p>
+
+<p>위 방법으로는 ADB, Frida, GDB 등 간단하게 CLI 환경에서 할 수 있는 것만 사용 가능하며 특정 Activity 실행 등은 대부분 Activity Manager를 통해 ADB shell에서 호출이 가능하지만 그 외 GUI를 사용해야하는 경우는 추가 연구가 필요할 것 으로 생각됩니다.</p>
+
+	</div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+	<a href="/2020-07-01/Fiddler-Extension" class="left arrow">&#8592;</a>
+  
+  
+	<a href="/2020-06-01/v8-1-day-CVE-2020-6383" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-08-11 05:29:28 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

