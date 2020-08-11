@@ -1,5 +1,6 @@
 .post {
   padding: 3rem 0;
+  word-break:break-all;
 
   &-info {
     color: $default-tint;
@@ -30,7 +31,6 @@
   p {
     margin: 0 0 1rem;
     text-align: justify;
-	word-break:break-all;
   }
 
   a:hover {
