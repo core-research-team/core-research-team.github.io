@@ -197,7 +197,7 @@ function callActivity(activityName) {
 ```
 
 해당 코드를 사용하여 activity를 호출할 수 있게 되었지만, 보통 앱에서는 여러 파라미터(Action, Category, Extra)를 설정해야 정상적으로 activity가 이벤트를 처리하도록 되어있습니다. 따라서, 모든 Activity의 `Action/Category` 를 확인하기 위해서 AndroidManifest.xml를 파싱해야합니다. 아래는 AndroidManifest.xml를 파싱하여 frida script로 전달하는 코드입니다.
-
+{% raw %}
 ```python
 # androidmanifest.xml 파싱 -> frida script 코드
 import frida, sys, os
@@ -246,6 +246,7 @@ device.resume(pid)
 
 sys.stdin.read()
 ```
+{% endraw %}
 
 위의 코드를 활용하면, `Extra파라미터를 사용하지않는 Activity가 동작`하게 됩니다. 따라서, Activity에서 외부로 요청을 여러번 할 수 있다는 점을 고려하여 어느 정도의 시간 조절이 필요합니다.
 
