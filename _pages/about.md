@@ -20,13 +20,13 @@ permalink: /about/
 
 [강인욱(hkkiw0823)](https://github.com/hkkiw0823/hkkiw0823.github.io)
 
-[김재성(badSpell)](mailto:public4d@gmail.com)
+[김재성(badSpell)](#)
 
 [박의성(zairo)](https://zairo.tistory.com/)
 
 [지한별(onestar)](https://blog.1-star.kr)
 
-[최규범(qbeom)](mailto:kbchoi@raoncorp.com)
+[최규범(qbeom)](#)
 
 [김낙현(mathboy7)](https://blog.naver.com/mathboy7)
 
@@ -40,9 +40,9 @@ permalink: /about/
 
 [원요한(KuroNeko)](https://nekoplu5.tistory.com)
 
-[조운삼(gurumi907)](mailto:wscho@raoncorp.com)
+[조운삼(gurumi907)](#)
 
-[조진호(wwwlk)](mailto:jhjo@raoncorp.com)
+[조진호(wwwlk)](#)
 
 [최용선(choiys)](https://blog.choiys.kr)
 
