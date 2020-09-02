@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-06-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Copy-On-Write 페이지 조작을 이용한 Global Dll injection","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-06-01/Copy-On-Write-Global-Dll-injection"},"author":{"@type":"Person","name":"badspell"},"url":"http://localhost:4000/2020-06-01/Copy-On-Write-Global-Dll-injection","description":"라온화이트햇 핵심연구팀 김재성","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Copy-On-Write 페이지 조작을 이용한 Global Dll injection","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","author":{"@type":"Person","name":"badspell"},"url":"http://localhost:4000/2020-06-01/Copy-On-Write-Global-Dll-injection","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-06-01/Copy-On-Write-Global-Dll-injection"},"description":"라온화이트햇 핵심연구팀 김재성","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,26 +60,26 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">Copy-On-Write 페이지 조작을 이용한 Global Dll injection</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">Copy-On-Write 페이지 조작을 이용한 Global Dll injection</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>Windows</i></center></span>
-			
-		
-			
-				<span class="tag"><center><i>system</i></center></span>
-			
-		
-			
-				<span class="tag"><center><i>Research</i></center></span>
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 김재성</p>
+   
+      
+         
+            <span class="tag"><center><i>Windows</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>system</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>Research</i></center></span>
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 김재성</p>
 
 <h1 id="1-개요">1. 개요</h1>
 
@@ -308,7 +308,237 @@ nop
   <li><a href="https://en.wikipedia.org/wiki/Control_register">https://en.wikipedia.org/wiki/Control_register</a></li>
 </ol>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 김재성</p>
+
+<h1 id="1-개요">1. 개요</h1>
+
+<hr />
+
+<p>최근에 Windows 프로세스 메모리를 보호하는 기법을 찾아보다가 흥미로운 글을 본적이 있었습니다.</p>
+
+<p>undocumented인 <code class="highlighter-rouge">SEC_NO_CHANGE</code> 옵션으로 섹션을 생성하고 메모리를 Mapping 하면 이후 페이지 속성이 변경되는 것을 유저레벨에서도 보호할 수 있다는건데, 이미 일부 보안 프로그램에서도 사용 중인 기법이었습니다.</p>
+
+<p>실제로 자기자신의 메모리를 <code class="highlighter-rouge">SEC_NO_CHANGE</code> 옵션으로 Remapping해주는 예제(<a href="https://github.com/changeofpace/Self-Remapping-Code">https://github.com/changeofpace/Self-Remapping-Code</a>)를 테스트해보면 VirtualProtect 함수가 실패하고 내부적으로 페이지 보호속성을 변경하는 WriteProessMemory 함수 역시 작동하지 않습니다.</p>
+
+<p>보호된 메모리를 Unmap, Free하고 새로 할당하는 방법 이외에는 우회할 방법이 없어보였는데 Cheat Engine의 특정 기능을 활성화해서 우회 가능한것을 확인했고 조금 더 응용하여 Copy-On-Write 페이지 조작을 통한 Global Dll injection까지 가능해보여 이를 시도해보았습니다.</p>
+
+<h1 id="2-메모리-보호-우회와-copy-on-write">2. 메모리 보호 우회와 Copy-On-Write</h1>
+
+<hr />
+
+<p><img src="/assets/bad60.png" alt="/assets/bad60.png" /></p>
+
+<p>Cheat Engine의 <code class="highlighter-rouge">Query memory region routine</code>, <code class="highlighter-rouge">Read/Write Process Memory</code> 위 두 옵션을 활성화하면 커널 드라이버를 이용한 메모리 읽기/쓰기를 지원하는데, 해당 옵션들은 보호된 읽기전용 페이지에는 여전히 쓰기가 불가능합니다.  페이지 보호 속성을 무시하고 쓰기 작업을 진행하기 위해서는 아래 작업을 추가로 진행해야합니다.</p>
+
+<div class="language-lua highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dbk_initialize</span><span class="p">();</span>
+<span class="n">dbk_useKernelmodeOpenProcess</span><span class="p">();</span>
+<span class="n">dbk_useKernelmodeProcessMemoryAccess</span><span class="p">();</span>
+<span class="n">dbk_writesIgnoreWriteProtection</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>Memory Viewer에서 Ctrl+L을 누르면 Lua script를 실행할 수 있는데 위 스크립트를 실행하면 이후에는 보호된 메모리를 강제로 쓸 수 있게 됩니다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">BOOLEAN</span> <span class="nf">WriteProcessMemory</span><span class="p">(</span><span class="n">DWORD</span> <span class="n">PID</span><span class="p">,</span> <span class="n">PEPROCESS</span> <span class="n">PEProcess</span><span class="p">,</span> <span class="n">PVOID</span> <span class="n">Address</span><span class="p">,</span> <span class="n">DWORD</span> <span class="n">Size</span><span class="p">,</span> <span class="n">PVOID</span> <span class="n">Buffer</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+		<span class="n">KeAttachProcess</span><span class="p">((</span><span class="n">PEPROCESS</span><span class="p">)</span><span class="n">selectedprocess</span><span class="p">);</span>
+		<span class="kr">__try</span>
+		<span class="p">{</span>
+			<span class="kt">char</span><span class="o">*</span> <span class="n">target</span><span class="p">;</span>
+			<span class="kt">char</span><span class="o">*</span> <span class="n">source</span><span class="p">;</span>
+			<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+			<span class="k">if</span> <span class="p">((</span><span class="n">IsAddressSafe</span><span class="p">((</span><span class="n">UINT_PTR</span><span class="p">)</span><span class="n">Address</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">IsAddressSafe</span><span class="p">((</span><span class="n">UINT_PTR</span><span class="p">)</span><span class="n">Address</span> <span class="o">+</span> <span class="n">Size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+			<span class="p">{</span>
+				<span class="n">BOOL</span> <span class="n">disabledWP</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">;</span>
+
+				<span class="n">target</span> <span class="o">=</span> <span class="n">Address</span><span class="p">;</span>
+				<span class="n">source</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">((</span><span class="n">loadedbydbvm</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="n">KernelWritesIgnoreWP</span><span class="p">))</span>
+				<span class="p">{</span>
+					<span class="n">disableInterrupts</span><span class="p">();</span>
+
+					<span class="k">if</span> <span class="p">(</span><span class="n">loadedbydbvm</span><span class="p">)</span>
+						<span class="n">vmx_disable_dataPageFaults</span><span class="p">();</span>
+
+					<span class="k">if</span> <span class="p">(</span><span class="n">KernelWritesIgnoreWP</span><span class="p">)</span>
+					<span class="p">{</span>
+						<span class="n">DbgPrint</span><span class="p">(</span><span class="s">"Disabling CR0.WP"</span><span class="p">);</span>
+						<span class="n">setCR0</span><span class="p">(</span><span class="n">getCR0</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)));</span> <span class="c1">//disable the WP bit					</span>
+						<span class="n">disabledWP</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">;</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+
+				<span class="k">if</span> <span class="p">((</span><span class="n">loadedbydbvm</span><span class="p">)</span> <span class="o">||</span> <span class="p">((</span><span class="n">UINT_PTR</span><span class="p">)</span><span class="n">target</span> <span class="o">&lt;</span> <span class="mh">0x8000000000000000ULL</span><span class="p">))</span>
+				<span class="p">{</span>
+					<span class="n">RtlCopyMemory</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">Size</span><span class="p">);</span>
+					<span class="n">ntStatus</span> <span class="o">=</span> <span class="n">STATUS_SUCCESS</span><span class="p">;</span>
+				<span class="p">}</span>
+				<span class="k">else</span>
+				<span class="p">{</span>
+					<span class="n">i</span> <span class="o">=</span> <span class="n">NoExceptions_CopyMemory</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">Size</span><span class="p">);</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">Size</span><span class="p">)</span>
+						<span class="n">ntStatus</span> <span class="o">=</span> <span class="n">STATUS_UNSUCCESSFUL</span><span class="p">;</span>
+					<span class="k">else</span>
+						<span class="n">ntStatus</span> <span class="o">=</span> <span class="n">STATUS_SUCCESS</span><span class="p">;</span>
+				<span class="p">}</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이것이 가능한 이유는 dbk_writesIgnoreWriteProtection 함수에 의해 KernelWritesIgnoreWP 비트가 활성화될 때 Cheat Engine의 커널 함수 WriteProcessMemory에서 CR0 레지스터 WP(Write-Protect) bit를 비활성하고 메모리를 쓰도록 구현되어있기 때문입니다.</p>
+
+<p>여기서 흥미로운 점은 모든 윈도우즈 프로세스에 매핑되는 KUSER_SHARED_DATA (0x7FFE000) 영역 및 Copy-On-Write의 원본 페이지도 조작이 된다는 점입니다.</p>
+
+<p><img src="/assets/bad61.png" alt="/assets/bad61.png" /></p>
+
+<p><img src="/assets/bad62.png" alt="/assets/bad62.png" /></p>
+
+<p>모든 프로세스에는 ntdll.dll을 포함한 몇몇 시스템 라이브러리가 같은 주소공간에 로드되고 일부 Read-Only 페이지는 메모리 공간을 효율적으로 사용하기 위해 Copy-On-Write 기술로 같은 Physical Memory를 가리키고있습니다.</p>
+
+<p>그림의 예시로 ntdll.dll의 0x7FFCEE14401A 주소가 실제 Physical Memory에서는 0x1C25101A에 매핑되어있고 다른 프로세스도 역시 동일한 0x1C25101A 값을 가리킵니다.</p>
+
+<p><img src="/assets/bad63.png" alt="/assets/bad63.png" /></p>
+
+<p><img src="/assets/bad64.png" alt="/assets/bad64.png" /></p>
+
+<p>만약 위 그림의 Process 1에서 Copy-On-Write가 적용된 페이지를 조작하기위해 페이지 속성을 변경하면 그 순간 복제된 Page D(0xCAF9D01A)가 생성되어 그곳을 쓰게되고 Process 2에는 영향을 미치지않게 됩니다.</p>
+
+<h1 id="3-global-dll-injection">3. Global Dll Injection</h1>
+
+<hr />
+
+<p><img src="/assets/bad65.png" alt="/assets/bad65.png" /></p>
+
+<p><img src="/assets/bad66.png" alt="/assets/bad66.png" /></p>
+
+<p>dbk_writesIgnoreWriteProtection 옵션이 활성화된 이후에는 Copy-On-Write 메모리 복제 과정이 일어나지않고 원본 메모리(0x3F050207)에 쓰기가 발생하므로 모든 프로세스 및 앞으로 생성될 프로세스에 코드 실행을 유도할 수 있습니다. 본문에서는 이를 활용하여 Global Dll Injection을 구현해보았습니다.</p>
+
+<p><strong>[구현 아이디어]</strong></p>
+
+<ol>
+  <li>64비트 기준으로 프로세스가 생성되면 ntdll.RtlUserThreadStart 함수가 실행됩니다.</li>
+  <li>Execute가 가능하고 Copy-On-Write가 적용된 Code cave 영역(ntdll.PssNtWalkSnapshot+5600)을 찾아 해당 영역으로 jmp하는 opcode를 삽입합니다.</li>
+  <li>ntdll.PssNtWalkSnapshot+5600에서 ntdll.NtProtectVirtualMemory 함수를 호출하여 ntdll.RtlUserThreadStart 영역을 PAGE_EXECUTE_READWRITE로 변경하고 원래 opcode로 변경합니다.</li>
+  <li>ntdll.LdrLoadDll 함수를 호출하여 Custom dll을 로드합니다.</li>
+</ol>
+
+<p>3번은 선택사항이므로 본문에서는 1, 2, 4번을 순서대로 구현하였습니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ntdll.PssNtWalkSnapshot+5600:
+inc [ntdll.dll+16A4B8]
+sub rsp,78
+mov r9,rcx
+jmp ntdll.RtlUserThreadStart+7
+
+ntdll.RtlUserThreadStart:
+jmp ntdll.PssNtWalkSnapshot+5600
+nop
+nop
+</code></pre></div></div>
+
+<p>먼저 1, 2번까지 정상작동하는 것을 테스트하기 위해 Cheat Engine의 Auto Assemble로 ntdll.RtlUserThreadStart 함수가 호출될 때 [ntdll.dll+16A4B8] 값의 메모리를 1 증가시키는 스크립트를 작성하였습니다.</p>
+
+<p>[ntdll.dll+16A4B8]은 Writeable한 dummy 메모리로 0으로 세팅되어있으며 의도대로라면 새롭게 생성된 프로세스의 [ntdll.dll+16A4B8] 값은 1 이상이어야합니다.</p>
+
+<p><img src="/assets/bad67.png" alt="/assets/bad67.png" /></p>
+
+<p>MessageBox로 Hello, World를 출력하는 것 이외에 아무것도 하지않는 간단한 프로그램을 실행하였을 때 값이 4인걸 확인하여 의도대로 작동하는 것을 볼 수 있습니다.</p>
+
+<p>이제 4번 과정 ntdll.LdrLoadDll 함수를 호출하는 코드를 추가하여 ws2_32.dll가 자동으로 인젝션되도록 하였습니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NTSTATUS **LdrLoadDll(**
+  IN PWCHAR               PathToFile OPTIONAL,
+  IN ULONG                Flags OPTIONAL,
+  IN PUNICODE_STRING      ModuleFileName,
+  OUT PHANDLE             ModuleHandle
+);
+</code></pre></div></div>
+
+<p>LdrLoadDll 함수 원형은 위와 같은데, 1, 2번째 인자는 NULL로 세팅하고 3번째 인자에 PUNICODE_STRING을 구조체 형식에 맞추어 넣어 호출하면 정상적으로 함수가 호출되었을 때  ModuleHandle값이 담기고 0을 반환합니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ntdll.PssNtWalkSnapshot+5900:
+db 'w', 0, 's', 0, '2', 0, '_', 0, '3', 0, '2', 0, 0, 0 //ws2_32.dll
+
+ntdll.PssNtWalkSnapshot+5700:
+dw #12 //length
+dw #14 //maxlength
+dd 0 //pack
+dq ntdll.PssNtWalkSnapshot+5900
+
+ntdll.PssNtWalkSnapshot+5600:
+sub rsp, 1000
+push r15
+push r14
+push r13
+push r12
+push r11
+push r10
+push r9
+push r8
+push rsi
+push rdi
+push rbp
+push rdx
+push rcx
+push rbx
+push rax
+mov r9, ntdll.dll+16A4B8
+mov r8, ntdll.PssNtWalkSnapshot+5700
+xor rdx, rdx
+xor rcx, rcx
+call ntdll.LdrLoadDll
+pop rax
+pop rbx
+pop rcx
+pop rdx
+pop rbp
+pop rdi
+pop rsi
+pop r8
+pop r9
+pop r10
+pop r11
+pop r12
+pop r13
+pop r14
+pop r15
+add rsp, 1000
+
+sub rsp,78
+mov r9,rcx
+jmp ntdll.RtlUserThreadStart+7
+
+ntdll.RtlUserThreadStart:
+jmp ntdll.PssNtWalkSnapshot+5600
+nop
+nop
+</code></pre></div></div>
+
+<p>위 스크립트는 4번까지의 과정을 구현한 코드입니다.</p>
+
+<p>주의해야할 점은, LdrLoadDll 함수를 호출하면서 스택 내용이나 레지스터가 변경될때 의도하지 않은 크래시를 유발할 수 있으므로 후킹으로 인한 영향을 최소화하기위해 레지스터들을 백업해야합니다.</p>
+
+<p><img src="/assets/bad68.png" alt="/assets/bad68.png" /></p>
+
+<p>스크립트 실행 이후에 생성되는 모든 프로세스에 ws2_32.dll이 정상적으로 injection되는 것을 확인할 수 있습니다.</p>
+
+<p>32비트 프로세스에도 64비트 ntdll.dll 라이브러리가 로드는 되지만 64비트의 ntdll.RtlUserThreadStart 함수가 실행되지않으므로 32비트 프로세스까지 Global injection을 하려면 Inject할 32비트 dll이 필요하고 32비트 ntdll.dll의 Copy-On-Write 영역을 추가로 패치해야합니다.</p>
+
+<h1 id="4-reference">4. Reference</h1>
+
+<hr />
+
+<ol>
+  <li><a href="https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection">https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection</a></li>
+  <li><a href="https://github.com/cheat-engine/cheat-engine">https://github.com/cheat-engine/cheat-engine</a></li>
+  <li><a href="https://github.com/changeofpace/Self-Remapping-Code">https://github.com/changeofpace/Self-Remapping-Code</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Control_register">https://en.wikipedia.org/wiki/Control_register</a></li>
+</ol>
+
+   </div>
 </div>
 
 
@@ -327,20 +557,19 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-06-01/TCTF-2020-Cloud-Computing" class="left arrow">&#8592;</a>
+   <a href="/2020-06-01/TCTF-2020-Cloud-Computing" class="left arrow">&#8592;</a>
   
   
-	<a href="/2020-06-01/Android-10-Permissions0" class="right arrow">&#8594;</a>
+   <a href="/2020-06-01/Android-10-Permissions0" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

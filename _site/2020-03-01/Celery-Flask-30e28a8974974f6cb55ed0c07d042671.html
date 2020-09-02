@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-03-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Celery로 Flask에서 비동기 처리하기","dateModified":"2020-03-01T00:00:00+00:00","datePublished":"2020-03-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-03-01/Celery-Flask-30e28a8974974f6cb55ed0c07d042671"},"author":{"@type":"Person","name":"jeong.su"},"url":"http://localhost:4000/2020-03-01/Celery-Flask-30e28a8974974f6cb55ed0c07d042671","description":"라온화이트햇 핵심연구팀 최정수","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Celery로 Flask에서 비동기 처리하기","dateModified":"2020-03-01T00:00:00+00:00","datePublished":"2020-03-01T00:00:00+00:00","author":{"@type":"Person","name":"jeong.su"},"url":"http://localhost:4000/2020-03-01/Celery-Flask-30e28a8974974f6cb55ed0c07d042671","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-03-01/Celery-Flask-30e28a8974974f6cb55ed0c07d042671"},"description":"라온화이트햇 핵심연구팀 최정수","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,18 +60,18 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">Celery로 Flask에서 비동기 처리하기</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">Celery로 Flask에서 비동기 처리하기</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>Programming</i></center></span>
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 최정수</p>
+   
+      
+         
+            <span class="tag"><center><i>Programming</i></center></span>
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 최정수</p>
 
 <h2 id="celery는">Celery는?</h2>
 
@@ -289,7 +289,226 @@ succeeded in 0.0032477990025654435s: 31337
 
 <p><a href="https://dgkim5360.tistory.com/entry/python-celery-asynchronous-system-with-redis">https://dgkim5360.tistory.com/entry/python-celery-asynchronous-system-with-redis</a></p>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 최정수</p>
+
+<h2 id="celery는">Celery는?</h2>
+
+<p>Flask는 프로세스를 동기적(Synchronous)으로 처리하기 때문에 업로드된 데이터 처리 또는 이메일 전송과 같이 다소 오래 걸리는 작업이나 무거운 연산 같은 경우 사용자는 웹 서버의 처리가 모두 마무리될 때까지 기다려야 합니다.</p>
+
+<p>따라서 비동기로 실행하도록 직접 구현할 수 도 있지만 미리 구현된 비동기 작업 큐 라이브러리를 사용하는 것이 능률적인 면에서 뛰어납니다.</p>
+
+<p>Celery는 Python으로 작성된 비동기 작업 큐(Asynchronous task queue/job queue)이기 때문에 Flask와 같은 Python Web Framework에 붙여서 사용하기 수월합니다.</p>
+
+<h2 id="celery의-구성">Celery의 구성</h2>
+
+<p><img src="/assets/42d61630-a1de-4d35-81fb-eb412914c5d7/d1012894-eded-4168-8e03-3b0ac88e7edf.png" alt="/assets/42d61630-a1de-4d35-81fb-eb412914c5d7/d1012894-eded-4168-8e03-3b0ac88e7edf.png" /></p>
+
+<p>[Flask + Celery + redis]의 전반적인 아키텍처</p>
+
+<p>Celery는 크게 3가지 구성 요소가 있습니다.</p>
+
+<ol>
+  <li>
+    <p>Celery Client</p>
+
+    <p>백그라운드 작업을 요청하는데 사용 됩니다. 이 문서에서는 Flask가 Celery Client가 됩니다.</p>
+  </li>
+  <li>
+    <p>Celery Workers</p>
+
+    <p>Flask와 동일한 서버에서 백그라운드 작업을 실행하는데 사용 됩니다.</p>
+  </li>
+  <li>
+    <p>Message Broker</p>
+
+    <p>클라이언트는 메시지 큐를 통해 작업자와 통신 하며 Celery는 이러한 큐를 구현하는 여러 가지 방법을 지원합니다. 가장 일반적으로 사용되는 브로커는 RabbitMQ 및 Redis 입니다.</p>
+  </li>
+</ol>
+
+<h2 id="celery-예제">Celery 예제</h2>
+
+<p>Celery를 간단하게 사용해보도록 하겠습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>celery
+pip <span class="nb">install </span>redis
+</code></pre></div></div>
+
+<p>우선 celery를 사용하기 위해서 <code class="highlighter-rouge">Celery Workers</code>인 celery를 설치하고 <code class="highlighter-rouge">Message Broker</code>로 redis를 설치해줍니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># tasks.py
+</span><span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">Celery</span>
+
+<span class="n">BROKER_URL</span> <span class="o">=</span> <span class="s">'redis://localhost:6379/0'</span>
+<span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="s">'redis://localhost:6379/0'</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="s">'tasks'</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="n">BROKER_URL</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">CELERY_RESULT_BACKEND</span><span class="p">)</span>
+
+<span class="o">@</span><span class="n">app</span><span class="p">.</span><span class="n">task</span>
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">BROKER_URL</code>은 <code class="highlighter-rouge">Message Brocker</code>의 주소로 redis를 사용하기 때문에 redis 주소를 넣어줍니다.</p>
+
+<p><code class="highlighter-rouge">CELERY_RESULT_BACKEND</code>은 작업을 저장할 backend 주소로 똑같이 redis를 사용하므로 redis 주소를 넣어줍니다.</p>
+
+<p><code class="highlighter-rouge">app</code>이라는 객체를 Celery로 만들어줍니다. Celery의 첫 번째 인자는 Celery에서 사용할 이름입니다. 또한 Celery의 task로 add 함수를 사용하기 위해서 add 함수를 작성해줍니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">celery</span> <span class="o">-</span><span class="n">A</span> <span class="n">tasks</span> <span class="n">worker</span> <span class="o">--</span><span class="n">loglevel</span><span class="o">=</span><span class="n">info</span>
+</code></pre></div></div>
+
+<p>이제 celery를 실행할 차례입니다. app(Celery 객체)을 만들 때 Celery의 이름을 <code class="highlighter-rouge">tasks</code>로 설정했기 때문에 -A 인자로 <code class="highlighter-rouge">tasks</code>를 넘겨주게 됩니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">celery</span> <span class="o">-</span><span class="n">A</span> <span class="n">tasks</span> <span class="n">worker</span> <span class="o">--</span><span class="n">loglevel</span><span class="o">=</span><span class="n">info</span> <span class="o">--</span><span class="n">autoscale</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="mi">3</span>
+</code></pre></div></div>
+
+<p>기본적으로 celery는 1개의 worker로 동작하며 worker를 추가하고 싶으면 <code class="highlighter-rouge">--autoscale</code>인자를 사용하여 worker를 추가할 수 있습니다. 위에는 최대 10개, 최소 3개의 worker를 사용하여 task가 동시에 최소 3개, 최대 10개가 처리 될 수 있다는 뜻입니다.</p>
+
+<p><img src="/assets/c8abca99-7b7b-4e19-8c71-01361a5f0cb3/4ef0745d-424a-4636-95f3-d15eb73b9b02.png" alt="/assets/c8abca99-7b7b-4e19-8c71-01361a5f0cb3/4ef0745d-424a-4636-95f3-d15eb73b9b02.png" /></p>
+
+<p>Celery 실행</p>
+
+<p>Celery를 실행하면 위와 같이 간단한 정보가 출력되며 redis에 접속이 되었고 준비가 되었다는 메세지를 확인할 수 있습니다.</p>
+
+<p>Celery의 <code class="highlighter-rouge">Celery Workers</code>는 Celery, <code class="highlighter-rouge">Message Broker</code>는 Redis, <code class="highlighter-rouge">Celery Client</code>는 아직 정의하지 않았습니다.</p>
+
+<p>간단한 예제 코드임으로 <code class="highlighter-rouge">Celery Client</code>로 Flask가 아닌 <code class="highlighter-rouge">python interpreter</code>를 사용하도록 하겠습니다.</p>
+
+<p><img src="/assets/8e3de390-81c8-44a2-b496-3280902b3ef7/d1a26be4-9325-4e9f-ba93-d4b207847325.png" alt="/assets/8e3de390-81c8-44a2-b496-3280902b3ef7/d1a26be4-9325-4e9f-ba93-d4b207847325.png" /></p>
+
+<p>python interpreter에서 add 함수를 celery를 통해 실행</p>
+
+<p><code class="highlighter-rouge">python interpreter</code>에서 위에서 작성한 <code class="highlighter-rouge">tasks.py</code>파일의 <code class="highlighter-rouge">add</code>함수를 로드해주고 <code class="highlighter-rouge">delay</code> 함수를 사용하여 Celery에게 작업 명령을 내립니다.</p>
+
+<p><img src="/assets/7badeda1-0cb4-4c28-97d3-afb724301411/420a7439-4d2d-4c43-99e5-b8636fd86236.png" alt="/assets/7badeda1-0cb4-4c28-97d3-afb724301411/420a7439-4d2d-4c43-99e5-b8636fd86236.png" /></p>
+
+<p>celery에서 task를 받고 실행된 결과</p>
+
+<p><code class="highlighter-rouge">python interpreter</code>에서 요청된 add 함수는 <code class="highlighter-rouge">Celery</code>의 로그를 통해 확인할 수 있습니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[2020-03-22 23:26:42,448: INFO/MainProcess]
+Received task: tasks.add[6abc6f77-071b-4e42-b137-a20ad7f8b290]
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">python interpreter</code>에서 요청한 task가 <code class="highlighter-rouge">MainProcess</code>로 부터 도착 한 것을 알 수 있으며 task의 id는 <code class="highlighter-rouge">6abc6f77-071b-4e42-b137-a20ad7f8b290</code> 입니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[2020-03-22 23:26:42,453: INFO/ForkPoolWorker-1]
+Task tasks.add[6abc6f77-071b-4e42-b137-a20ad7f8b290]
+succeeded in 0.0032477990025654435s: 31337
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">ForkPoolWorker-1</code>가 id가 <code class="highlighter-rouge">6abc6f77-071b-4e42-b137-a20ad7f8b290</code>인 task를 처리 했으며 실행 시간으로 <code class="highlighter-rouge">0.0032477990025654435s</code>가 걸렸고 결과 값이 <code class="highlighter-rouge">31337</code>이라는 것을 알 수 있습니다.</p>
+
+<p><img src="/assets/04c29365-c351-454a-a73e-7e5902746ed4/fdff8b51-2f5b-4e32-ac8b-8af49f8a9799.png" alt="/assets/04c29365-c351-454a-a73e-7e5902746ed4/fdff8b51-2f5b-4e32-ac8b-8af49f8a9799.png" /></p>
+
+<p>ready 함수와 get 함수의 실행</p>
+
+<p>ready() 함수는 작업이 완료 되었는지 확인하는 함수 입니다. <code class="highlighter-rouge">True</code>일 경우 작업이 완료되었다는 뜻입니다. 반대로 <code class="highlighter-rouge">False</code>인 경우 작업이 진행중이라는 뜻입니다.</p>
+
+<p>get() 함수는 실행 결과를 가져오는 함수입니다.</p>
+
+<h2 id="celery를-apt-zero에-적용하기">Celery를 APT Zero에 적용하기</h2>
+
+<p>그럼 본격적으로 Flask로 짜여진 APT Zero에 Celery를 적용해보도록 하겠습니다.</p>
+
+<p>APT Zero는 상황에 따라 수 백건의 메일을 보내야합니다. 수 백건의 메일을 발송하는 동안 사용자가 대기하지 않도록 Celery를 적용하여 처리할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">app</span><span class="p">.</span><span class="n">route</span><span class="p">(</span><span class="s">"/send"</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">"GET"</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">send</span><span class="p">():</span>
+	<span class="n">conn_redis</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
+	<span class="n">temp</span> <span class="o">=</span> <span class="n">conn_redis</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'mail_progress'</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">else</span><span class="p">:</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+	<span class="n">mail_list</span> <span class="o">=</span> <span class="n">get_mail_list</span><span class="p">()</span>
+
+	<span class="n">task</span> <span class="o">=</span> <span class="n">mail_send_process</span><span class="p">.</span><span class="n">apply_async</span><span class="p">([</span><span class="n">mail_list</span><span class="p">])</span>
+	<span class="n">temp</span><span class="p">[</span><span class="n">training_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="p">.</span><span class="nb">id</span>
+
+	<span class="n">conn_redis</span><span class="p">.</span><span class="nb">set</span><span class="p">(</span><span class="s">'mail_progress'</span><span class="p">,</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s">"error"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">/send</code> URL을 통해 메일 전송을 하면 <code class="highlighter-rouge">redis</code>를 사용하여 <code class="highlighter-rouge">mail_progress</code>라는 key에 데이터를 불러옵니다. 해당 데이터는 메일 전송 작업의 진행도를 출력하는 페이지에서 다시 사용합니다. (Celery에서 Message Broker로 사용되는 redis와는 다릅니다. Celery에서 Message Broker로 사용되는 redis는 Celery 내부에서 동작, 사용됩니다. 따라서 사용자는 redis를 import 하지 않아도 됩니다.)</p>
+
+<p>전송 할 <code class="highlighter-rouge">mail_list</code>를 받아온 뒤 <code class="highlighter-rouge">@celery.task</code>로 정의한 함수인 <code class="highlighter-rouge">mail_send_process</code>함수에 mail_list를 인자로 주어 호출합니다.</p>
+
+<p><code class="highlighter-rouge">@celery.task</code> 로 정의한 함수의 사용은 위 예제에서 본 것처럼 <code class="highlighter-rouge">delay</code> 함수를 사용해서 호출 할 수 있으며, 추가적으로 <code class="highlighter-rouge">apply_async</code>함수를 사용해서 호출 할 수 있습니다. <code class="highlighter-rouge">delay</code> 함수와 <code class="highlighter-rouge">apply_async</code>함수의 차이로는 <code class="highlighter-rouge">apply_async</code>함수는 인자를 <code class="highlighter-rouge">list</code>형태로 전달해야 된다는 차이가 있습니다.</p>
+
+<p><code class="highlighter-rouge">mail_send_process.apply_async</code>함수가 실행되면 Celery 내부에서 task가 등록이 됩니다. 해당 task의 id를 redis에 넣어줍니다. 이 부분은 위에서 언급했듯이 Celery에서 Message Broker로 사용하기 위해 redis를 사용하는 것이 아닙니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">celery</span><span class="p">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mail_send_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mail_list</span><span class="p">):</span>
+	<span class="k">with</span> <span class="n">app</span><span class="p">.</span><span class="n">app_context</span><span class="p">():</span>
+		<span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mail_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+		<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mail</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mail_list</span><span class="p">):</span>
+			<span class="c1"># mail_send #
+</span>			<span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+			<span class="bp">self</span><span class="p">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s">'PROGRESS'</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s">'current'</span><span class="p">:</span> <span class="n">idx</span><span class="p">,</span> <span class="s">'total'</span><span class="p">:</span> <span class="n">total</span><span class="p">})</span>
+		<span class="k">return</span> <span class="p">{</span><span class="s">'current'</span><span class="p">:</span> <span class="n">idx</span><span class="p">,</span> <span class="s">'total'</span><span class="p">:</span> <span class="n">total</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>그럼 이제 <code class="highlighter-rouge">@celery.task</code>로 정의된 <code class="highlighter-rouge">mail_send_process</code>함수에 대해서 살펴봅시다.</p>
+
+<p>Celery는 다른 프로세스로 돌기 때문에 <code class="highlighter-rouge">with app.app_context()</code>안에서 작업을 해줘야 flask에서 하던 작업들을 이어 할 수 있습니다.</p>
+
+<p><code class="highlighter-rouge">mail_send_process</code>함수에서는 mail_list만큼 반복문을 돌면서 mail을 전송하게 됩니다. 메일을 전송하는 과정은 생략하고 메일 전송시간이 랜덤으로 0.5초 ~ 2초가 걸린다고 가정하고 sleep 함수를 걸어두었습니다. (메일이 발송되는 시간이라고 생각하시면 될 것 같습니다.)</p>
+
+<p>메일이 전송이 되면 <code class="highlighter-rouge">update_state</code>함수로 Celery task의 상태를 update 해줍니다. state는 task의 상태, meta는 전체 메일 발송 갯수 중 몇 개의 메일이 발송 완료 되었는지 확인해주기 위해서 인덱스 값을 넣어 줍니다.</p>
+
+<p>Celery task가 실행됨에 따라서 <code class="highlighter-rouge">current</code> 값이 계속 업데이트 됩니다. 이제 우리는 메일 전송 작업의 진행도를 출력해주는 페이지에서 해당 값을 가져와서 progress bar로 표현을 해봅시다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">app</span><span class="p">.</span><span class="n">route</span><span class="p">(</span><span class="s">"/progress"</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">"POST"</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">get_progress</span><span class="p">():</span>
+	<span class="n">task</span> <span class="o">=</span> <span class="n">mail_send_process</span><span class="p">.</span><span class="n">AsyncResult</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">form</span><span class="p">[</span><span class="s">'task_id'</span><span class="p">])</span>
+	<span class="k">if</span> <span class="n">task</span><span class="p">.</span><span class="n">state</span> <span class="o">==</span> <span class="s">'PENDING'</span><span class="p">:</span>
+		<span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s">'state'</span><span class="p">:</span> <span class="n">task</span><span class="p">.</span><span class="n">state</span><span class="p">,</span> <span class="s">'current'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'total'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+	<span class="k">elif</span> <span class="n">task</span><span class="p">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s">'FAILURE'</span><span class="p">:</span>
+		<span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s">'state'</span><span class="p">:</span> <span class="n">task</span><span class="p">.</span><span class="n">state</span><span class="p">,</span> <span class="s">'current'</span><span class="p">:</span> <span class="n">task</span><span class="p">.</span><span class="n">info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'current'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s">'total'</span><span class="p">:</span> <span class="n">task</span><span class="p">.</span><span class="n">info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'total'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
+	<span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Celery task의 현재 실행 결과를 알려주는 함수는 <code class="highlighter-rouge">AsyncResult</code>함수입니다. <code class="highlighter-rouge">mail_send_process.AsyncResult(task_id)</code>와 같이 사용되며 메일 전송 작업의 진행도를 출력해주는 페이지에서 <code class="highlighter-rouge">ajax</code>를 사용하여 현재 상태 값을 불러올 것이기 때문에 위와 같이 <code class="highlighter-rouge">flask</code>로 함수를 작성해줍니다.</p>
+
+<p><img src="/assets/3fe2098f-4fd6-4f6a-8138-bf2b43a4adb6/aba03af6-a4ae-4373-8291-339b32606157.png" alt="/assets/3fe2098f-4fd6-4f6a-8138-bf2b43a4adb6/aba03af6-a4ae-4373-8291-339b32606157.png" /></p>
+
+<p>get_progress 결과 1</p>
+
+<p><img src="/assets/67f1fa00-ab9f-4ae4-a737-429b00e25d97/68d40757-eed5-4cff-a96e-a93a2a72a414.png" alt="/assets/67f1fa00-ab9f-4ae4-a737-429b00e25d97/68d40757-eed5-4cff-a96e-a93a2a72a414.png" /></p>
+
+<p>get_progress 결과 2</p>
+
+<p>ajax를 사용하여 <code class="highlighter-rouge">/progress</code>에 요청하면 get_progress함수가 실행되고 그 결과 입니다. 현재 메일 발송이 진행중이기 때문에 <code class="highlighter-rouge">state</code>는 <code class="highlighter-rouge">PROGRESS</code>로 표시되며 <code class="highlighter-rouge">current</code>와 <code class="highlighter-rouge">total</code>을 가지고 메일 발송이 얼마나 진행되었는지 알 수 있습니다.</p>
+
+<p><img src="/assets/b2e1541d-8974-469f-b95b-9378d0afe1b6/4ed9b2b1-d96b-49ba-a495-75babd584ebf.png" alt="/assets/b2e1541d-8974-469f-b95b-9378d0afe1b6/4ed9b2b1-d96b-49ba-a495-75babd584ebf.png" /></p>
+
+<p>Progress Bar를 사용하여 메일 전송 진행률 출력</p>
+
+<p><code class="highlighter-rouge">current</code>와 <code class="highlighter-rouge">total</code>의 값을 계산하여 위와 같이 Progress Bar로 출력할 수 있습니다.</p>
+
+<p><img src="/assets/8170c614-7638-4d50-8b30-a92ef4cb25ed/c41731ac-55a2-4c68-bab2-7afc4e62dba0.gif" alt="/assets/8170c614-7638-4d50-8b30-a92ef4cb25ed/c41731ac-55a2-4c68-bab2-7afc4e62dba0.gif" /></p>
+
+<p>따라서 사용자는 메일이 발송되는 동안 ‘혹시 중간에 메일 발송이 끊기지 않을까?’ 걱정과 근심, 동글뱅이의 저주로 부터 벗어 날 수 있습니다.</p>
+
+<h2 id="plus-celery-daemonization">PLUS: Celery Daemonization</h2>
+
+<p>Celery는 기본적으로 서비스 형태로 돌아가지 않기 때문에 데몬화로 매번 실행 시켜주지 않도록 합니다. Celery를 데몬화 하는 방법은 아래 문서들을 참고하시면 됩니다.</p>
+
+<p><a href="http://docs.celeryproject.org/en/latest/userguide/daemonizing.html">http://docs.celeryproject.org/en/latest/userguide/daemonizing.html</a></p>
+
+<p><a href="https://devlog.jwgo.kr/2019/07/05/celery-daemonization/">https://devlog.jwgo.kr/2019/07/05/celery-daemonization/</a></p>
+
+<h2 id="참고-자료">참고 자료</h2>
+
+<p><a href="https://flask.palletsprojects.com/en/0.12.x/patterns/celery/">https://flask.palletsprojects.com/en/0.12.x/patterns/celery/</a></p>
+
+<p><a href="https://blog.miguelgrinberg.com/post/using-celery-with-flask">https://blog.miguelgrinberg.com/post/using-celery-with-flask</a></p>
+
+<p><a href="https://medium.com/@frassetto.stefano/flask-celery-howto-d106958a15fe">https://medium.com/@frassetto.stefano/flask-celery-howto-d106958a15fe</a></p>
+
+<p><a href="https://dgkim5360.tistory.com/entry/python-celery-asynchronous-system-with-redis">https://dgkim5360.tistory.com/entry/python-celery-asynchronous-system-with-redis</a></p>
+
+   </div>
 </div>
 
 
@@ -308,18 +527,17 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-03-29/Frida-gum-Android-Hook" class="left arrow">&#8592;</a>
+   <a href="/2020-03-29/Frida-gum-Android-Hook" class="left arrow">&#8592;</a>
   
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

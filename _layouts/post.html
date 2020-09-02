@@ -2,19 +2,21 @@
 layout: default
 ---
 <div class="post"> 
-	<h1 class="post-title">{{ page.title }}</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">{{ page.title }}</h1>
+   <div class="post-line"></div>
 
-	{% if page.tags %}
-		{% for tag in page.tags %}
-			{% if site.data.tags contains tag %}
-				<span class="tag"><center><i>{{ site.data.format[tag] }}</i></center></span>
-			{% endif %}
-		{% endfor %}
-	{% endif %}
-
-	{{ content }}
-	</div>
+   {% if page.tags %}
+      {% for tag in page.tags %}
+         {% if site.data.tags contains tag %}
+            <span class="tag"><center><i>{{ site.data.format[tag] }}</i></center></span>
+         {% endif %}
+      {% endfor %}
+   {% endif %}
+   
+   {{ content | toc }}
+   
+   {{ content }}
+   </div>
 </div>
 
 {% if page.comments %}
@@ -23,10 +25,10 @@ layout: default
 
 <div class="pagination">
   {% if page.next.url %}
-	<a href="{{ page.next.url | prepend: site.baseurl }}" class="left arrow">&#8592;</a>
+   <a href="{{ page.next.url | prepend: site.baseurl }}" class="left arrow">&#8592;</a>
   {% endif %}
   {% if page.previous.url %}
-	<a href="{{ page.previous.url | prepend: site.baseurl }}" class="right arrow">&#8594;</a>
+   <a href="{{ page.previous.url | prepend: site.baseurl }}" class="right arrow">&#8594;</a>
   {% endif %}
 
   <a href="#" class="top">Top</a>

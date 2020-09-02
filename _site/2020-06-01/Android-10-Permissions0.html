@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-06-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Android 10 Permissions","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-06-01/Android-10-Permissions0"},"author":{"@type":"Person","name":"KuroNeko"},"url":"http://localhost:4000/2020-06-01/Android-10-Permissions0","description":"라온화이트햇 핵심연구팀 원요한","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Android 10 Permissions","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","author":{"@type":"Person","name":"KuroNeko"},"url":"http://localhost:4000/2020-06-01/Android-10-Permissions0","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-06-01/Android-10-Permissions0"},"description":"라온화이트햇 핵심연구팀 원요한","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,24 +60,24 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">Android 10 Permissions</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">Android 10 Permissions</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>Android</i></center></span>
-			
-		
-			
-				<span class="tag"><center><i>mobile</i></center></span>
-			
-		
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 원요한</p>
+   
+      
+         
+            <span class="tag"><center><i>Android</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>mobile</i></center></span>
+         
+      
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 원요한</p>
 
 <h2 id="tldr">TL;DR</h2>
 
@@ -533,7 +533,464 @@
   <li><a href="https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/permission/PermissionManagerService.java;l=2187;drc=master;bpv=1;bpt=1?q=PermissionManagerServiceInternal%20&amp;ss=android%2Fplatform%2Fsuperproject">https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/permission/PermissionManagerService.java;l=2187;drc=master;bpv=1;bpt=1?q=PermissionManagerServiceInternal &amp;ss=android%2Fplatform%2Fsuperproject</a></li>
 </ul>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 원요한</p>
+
+<h2 id="tldr">TL;DR</h2>
+
+<p>이 문서는 Android 10 버전부터 적용된 PermissionController의 동작 흐름을 따라가며, 원리를 파악하기 위해 작성되었습니다.</p>
+
+<h2 id="android-permission">Android Permission</h2>
+
+<p>안드로이드는 사용자로부터 퍼미션을 승인/거부 후, 해당 기능을 사용할 수 있습니다. 보통 퍼미션 요청을 보낼 때, 아래와 같은 코드를 사용해 사용자로부터 승인 여부를 기다립니다.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="nn">com.example.testapp</span>
+
+<span class="k">import</span> <span class="nn">android.Manifest</span>
+<span class="k">import</span> <span class="nn">android.os.Bundle</span>
+<span class="k">import</span> <span class="nn">com.google.android.material.snackbar.Snackbar</span>
+<span class="k">import</span> <span class="nn">androidx.appcompat.app.AppCompatActivity</span>
+<span class="k">import</span> <span class="nn">androidx.core.app.ActivityCompat</span>
+
+<span class="k">import</span> <span class="nn">kotlinx.android.synthetic.main.activity_main.*</span>
+
+<span class="kd">class</span> <span class="nc">MainActivity</span> <span class="p">:</span> <span class="nc">AppCompatActivity</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onRequestPermissionsResult</span><span class="p">(</span>
+        <span class="n">requestCode</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span>
+        <span class="n">permissions</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="k">out</span> <span class="nc">String</span><span class="p">&gt;,</span>
+        <span class="n">grantResults</span><span class="p">:</span> <span class="nc">IntArray</span>
+    <span class="p">)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">.</span><span class="nf">onRequestPermissionsResult</span><span class="p">(</span><span class="n">requestCode</span><span class="p">,</span> <span class="n">permissions</span><span class="p">,</span> <span class="n">grantResults</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onCreate</span><span class="p">(</span><span class="n">savedInstanceState</span><span class="p">:</span> <span class="nc">Bundle</span><span class="p">?)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">.</span><span class="nf">onCreate</span><span class="p">(</span><span class="n">savedInstanceState</span><span class="p">)</span>
+        <span class="nf">setContentView</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">layout</span><span class="p">.</span><span class="n">activity_main</span><span class="p">)</span>
+        <span class="nf">setSupportActionBar</span><span class="p">(</span><span class="n">toolbar</span><span class="p">)</span>
+
+        <span class="nf">requestPermissions</span><span class="p">(</span><span class="nf">arrayOf</span><span class="p">(</span>
+            <span class="nc">Manifest</span><span class="p">.</span><span class="n">permission</span><span class="p">.</span><span class="nc">CAMERA</span>
+        <span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>승인 여부는 해당 activity 클래스의 <code class="highlighter-rouge">onRequestPermissionsResult</code>함수를 통해 알 수 있습니다. 이 때 요청된 권한을 승인할 경우, 어떻게 처리가 되는지 살펴보겠습니다.</p>
+
+<p>먼저, 구글링을 통해 Android 10 환경에서 permission을 어떤 구조로  동작하는 지 알 수 있었습니다.</p>
+
+<p><img src="/assets/won60.png" alt="/assets/won60.png" /></p>
+
+<p>설치된 사용자 앱에서 퍼미션 요청을 하게 되면, Android 10 부터는 <code class="highlighter-rouge">PermissionController 앱</code>, 그 이전 버전까지는 <code class="highlighter-rouge">Package Installer 앱</code>이 담당하여 System server로 전달하여 처리하는 것으로 보입니다. PermissionController는 다음과 같은 작업을 합니다.</p>
+
+<p><img src="/assets/won61.png" alt="/assets/won61.png" /></p>
+
+<p>위의 기능들은 PackageInstaller의 일부 기능 이였는데, Android 10으로 넘어오면서 분리된 앱으로 구성되어 있다는 것을 확인할 수 있었습니다. 대략적으로 큰 그림을 확인하였으니,  유저 앱에서  PermissionController로 요청할 때 사용되는 <code class="highlighter-rouge">requestPermissions</code> 의 코드를 확인하기 위해 해당 <a href="https://android.googlesource.com/platform/frameworks/support/+/4f9d8c4/v4/java/android/support/v4/app/ActivityCompat.java#308">링크</a>를 참조하였습니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ActivityCompat</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">requestPermissions</span><span class="o">(</span><span class="kd">final</span> <span class="nd">@NonNull</span> <span class="nc">Activity</span> <span class="n">activity</span><span class="o">,</span>
+      <span class="kd">final</span> <span class="nd">@NonNull</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">permissions</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">requestCode</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// TODO: Change to comparison against API 23 once we have it defined.</span>
+  <span class="k">if</span> <span class="o">(</span><span class="nc">Build</span><span class="o">.</span><span class="na">VERSION</span><span class="o">.</span><span class="na">CODENAME</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"MNC"</span><span class="o">)</span> <span class="o">||</span> <span class="nc">Build</span><span class="o">.</span><span class="na">VERSION</span><span class="o">.</span><span class="na">SDK_INT</span> <span class="o">&gt;</span> <span class="mi">22</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">ActivityCompatApi23</span><span class="o">.</span><span class="na">requestPermissions</span><span class="o">(</span><span class="n">activity</span><span class="o">,</span> <span class="n">permissions</span><span class="o">,</span> <span class="n">requestCode</span><span class="o">);</span>
+  <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">activity</span> <span class="k">instanceof</span> <span class="nc">OnRequestPermissionsResultCallback</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">Handler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Handler</span><span class="o">(</span><span class="nc">Looper</span><span class="o">.</span><span class="na">getMainLooper</span><span class="o">());</span>
+      <span class="n">handler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="nc">Runnable</span><span class="o">()</span> <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+              <span class="kd">final</span> <span class="kt">int</span><span class="o">[]</span> <span class="n">grantResults</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="n">permissions</span><span class="o">.</span><span class="na">length</span><span class="o">];</span>
+              <span class="nc">Arrays</span><span class="o">.</span><span class="na">fill</span><span class="o">(</span><span class="n">grantResults</span><span class="o">,</span> <span class="nc">PackageManager</span><span class="o">.</span><span class="na">PERMISSION_GRANTED</span><span class="o">);</span>
+              <span class="o">((</span><span class="nc">OnRequestPermissionsResultCallback</span><span class="o">)</span> <span class="n">activity</span><span class="o">).</span><span class="na">onRequestPermissionsResult</span><span class="o">(</span>
+                      <span class="n">requestCode</span><span class="o">,</span> <span class="n">permissions</span><span class="o">,</span> <span class="n">grantResults</span><span class="o">);</span>
+          <span class="o">}</span>
+      <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>현재 SDK의 버전이 23 이상일 경우, <code class="highlighter-rouge">ActivityCompatApi23.requestPermissions</code> 를 호출하는 것을 볼 수 있습니다. 따라서 아래의 <a href="https://chromium.googlesource.com/android_tools/+/refs/heads/master/sdk/sources/android-25/android/support/v4/app/ActivityCompatApi23.java#39">코드</a>를 살펴보아야 합니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ActivityCompatApi23</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">requestPermissions</span><span class="o">(</span><span class="nc">Activity</span> <span class="n">activity</span><span class="o">,</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">permissions</span><span class="o">,</span>
+        <span class="kt">int</span> <span class="n">requestCode</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">activity</span> <span class="k">instanceof</span> <span class="nc">RequestPermissionsRequestCodeValidator</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">((</span><span class="nc">RequestPermissionsRequestCodeValidator</span><span class="o">)</span> <span class="n">activity</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">validateRequestPermissionsRequestCode</span><span class="o">(</span><span class="n">requestCode</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">activity</span><span class="o">.</span><span class="na">requestPermissions</span><span class="o">(</span><span class="n">permissions</span><span class="o">,</span> <span class="n">requestCode</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>해당 코드에서는 Activity클래스의 requestPermissions을 호출하는 것을 볼 수 있는데, 해당 <a href="https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/Activity.java#5094">코드</a>는 다음과 같습니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Activity</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">requestPermissions</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">permissions</span><span class="o">,</span> <span class="kt">int</span> <span class="n">requestCode</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">requestCode</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"requestCode should be &gt;= 0"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">mHasCurrentPermissionsRequest</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Log</span><span class="o">.</span><span class="na">w</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span> <span class="s">"Can request only one set of permissions at a time"</span><span class="o">);</span>
+        <span class="c1">// Dispatch the callback with empty arrays which means a cancellation.</span>
+        <span class="n">onRequestPermissionsResult</span><span class="o">(</span><span class="n">requestCode</span><span class="o">,</span> <span class="k">new</span> <span class="nc">String</span><span class="o">[</span><span class="mi">0</span><span class="o">],</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="k">return</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="nc">Intent</span> <span class="n">intent</span> <span class="o">=</span> <span class="n">getPackageManager</span><span class="o">().</span><span class="na">buildRequestPermissionsIntent</span><span class="o">(</span><span class="n">permissions</span><span class="o">);</span>
+    <span class="n">startActivityForResult</span><span class="o">(</span><span class="no">REQUEST_PERMISSIONS_WHO_PREFIX</span><span class="o">,</span> <span class="n">intent</span><span class="o">,</span> <span class="n">requestCode</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="n">mHasCurrentPermissionsRequest</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>위의 코드에서 볼 수 있듯, 요청한 퍼미션을 Packagemanager클래스의 buildRequestPermissionsIntent함수를 통해 Intent로 전처리 작업을 거친 이후 Intent broadcast를 합니다. 해당 intent를 처리할 수 있는 앱이 받아서 처리한다는 이야기인데, 그 앱이 바로 PermissionController입니다. 따라서 해당 <a href="https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/AndroidManifest.xml#82">링크</a>를 통해 <code class="highlighter-rouge">Intent-filter</code>를 살펴보았습니다.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- PermissionController AndroidManifest.xml --&gt;</span>
+<span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">"com.android.packageinstaller.permission.ui.GrantPermissionsActivity"</span>
+        <span class="na">android:configChanges=</span><span class="s">"keyboardHidden|screenSize"</span>
+        <span class="na">android:excludeFromRecents=</span><span class="s">"true"</span>
+        <span class="na">android:theme=</span><span class="s">"@style/GrantPermissions"</span>
+        <span class="na">android:visibleToInstantApps=</span><span class="s">"true"</span>
+        <span class="na">android:inheritShowWhenLocked=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;intent-filter</span> <span class="na">android:priority=</span><span class="s">"1"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">"android.content.pm.action.REQUEST_PERMISSIONS"</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">"android.intent.category.DEFAULT"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/intent-filter&gt;</span>
+<span class="nt">&lt;/activity&gt;</span>
+</code></pre></div></div>
+
+<p>위의 intent-filter에서 퍼미션 요청을 받아서 처리하도록 되어있으므로, 해당 Activity 코드를 <a href="https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#304">아래</a>에서 살펴볼 수 있습니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// GrantPermissionsActivity.onCreate ...</span>
+<span class="n">mCallingUid</span> <span class="o">=</span> <span class="n">callingPackageInfo</span><span class="o">.</span><span class="na">applicationInfo</span><span class="o">.</span><span class="na">uid</span><span class="o">;</span>
+<span class="nc">UserHandle</span> <span class="n">userHandle</span> <span class="o">=</span> <span class="nc">UserHandle</span><span class="o">.</span><span class="na">getUserHandleForUid</span><span class="o">(</span><span class="n">mCallingUid</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="nc">DeviceUtils</span><span class="o">.</span><span class="na">isTelevision</span><span class="o">(</span><span class="k">this</span><span class="o">))</span> <span class="o">{</span>
+    <span class="n">mViewHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">com</span><span class="o">.</span><span class="na">android</span><span class="o">.</span><span class="na">packageinstaller</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">ui</span><span class="o">.</span><span class="na">television</span>
+            <span class="o">.</span><span class="na">GrantPermissionsViewHandlerImpl</span><span class="o">(</span><span class="k">this</span><span class="o">,</span>
+            <span class="n">mCallingPackage</span><span class="o">).</span><span class="na">setResultListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="nc">DeviceUtils</span><span class="o">.</span><span class="na">isWear</span><span class="o">(</span><span class="k">this</span><span class="o">))</span> <span class="o">{</span>
+    <span class="n">mViewHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GrantPermissionsWatchViewHandler</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">setResultListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="nc">DeviceUtils</span><span class="o">.</span><span class="na">isAuto</span><span class="o">(</span><span class="k">this</span><span class="o">))</span> <span class="o">{</span>
+    <span class="n">mViewHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GrantPermissionsAutoViewHandler</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">mCallingPackage</span><span class="o">,</span> <span class="n">userHandle</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">setResultListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+    <span class="n">mViewHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">com</span><span class="o">.</span><span class="na">android</span><span class="o">.</span><span class="na">packageinstaller</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">ui</span><span class="o">.</span><span class="na">handheld</span>
+            <span class="o">.</span><span class="na">GrantPermissionsViewHandlerImpl</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">mCallingPackage</span><span class="o">,</span> <span class="n">userHandle</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">setResultListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// ...</span>
+</code></pre></div></div>
+
+<p>위의 코드에서 보이듯, GrantPermissionActivity를 호출한 패키지의 정보를 찾아 uid를 가져온 이후, 기기의 종류에 따라서 요청하는 핸들러가 달라지게 됩니다. 이후에 퍼미션 별 그룹화를 진행한 뒤, 사용자의 퍼미션 승인 여부의 결과를 처리하기 위해 <code class="highlighter-rouge">onPermissionGrantResult</code> 가 호출됩니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPermissionGrantResult</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">,</span>
+        <span class="nd">@GrantPermissionsViewHandler</span><span class="o">.</span><span class="na">Result</span> <span class="kt">int</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">logGrantPermissionActivityButtons</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+    <span class="nc">GroupState</span> <span class="n">foregroundGroupState</span> <span class="o">=</span> <span class="n">getForegroundGroupState</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+    <span class="nc">GroupState</span> <span class="n">backgroundGroupState</span> <span class="o">=</span> <span class="n">getBackgroundGroupState</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+    <span class="c1">// ...</span>
+    <span class="k">switch</span> <span class="o">(</span><span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="no">GRANTED_ALWAYS</span> <span class="o">:</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">foregroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">foregroundGroupState</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">backgroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">backgroundGroupState</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="k">case</span> <span class="no">GRANTED_FOREGROUND_ONLY</span> <span class="o">:</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">foregroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">foregroundGroupState</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">backgroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">backgroundGroupState</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="k">case</span> <span class="no">DENIED</span> <span class="o">:</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">foregroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">foregroundGroupState</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">backgroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">backgroundGroupState</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="k">case</span> <span class="no">DENIED_DO_NOT_ASK_AGAIN</span> <span class="o">:</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">foregroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">foregroundGroupState</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">backgroundGroupState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="n">backgroundGroupState</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">showNextPermissionGroupGrantRequest</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">setResultAndFinish</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>사용자가 선택한 결과에 의해 분기된 이후, 승인 또는 거부한 퍼미션 그룹의 결과를 <code class="highlighter-rouge">onPermissionGrantResultSingleState</code> 함수를 호출하여 처리하는 것을 볼 수 있습니다. 해당하는 함수는 다음과 같습니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">onPermissionGrantResultSingleState</span><span class="o">(</span><span class="nc">GroupState</span> <span class="n">groupState</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">granted</span><span class="o">,</span>
+        <span class="kt">boolean</span> <span class="n">doNotAskAgain</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">groupState</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">groupState</span><span class="o">.</span><span class="na">mGroup</span> <span class="o">!=</span> <span class="kc">null</span>
+            <span class="o">&amp;&amp;</span> <span class="n">groupState</span><span class="o">.</span><span class="na">mState</span> <span class="o">==</span> <span class="nc">GroupState</span><span class="o">.</span><span class="na">STATE_UNKNOWN</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">granted</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">groupState</span><span class="o">.</span><span class="na">mGroup</span><span class="o">.</span><span class="na">grantRuntimePermissions</span><span class="o">(</span><span class="n">doNotAskAgain</span><span class="o">,</span>
+                    <span class="n">groupState</span><span class="o">.</span><span class="na">affectedPermissions</span><span class="o">);</span>
+            <span class="n">groupState</span><span class="o">.</span><span class="na">mState</span> <span class="o">=</span> <span class="nc">GroupState</span><span class="o">.</span><span class="na">STATE_ALLOWED</span><span class="o">;</span>
+            <span class="n">reportRequestResult</span><span class="o">(</span><span class="n">groupState</span><span class="o">.</span><span class="na">affectedPermissions</span><span class="o">,</span>
+                    <span class="no">PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_GRANTED</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">groupState</span><span class="o">.</span><span class="na">mGroup</span><span class="o">.</span><span class="na">revokeRuntimePermissions</span><span class="o">(</span><span class="n">doNotAskAgain</span><span class="o">,</span>
+                    <span class="n">groupState</span><span class="o">.</span><span class="na">affectedPermissions</span><span class="o">);</span>
+            <span class="n">groupState</span><span class="o">.</span><span class="na">mState</span> <span class="o">=</span> <span class="nc">GroupState</span><span class="o">.</span><span class="na">STATE_DENIED</span><span class="o">;</span>
+            <span class="n">reportRequestResult</span><span class="o">(</span><span class="n">groupState</span><span class="o">.</span><span class="na">affectedPermissions</span><span class="o">,</span> <span class="n">doNotAskAgain</span>
+                    <span class="o">?</span>
+                    <span class="no">PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED_WITH_PREJUDICE</span>
+                    <span class="o">:</span> <span class="no">PERMISSION_GRANT_REQUEST_RESULT_REPORTED__RESULT__USER_DENIED</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>승인 또는 거부한 퍼미션을 각각 RuntimePermission을 설정해주는 것을 볼 수 있습니다. 해당 함수를  따라가게 되면, 이전에 처리한 퍼미션인지 또는 앱에서 설정된 퍼미션인지 등등 여러 조건들에 대해 검사를 진행합니다. 모든 조건을 거친 이후, <code class="highlighter-rouge">persistChanges</code> 함수를 호출하게 됩니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">persistChanges</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">mayKillBecauseOfAppOpsChange</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">uid</span> <span class="o">=</span> <span class="n">mPackageInfo</span><span class="o">.</span><span class="na">applicationInfo</span><span class="o">.</span><span class="na">uid</span><span class="o">;</span>
+
+    <span class="kt">int</span> <span class="n">numPermissions</span> <span class="o">=</span> <span class="n">mPermissions</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+    <span class="kt">boolean</span> <span class="n">shouldKillApp</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numPermissions</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="nc">Permission</span> <span class="n">permission</span> <span class="o">=</span> <span class="n">mPermissions</span><span class="o">.</span><span class="na">valueAt</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(!</span><span class="n">permission</span><span class="o">.</span><span class="na">isSystemFixed</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">permission</span><span class="o">.</span><span class="na">isGranted</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">mPackageManager</span><span class="o">.</span><span class="na">grantRuntimePermission</span><span class="o">(</span><span class="n">mPackageInfo</span><span class="o">.</span><span class="na">packageName</span><span class="o">,</span>
+                        <span class="n">permission</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">mUserHandle</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="kt">boolean</span> <span class="n">isCurrentlyGranted</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">.</span><span class="na">checkPermission</span><span class="o">(</span><span class="n">permission</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span>
+                        <span class="n">uid</span><span class="o">)</span> <span class="o">==</span> <span class="no">PERMISSION_GRANTED</span><span class="o">;</span>
+
+                <span class="k">if</span> <span class="o">(</span><span class="n">isCurrentlyGranted</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">mPackageManager</span><span class="o">.</span><span class="na">revokeRuntimePermission</span><span class="o">(</span><span class="n">mPackageInfo</span><span class="o">.</span><span class="na">packageName</span><span class="o">,</span>
+                            <span class="n">permission</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">mUserHandle</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+				<span class="c1">// ...</span>
+		<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>위의 함수에서는 PackageManager를 사용해 Runtime Permission을 변경합니다. PackageManager는  <code class="highlighter-rouge">ApplicationPackageManager</code> 클래스입니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">grantRuntimePermission</span><span class="o">(</span><span class="nc">String</span> <span class="n">packageName</span><span class="o">,</span> <span class="nc">String</span> <span class="n">permissionName</span><span class="o">,</span>
+        <span class="nc">UserHandle</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">mPM</span><span class="o">.</span><span class="na">grantRuntimePermission</span><span class="o">(</span><span class="n">packageName</span><span class="o">,</span> <span class="n">permissionName</span><span class="o">,</span> <span class="n">user</span><span class="o">.</span><span class="na">getIdentifier</span><span class="o">());</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RemoteException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="n">e</span><span class="o">.</span><span class="na">rethrowFromSystemServer</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">grantRuntimePermission</span><span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">packageName</span><span class="o">,</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">permissionName</span><span class="o">,</span> <span class="kt">int</span> <span class="n">userId</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">RemoteException</span>
+<span class="o">{</span>
+  <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">_data</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span><span class="o">.</span><span class="na">obtain</span><span class="o">();</span>
+  <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">_reply</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span><span class="o">.</span><span class="na">obtain</span><span class="o">();</span>
+  <span class="k">try</span> <span class="o">{</span>
+    <span class="n">_data</span><span class="o">.</span><span class="na">writeInterfaceToken</span><span class="o">(</span><span class="no">DESCRIPTOR</span><span class="o">);</span>
+    <span class="n">_data</span><span class="o">.</span><span class="na">writeString</span><span class="o">(</span><span class="n">packageName</span><span class="o">);</span>
+    <span class="n">_data</span><span class="o">.</span><span class="na">writeString</span><span class="o">(</span><span class="n">permissionName</span><span class="o">);</span>
+    <span class="n">_data</span><span class="o">.</span><span class="na">writeInt</span><span class="o">(</span><span class="n">userId</span><span class="o">);</span>
+    <span class="kt">boolean</span> <span class="n">_status</span> <span class="o">=</span> <span class="n">mRemote</span><span class="o">.</span><span class="na">transact</span><span class="o">(</span><span class="nc">Stub</span><span class="o">.</span><span class="na">TRANSACTION_grantRuntimePermission</span><span class="o">,</span> <span class="n">_data</span><span class="o">,</span> <span class="n">_reply</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">_status</span> <span class="o">&amp;&amp;</span> <span class="n">getDefaultImpl</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">getDefaultImpl</span><span class="o">().</span><span class="na">grantRuntimePermission</span><span class="o">(</span><span class="n">packageName</span><span class="o">,</span> <span class="n">permissionName</span><span class="o">,</span> <span class="n">userId</span><span class="o">);</span>
+      <span class="k">return</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="n">_reply</span><span class="o">.</span><span class="na">readException</span><span class="o">();</span>
+  <span class="o">}</span>
+  <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">_reply</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+    <span class="n">_data</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>위의 코드에서 볼 수 있듯, 인자로 받은 값들을 모두 직렬화한 이후 transact를 진행하게 됩니다. 이때 IPC통신으로 인자를 전달 후, 결과를 받아 이상이 없을 경우 정상적으로 반환되게 됩니다.  transact에 사용되는 <code class="highlighter-rouge">mRemote는 Service Binder</code>입니다. 해당 Binder를 통해 transact를 하게 되면 onTransact함수가 호출되며, 아래의 함수에서 처리하게 됩니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// (PackageManagerService extends IPackageManager.Stub).onTransact</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTransact</span><span class="o">(</span><span class="kt">int</span> <span class="n">code</span><span class="o">,</span> <span class="nc">Parcel</span> <span class="n">data</span><span class="o">,</span> <span class="nc">Parcel</span> <span class="n">reply</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">)</span>
+        <span class="kd">throws</span> <span class="nc">RemoteException</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">onTransact</span><span class="o">(</span><span class="n">code</span><span class="o">,</span> <span class="n">data</span><span class="o">,</span> <span class="n">reply</span><span class="o">,</span> <span class="n">flags</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RuntimeException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!(</span><span class="n">e</span> <span class="k">instanceof</span> <span class="nc">SecurityException</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">!(</span><span class="n">e</span> <span class="k">instanceof</span> <span class="nc">IllegalArgumentException</span><span class="o">))</span> <span class="o">{</span>
+            <span class="nc">Slog</span><span class="o">.</span><span class="na">wtf</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span> <span class="s">"Package Manager Crash"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// IPackageManager.Stub.onTransact</span>
+<span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTransact</span><span class="o">(</span><span class="kt">int</span> <span class="n">code</span><span class="o">,</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">data</span><span class="o">,</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">reply</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">RemoteException</span>
+<span class="o">{</span>
+  <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">descriptor</span> <span class="o">=</span> <span class="no">DESCRIPTOR</span><span class="o">;</span>
+  <span class="k">switch</span> <span class="o">(</span><span class="n">code</span><span class="o">)</span>
+  <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">TRANSACTION_grantRuntimePermission:</span>
+    <span class="o">{</span>
+      <span class="n">data</span><span class="o">.</span><span class="na">enforceInterface</span><span class="o">(</span><span class="n">descriptor</span><span class="o">);</span>
+      <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_arg0</span><span class="o">;</span>
+      <span class="n">_arg0</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
+      <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_arg1</span><span class="o">;</span>
+      <span class="n">_arg1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
+      <span class="kt">int</span> <span class="n">_arg2</span><span class="o">;</span>
+      <span class="n">_arg2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">grantRuntimePermission</span><span class="o">(</span><span class="n">_arg0</span><span class="o">,</span> <span class="n">_arg1</span><span class="o">,</span> <span class="n">_arg2</span><span class="o">);</span>
+      <span class="n">reply</span><span class="o">.</span><span class="na">writeNoException</span><span class="o">();</span>
+      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">case</span> <span class="nl">TRANSACTION_revokeRuntimePermission:</span>
+    <span class="o">{</span>
+      <span class="n">data</span><span class="o">.</span><span class="na">enforceInterface</span><span class="o">(</span><span class="n">descriptor</span><span class="o">);</span>
+      <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_arg0</span><span class="o">;</span>
+      <span class="n">_arg0</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
+      <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_arg1</span><span class="o">;</span>
+      <span class="n">_arg1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
+      <span class="kt">int</span> <span class="n">_arg2</span><span class="o">;</span>
+      <span class="n">_arg2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">revokeRuntimePermission</span><span class="o">(</span><span class="n">_arg0</span><span class="o">,</span> <span class="n">_arg1</span><span class="o">,</span> <span class="n">_arg2</span><span class="o">);</span>
+      <span class="n">reply</span><span class="o">.</span><span class="na">writeNoException</span><span class="o">();</span>
+      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Parcel을 역직렬화한 이후 this.grantRuntimePermission의 인자값으로 사용합니다. 해당 함수는 <code class="highlighter-rouge">PackageManagerService.grantRuntimePermission</code> 이며 아래와 같은 코드로 구성되어 있습니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">grantRuntimePermission</span><span class="o">(</span><span class="nc">String</span> <span class="n">packageName</span><span class="o">,</span> <span class="nc">String</span> <span class="n">permName</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">userId</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">boolean</span> <span class="n">overridePolicy</span> <span class="o">=</span> <span class="o">(</span><span class="n">checkUidPermission</span><span class="o">(</span>
+            <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">ADJUST_RUNTIME_PERMISSIONS_POLICY</span><span class="o">,</span> <span class="nc">Binder</span><span class="o">.</span><span class="na">getCallingUid</span><span class="o">())</span>
+            <span class="o">==</span> <span class="nc">PackageManager</span><span class="o">.</span><span class="na">PERMISSION_GRANTED</span><span class="o">);</span>
+
+    <span class="n">mPermissionManager</span><span class="o">.</span><span class="na">grantRuntimePermission</span><span class="o">(</span><span class="n">permName</span><span class="o">,</span> <span class="n">packageName</span><span class="o">,</span> <span class="n">overridePolicy</span><span class="o">,</span>
+            <span class="n">getCallingUid</span><span class="o">(),</span> <span class="n">userId</span><span class="o">,</span> <span class="n">mPermissionCallback</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>먼저 요청한 Package의 uid를 구한 이후, 퍼미션 정책을 수정할 수 있는지에 대해서 검증을 진행합니다. 이후에 아래와 같이 <code class="highlighter-rouge">mPermissionManager.grantRuntimePermission</code> 함수를 통해 퍼미션을 승인합니다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// mPermissionManager.grantRuntimePermission</span>
+<span class="c1">// ...</span>
+<span class="kd">final</span> <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">permissionsState</span><span class="o">.</span><span class="na">grantRuntimePermission</span><span class="o">(</span><span class="n">bp</span><span class="o">,</span> <span class="n">userId</span><span class="o">);</span>
+<span class="k">switch</span> <span class="o">(</span><span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">PERMISSION_OPERATION_FAILURE:</span> <span class="o">{</span>
+        <span class="k">return</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="k">case</span> <span class="nc">PermissionsState</span><span class="o">.</span><span class="na">PERMISSION_OPERATION_SUCCESS_GIDS_CHANGED</span><span class="o">:</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">callback</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">callback</span><span class="o">.</span><span class="na">onGidsChanged</span><span class="o">(</span><span class="nc">UserHandle</span><span class="o">.</span><span class="na">getAppId</span><span class="o">(</span><span class="n">pkg</span><span class="o">.</span><span class="na">applicationInfo</span><span class="o">.</span><span class="na">uid</span><span class="o">),</span> <span class="n">userId</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">break</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="c1">// ...</span>
+</code></pre></div></div>
+
+<h2 id="reference">Reference</h2>
+
+<p><strong>#0 permission request flow</strong></p>
+
+<ul>
+  <li><a href="https://source.android.com/devices/tech/config">https://source.android.com/devices/tech/config</a></li>
+</ul>
+
+<p><strong>#1 ActivityCompat.requestPermissions</strong></p>
+
+<ul>
+  <li><a href="https://android.googlesource.com/platform/frameworks/support/+/4f9d8c4/v4/java/android/support/v4/app/ActivityCompat.java#308">https://android.googlesource.com/platform/frameworks/support/+/4f9d8c4/v4/java/android/support/v4/app/ActivityCompat.java#308</a></li>
+</ul>
+
+<p><strong>#2 ActivityCompatApi23.requestPermissions</strong></p>
+
+<ul>
+  <li><a href="https://chromium.googlesource.com/android_tools/+/refs/heads/master/sdk/sources/android-25/android/support/v4/app/ActivityCompatApi23.java#39">https://chromium.googlesource.com/android_tools/+/refs/heads/master/sdk/sources/android-25/android/support/v4/app/ActivityCompatApi23.java#39</a></li>
+</ul>
+
+<p><strong>#3 Activity.requestPermissions</strong></p>
+
+<ul>
+  <li><a href="https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/Activity.java#5094">https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/Activity.java#5094</a></li>
+</ul>
+
+<p><strong>#4 PermissionController AndroidManifest.xml</strong></p>
+
+<ul>
+  <li><a href="https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/AndroidManifest.xml#82">https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/AndroidManifest.xml#82</a></li>
+</ul>
+
+<p><strong>#5 GrantPermissionActivity.onCreate</strong></p>
+
+<ul>
+  <li><a href="https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#304">https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#304</a></li>
+</ul>
+
+<p><strong>#6 GrantPermissionActivity.onPermissionGrantResult</strong></p>
+
+<ul>
+  <li><a href="https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#726">https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#726</a></li>
+</ul>
+
+<p><strong>#7 GrantPermissionActivity.onPermissionGrantResultSingleState</strong></p>
+
+<ul>
+  <li><a href="https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#810">https://android.googlesource.com/platform/packages/apps/PackageInstaller/+/refs/heads/master/src/com/android/packageinstaller/permission/ui/GrantPermissionsActivity.java#810</a></li>
+</ul>
+
+<p><strong>#8 persistChanges</strong></p>
+
+<ul>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:packages/apps/PermissionController/src/com/android/packageinstaller/permission/model/AppPermissionGroup.java;l=1221?q=persistChanges%20&amp;ss=android%2Fplatform%2Fsuperproject">https://cs.android.com/android/platform/superproject/+/master:packages/apps/PermissionController/src/com/android/packageinstaller/permission/model/AppPermissionGroup.java;l=1221?q=persistChanges &amp;ss=android%2Fplatform%2Fsuperproject</a></li>
+</ul>
+
+<p>#9 <strong>ApplicationPackageMangaer.grantRuntimePermission</strong></p>
+
+<ul>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:out/soong/.intermediates/frameworks/base/framework-minus-apex/android_common/xref28/srcjars.xref/frameworks/base/core/java/android/content/pm/IPackageManager.java;drc=master;bpv=1;bpt=1;l=5500">https://cs.android.com/android/platform/superproject/+/master:out/soong/.intermediates/frameworks/base/framework-minus-apex/android_common/xref28/srcjars.xref/frameworks/base/core/java/android/content/pm/IPackageManager.java;drc=master;bpv=1;bpt=1;l=5500</a></li>
+</ul>
+
+<p><strong>#10 (PackageManagerService extends IPackageManager.Stub).onTransact</strong></p>
+
+<ul>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java;l=3937?q=extends%20IPackageManager.Stub&amp;ss=android%2Fplatform%2Fsuperproject">https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java;l=3937?q=extends IPackageManager.Stub&amp;ss=android%2Fplatform%2Fsuperproject</a></li>
+</ul>
+
+<p><strong>#11 IPackageManager.Stub</strong></p>
+
+<ul>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:out/soong/.intermediates/frameworks/base/framework-minus-apex/android_common/xref28/srcjars.xref/frameworks/base/core/java/android/content/pm/IPackageManager.java;l=5500;drc=master;bpv=1;bpt=1">https://cs.android.com/android/platform/superproject/+/master:out/soong/.intermediates/frameworks/base/framework-minus-apex/android_common/xref28/srcjars.xref/frameworks/base/core/java/android/content/pm/IPackageManager.java;l=5500;drc=master;bpv=1;bpt=1</a></li>
+</ul>
+
+<p><strong>#12 PackageManagerService.grantRuntimePermission</strong></p>
+
+<ul>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java;l=5655;drc=master;bpv=1;bpt=1">https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java;l=5655;drc=master;bpv=1;bpt=1</a></li>
+</ul>
+
+<p><strong>#13 mPermissionManager.grantRuntimePermission</strong></p>
+
+<ul>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/permission/PermissionManagerService.java;l=2187;drc=master;bpv=1;bpt=1?q=PermissionManagerServiceInternal%20&amp;ss=android%2Fplatform%2Fsuperproject">https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/permission/PermissionManagerService.java;l=2187;drc=master;bpv=1;bpt=1?q=PermissionManagerServiceInternal &amp;ss=android%2Fplatform%2Fsuperproject</a></li>
+</ul>
+
+   </div>
 </div>
 
 
@@ -552,20 +1009,19 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-06-01/Copy-On-Write-Global-Dll-injection" class="left arrow">&#8592;</a>
+   <a href="/2020-06-01/Copy-On-Write-Global-Dll-injection" class="left arrow">&#8592;</a>
   
   
-	<a href="/2020-06-01/AMP2020-writeup" class="right arrow">&#8594;</a>
+   <a href="/2020-06-01/AMP2020-writeup" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

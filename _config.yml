@@ -29,6 +29,7 @@ plugins:
   - jekyll-feed
   - jekyll-paginate
   - jekyll-seo-tag
+  - jekyll-toc
   # - jemoji #Uncomment this to allow emoji in your post
 
 # Permalinks
@@ -40,3 +41,8 @@ exclude: [ Gemfile, Gemfile.lock, tale.gemspec ]
 
 # Disqus (Set to your disqus id)
 disqus:         jekyll-tale
+
+toc:
+    min_level: 1
+    max_level: 2
+

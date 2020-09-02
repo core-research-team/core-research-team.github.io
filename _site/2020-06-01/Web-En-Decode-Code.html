@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-06-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Web Encode/Decode Code","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-06-01/Web-En-Decode-Code"},"author":{"@type":"Person","name":"DongDongE"},"url":"http://localhost:4000/2020-06-01/Web-En-Decode-Code","description":"라온화이트햇 핵심연구팀 유선동","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Web Encode/Decode Code","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","author":{"@type":"Person","name":"DongDongE"},"url":"http://localhost:4000/2020-06-01/Web-En-Decode-Code","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-06-01/Web-En-Decode-Code"},"description":"라온화이트햇 핵심연구팀 유선동","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,22 +60,22 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">Web Encode/Decode Code</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">Web Encode/Decode Code</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>Programming</i></center></span>
-			
-		
-			
-				<span class="tag"><center><i>tools</i></center></span>
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 유선동</p>
+   
+      
+         
+            <span class="tag"><center><i>Programming</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>tools</i></center></span>
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 유선동</p>
 
 <h2 id="introduce">[Introduce]</h2>
 
@@ -349,7 +349,282 @@ networks:
 <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">$</span> <span class="nx">sudo</span> <span class="nx">sh</span> <span class="o">./</span><span class="nx">compose_down</span><span class="o">.</span><span class="nx">sh</span>
 </code></pre></div></div>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 유선동</p>
+
+<h2 id="introduce">[Introduce]</h2>
+
+<hr />
+
+<p>CTF 문제를 풀 때 와 개발할 때 각종 인/디코딩 및 해시화를 한 번에 볼 수 있는 게 있으면 좋을 것 같아. 고민 끝에 누구나 이용할 수 있도록 Web Language 제작하였습니다. (본 코드는 Mac OS / Linux OS의 Docker 플랫폼 자동화 기반으로 제작되었으며, 모든 코드는 Gitlab 프로젝트를 참고 하시면 됩니다.)</p>
+
+<p><img src="/assets/encode.gif" alt="/assets/encode.gif" /></p>
+
+<h2 id="code-langugage">[Code Langugage]</h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p>현재 지원되는 언어는 PHP로 기반 되어 있습니다.</p>
+
+    <p>→ 깃랩에 올라온 PHP 코드/도커파일이 디버깅 모드 및 Docker Container에 디버깅 관련 프로그램이 설치 되어 있습니다. 만약 외부에서 접속 하고자 한다면 해당 기능을 Off 해주시거나 제거 해주시면 됩니다.</p>
+  </li>
+  <li>
+    <p>추후 Python Flask도 제작될 예정입니다.</p>
+  </li>
+</ul>
+
+<h2 id="support-endecode--hash">[Support En/Decode + Hash]</h2>
+
+<hr />
+
+<ul>
+  <li><strong>HASH</strong>: md2, md4, md5, sha1, sha256, sha384, sha512, NTLMHash, ripemd128, ripemd160, ripemd256, ripemd320ripemd320<strong>, whirlpool, tiger128_3, tiger160_3, tiger192_3, tiger128_4, tiger160_4, tiger192_4, snefru, gost, adler32, crc32, crc32b, haval128_3, haval160_3, haval192_3, haval224_3, haval256_3, haval128_4, haval160_4, haval192_4, haval224_4, haval256_4, haval128_5, haval160_5, haval192_5, haval224_5, haval256_5</strong></li>
+  <li><strong>Encode/Decode</strong> : Base64, URL, HTML, HTML_Entities, Rot13,</li>
+</ul>
+
+<p><strong>Conversion</strong> :  String To Hex, Hex To String, String To Binary, Binary To String</p>
+
+<h2 id="installing">[Installing]</h2>
+
+<hr />
+
+<ol>
+  <li>PHP 플랫폼일 경우 <code class="highlighter-rouge">Apache</code>와 <code class="highlighter-rouge">PHP</code>가 설치가 되어 있어야 하나 없는 경우 <code class="highlighter-rouge">Docker</code> 및 <code class="highlighter-rouge">Docker-compose</code>로 자동으로 컨테이너화 가능하므로, 꼭 사전에 설치를 하셔야 합니다. (<a href="https://docs.docker.com/get-docker/">Docker install Link</a>)</li>
+  <li><a href="https://git.d0ngd0nge.xyz:3005/dongdonge_public_project/web_encode">https://git.d0ngd0nge.xyz:3005/dongdonge_public_project/web_encode</a> 에서 제작된 코드를 Git Clone으로 다운 받아 원 클릭으로 손쉽게 도커화 준비하기</li>
+  <li>(Mac or Linux 일 경우) <code class="highlighter-rouge">./compose_start.sh</code>로 도커라이징</li>
+  <li><a href="http://localhost:1129/index.php">http://localhost:1129/index.php</a> 접속</li>
+</ol>
+
+<h2 id="phphtml-source-example">[PHP/HTML Source Example]</h2>
+
+<hr />
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">html</span><span class="o">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset=</span><span class="s2">"utf-8"</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>test<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">style</span> <span class="na">type=</span><span class="s2">"text/css"</span><span class="p">&gt;</span>
+        textarea <span class="si">{</span> <span class="nx">width</span><span class="p">:</span> <span class="mi">100</span><span class="o">%</span><span class="p">;</span> <span class="si">}</span>
+        input <span class="si">{</span> <span class="nx">width</span><span class="p">:</span> <span class="mi">100</span><span class="o">%</span><span class="p">;</span> <span class="si">}</span>
+       
+        <span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id=</span><span class="s2">"Encode"</span> <span class="na">placeholder=</span><span class="s2">"Encode"</span> <span class="na">onkeyup=</span><span class="s2">"DongDongE('encode')"</span> <span class="na">autofocus=</span><span class="s2">""</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id=</span><span class="s2">"encode_res"</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id=</span><span class="s2">"Decode"</span> <span class="na">placeholder=</span><span class="s2">"Decode"</span> <span class="na">onkeyup=</span><span class="s2">"DongDongE('decode')"</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id=</span><span class="s2">"decode_res"</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src=</span><span class="s2">"./jquery-3.5.1.min.js"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+            function DongDongE(mode) <span class="si">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">mode</span> <span class="o">==</span> <span class="dl">"</span><span class="s2">encode</span><span class="dl">"</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">index.php</span><span class="dl">"</span><span class="p">;</span>
+                    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span><span class="na">data</span><span class="p">:</span> <span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#Encode</span><span class="dl">"</span><span class="p">).</span><span class="nx">val</span><span class="p">(),</span> <span class="na">code</span><span class="p">:</span><span class="dl">"</span><span class="s2">encode</span><span class="dl">"</span><span class="p">};</span>
+                    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">#encode_res</span><span class="dl">"</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">else</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">index.php</span><span class="dl">"</span><span class="p">;</span>
+                    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span><span class="na">data</span><span class="p">:</span> <span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#Decode</span><span class="dl">"</span><span class="p">).</span><span class="nx">val</span><span class="p">(),</span> <span class="na">code</span><span class="p">:</span><span class="dl">"</span><span class="s2">decode</span><span class="dl">"</span><span class="p">};</span>
+                    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">#decode_res</span><span class="dl">"</span><span class="p">;</span>
+                <span class="p">}</span>
+            
+                <span class="nx">$</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+                <span class="p">});</span>
+            <span class="si">}</span>
+            
+        <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>index.html</strong></p>
+
+<p>사용자가 입력을 할때 마다 즉시 전송하여 인/디코딩 및 해시화를 하여 결과값을 돌려 받습니다. 이때 jquery를 사용하여 인자를 POST로 요청합니다.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+ 
+    <span class="k">require_once</span> <span class="s2">"./func.php"</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">"data"</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">"code"</span><span class="p">]))</span> <span class="p">{</span>
+        <span class="nv">$data</span>   <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s2">"data"</span><span class="p">];</span>
+        <span class="nv">$code</span>   <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s2">"code"</span><span class="p">];</span>   <span class="cm">/* encode | decode */</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="k">require_once</span> <span class="s2">"./index.html"</span><span class="p">;</span>
+        <span class="k">exit</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nv">$raw</span>    <span class="o">=</span> <span class="kc">FALSE</span><span class="p">;</span>    <span class="cm">/* Default False */</span>
+    
+    <span class="nv">$encode</span> <span class="o">=</span>   <span class="k">array</span><span class="p">(</span><span class="s2">"md2"</span><span class="p">,</span> <span class="s2">"md4"</span><span class="p">,</span> <span class="s2">"md5"</span><span class="p">,</span> 
+                    <span class="s2">"sha1"</span><span class="p">,</span> <span class="s2">"sha256"</span><span class="p">,</span> <span class="s2">"sha384"</span><span class="p">,</span> <span class="s2">"sha512"</span><span class="p">,</span>
+                    <span class="s2">"NTLMHash"</span><span class="p">,</span> 
+                    <span class="s2">"ripemd128"</span><span class="p">,</span> <span class="s2">"ripemd160"</span><span class="p">,</span> <span class="s2">"ripemd256"</span><span class="p">,</span> <span class="s2">"ripemd320"</span><span class="p">,</span>
+                    <span class="s2">"whirlpool"</span><span class="p">,</span>
+                    <span class="s2">"tiger128_3"</span><span class="p">,</span> <span class="s2">"tiger160_3"</span><span class="p">,</span> <span class="s2">"tiger192_3"</span><span class="p">,</span> <span class="s2">"tiger128_4"</span><span class="p">,</span> <span class="s2">"tiger160_4"</span><span class="p">,</span> <span class="s2">"tiger192_4"</span><span class="p">,</span>
+                    <span class="s2">"snefru"</span><span class="p">,</span> <span class="s2">"gost"</span><span class="p">,</span> <span class="s2">"adler32"</span><span class="p">,</span>
+                    <span class="s2">"crc32"</span><span class="p">,</span> <span class="s2">"crc32b"</span><span class="p">,</span>
+                    <span class="s2">"haval128_3"</span><span class="p">,</span> <span class="s2">"haval160_3"</span><span class="p">,</span> <span class="s2">"haval192_3"</span><span class="p">,</span> <span class="s2">"haval224_3"</span><span class="p">,</span> <span class="s2">"haval256_3"</span><span class="p">,</span>
+                    <span class="s2">"haval128_4"</span><span class="p">,</span> <span class="s2">"haval160_4"</span><span class="p">,</span> <span class="s2">"haval192_4"</span><span class="p">,</span> <span class="s2">"haval224_4"</span><span class="p">,</span> <span class="s2">"haval256_4"</span><span class="p">,</span>
+                    <span class="s2">"haval128_5"</span><span class="p">,</span> <span class="s2">"haval160_5"</span><span class="p">,</span> <span class="s2">"haval192_5"</span><span class="p">,</span> <span class="s2">"haval224_5"</span><span class="p">,</span> <span class="s2">"haval256_5"</span><span class="p">,</span>
+                    <span class="s2">"base64_en"</span><span class="p">,</span> <span class="s2">"url_en"</span><span class="p">,</span> <span class="s2">"html_en"</span><span class="p">,</span> <span class="s2">"html_entities"</span><span class="p">,</span> <span class="s2">"rot13_en"</span>
+                <span class="p">);</span>
+
+    <span class="nv">$connvert</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s2">"str_2_hex"</span><span class="p">,</span> <span class="s2">"hex_2_str"</span><span class="p">,</span> <span class="s2">"str_2_hex_2"</span><span class="p">,</span> <span class="s2">"str_2_hex_3"</span><span class="p">,</span> <span class="s2">"str_2_bin"</span><span class="p">,</span> <span class="s2">"bin_2_str"</span>
+                <span class="p">);</span>
+
+    <span class="nv">$decode</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s2">"base64_de"</span><span class="p">,</span> <span class="s2">"url_de"</span><span class="p">,</span> <span class="s2">"html_de"</span><span class="p">,</span> <span class="s2">"rot13_de"</span><span class="p">);</span>
+
+    <span class="cm">/* hash start - 자주 사용된 */</span>
+    <span class="nv">$md2</span>                <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"md2"</span><span class="p">,</span>            <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 32</span>
+    <span class="nv">$md4</span>                <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"md4"</span><span class="p">,</span>            <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 32</span>
+    <span class="nv">$md5</span>                <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"md5"</span><span class="p">,</span>            <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 32</span>
+    <span class="nv">$sha1</span>               <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"sha1"</span><span class="p">,</span>           <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 40</span>
+    <span class="nv">$sha256</span>             <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"sha256"</span><span class="p">,</span>         <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 64</span>
+    <span class="nv">$sha384</span>             <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"sha384"</span><span class="p">,</span>         <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 96</span>
+    <span class="nv">$sha512</span>             <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"sha512"</span><span class="p">,</span>         <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 128</span>
+
+    <span class="cm">/* hash start - 자주 사용되지 않는 */</span>
+    <span class="nv">$NTLMHash</span>           <span class="o">=</span> <span class="o">@</span><span class="nx">NTLMHash</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
+    <span class="nv">$ripemd128</span>          <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"ripemd128"</span><span class="p">,</span>      <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 32</span>
+    <span class="nv">$ripemd160</span>          <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"ripemd160"</span><span class="p">,</span>      <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 40</span>
+    <span class="nv">$ripemd256</span>          <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"ripemd256"</span><span class="p">,</span>      <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 64</span>
+    <span class="nv">$ripemd320</span>          <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"ripemd320"</span><span class="p">,</span>      <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 80</span>
+    <span class="nv">$whirlpool</span>          <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"whirlpool"</span><span class="p">,</span>      <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>       <span class="c1">// 128</span>
+    <span class="nv">$tiger128_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"tiger128,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 32</span>
+    <span class="nv">$tiger160_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"tiger160,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 40</span>
+    <span class="nv">$tiger192_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"tiger192,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 48</span>
+    <span class="nv">$tiger128_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"tiger128,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 32</span>
+    <span class="nv">$tiger160_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"tiger160,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 40</span>
+    <span class="nv">$tiger192_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"tiger192,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 48</span>
+    <span class="nv">$snefru</span>             <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"snefru"</span><span class="p">,</span>         <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 64</span>
+    <span class="nv">$gost</span>               <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"gost"</span><span class="p">,</span>           <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 64</span>
+    <span class="nv">$adler32</span>            <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"adler32"</span><span class="p">,</span>        <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 8</span>
+    <span class="nv">$crc32</span>              <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"crc32"</span><span class="p">,</span>          <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 8</span>
+    <span class="nv">$crc32b</span>             <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"crc32b"</span><span class="p">,</span>         <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 8</span>
+    <span class="nv">$haval128_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval128,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 32</span>
+    <span class="nv">$haval160_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval160,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 40</span>
+    <span class="nv">$haval192_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval192,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 48</span>
+    <span class="nv">$haval224_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval224,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 56</span>
+    <span class="nv">$haval256_3</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval256,3"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 64</span>
+    <span class="nv">$haval128_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval128,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 32</span>
+    <span class="nv">$haval160_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval160,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 40</span>
+    <span class="nv">$haval192_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval192,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 48</span>
+    <span class="nv">$haval224_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval224,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 56</span>
+    <span class="nv">$haval256_4</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval256,4"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 64</span>
+    <span class="nv">$haval128_5</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval128,5"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 32</span>
+    <span class="nv">$haval160_5</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval160,5"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 40</span>
+    <span class="nv">$haval192_5</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval192,5"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 48</span>
+    <span class="nv">$haval224_5</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval224,5"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 56</span>
+    <span class="nv">$haval256_5</span>         <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="s2">"haval256,5"</span><span class="p">,</span>     <span class="nv">$data</span><span class="p">,</span> <span class="nv">$raw</span><span class="p">);</span>      <span class="c1">// 64</span>
+    <span class="cm">/* hash end */</span>
+<span class="o">..............................</span> <span class="nx">너무</span> <span class="nx">길어서</span> <span class="nx">생략</span> <span class="p">(</span><span class="nx">전체</span> <span class="nx">코드는</span> <span class="nx">Gitlab에서</span> <span class="nx">참조</span> <span class="nx">해주세요</span><span class="o">!.</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>index.php</strong></p>
+
+<p><a href="https://git.d0ngd0nge.xyz:3005/dongdonge_public_project/web_encode/blob/master/src/index.php">PHP ALL Source Gitlab Link</a></p>
+
+<p>PHP 자체에서 지원해주는 En/Decode 및 hash는 Default Function를 사용했지만 지원하지 않는 함수는 별도의 func.php 파일로 사용자 정의 함수를 생성하여 로직을 구현 하였습니다.</p>
+
+<h2 id="dockerfile-example">[Dockerfile Example]</h2>
+
+<hr />
+
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Server version: Apache/2.4.38 (Debian)</span>
+<span class="c">#       Server built:   2019-10-15T19:53:42</span>
+<span class="c"># PHP 7.2.29 (cli) (built: Mar 31 2020 19:37:48) ( NTS )</span>
+<span class="c">#       Copyright (c) 1997-2018 The PHP Group</span>
+<span class="c">#       Zend Engine v3.2.0, Copyright (c) 1998-2018 Zend Technologies</span>
+
+<span class="k">FROM</span><span class="s"> php:7.2-apache</span>
+
+<span class="k">LABEL</span><span class="s"> DongDongE="DongDongE@d0ngd0nge.xyz"</span>
+
+<span class="k">ARG</span><span class="s"> apache_pwd=/etc/apache2</span>
+<span class="k">ARG</span><span class="s"> php_ini=/usr/local/etc/php</span>
+
+<span class="k">COPY</span><span class="s"> entrypoint.sh /sbin/entrypoint.sh</span>
+
+<span class="k">WORKDIR</span><span class="s"> /var/log/apache2/</span>
+
+<span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt-get <span class="nb">install </span>git wget unzip net-tools vim <span class="nt">-y</span> <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    docker-php-ext-install mysqli <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">cp</span> <span class="k">${</span><span class="nv">php_ini</span><span class="k">}</span>/php.ini-production <span class="k">${</span><span class="nv">php_ini</span><span class="k">}</span>/php.ini <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">sed</span> <span class="nt">-ri</span> <span class="s1">'s/#ServerName www.example.com/ServerName localhost/g'</span> <span class="k">${</span><span class="nv">apache_pwd</span><span class="k">}</span>/sites-available/000-default.conf <span class="o">&amp;&amp;</span> <span class="se">\ </span>
+    sed -ri 's/#AddDefaultCharset UTF-8/AddDefaultCharset UTF-8/g' ${apache_pwd}/conf-available/charset.conf &amp;&amp; \
+    sed -ri 's/short_open_tag = Off/short_open_tag = On/g' ${php_ini}/php.ini &amp;&amp; \
+    sed -ri 's/display_errors = Off/display_errors = On/g' ${php_ini}/php.ini &amp;&amp; \
+    rm -rf /var/log/apache2/* &amp;&amp; \
+    touch access.log error.log other_vhosts_access.log &amp;&amp; \
+    chown root:root /var/www/html -R &amp;&amp; \
+    chown root:root /var/log/apache2 -R &amp;&amp; \
+    chmod 700 /var/log/apache2 -R &amp;&amp; \
+    apt-get clean &amp;&amp; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*s &amp;&amp; \
+    chmod 700 /sbin/entrypoint.sh
+
+<span class="k">WORKDIR</span><span class="s"> /var/www/html/</span>
+
+<span class="k">EXPOSE</span><span class="s"> 80</span>
+
+<span class="k">CMD</span><span class="s"> [ "/sbin/entrypoint.sh" ]</span>
+</code></pre></div></div>
+
+<p><strong>Dockerfile Sample</strong></p>
+
+<p>도커 이미지는 PHP-7.2를 사용하였으며, 커스텀 마이징을 위해  Apache Conf 설정 변경 및 최적화를 셋팅하였습니다.</p>
+
+<h2 id="docker-composeyml">[Docker-compose.yml]</h2>
+
+<hr />
+
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: "3"
+
+services:
+    web_encode:
+        image: web_encode
+        container_name: web_encode
+        restart: always
+        volumes: 
+            - ./src:/var/www/html/
+        build:
+            context: ./
+            dockerfile: ./Dockerfile
+        networks:
+            - web_encode
+        ports: 
+            - "127.0.0.1:1129:80"
+
+        
+networks:
+    web_encode:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 192.168.0.8/24
+</code></pre></div></div>
+
+<p><strong>docker-compose.yml</strong></p>
+
+<p>포트는 내부 로컬 호스트에서 1129번 포트로 접속 가능하게 설정 하였습니다. 외부에서 접속을 하고자 한다면 “1129:80”으로 수정하시면 됩니다.</p>
+
+<h2 id="delete">[Delete]</h2>
+
+<hr />
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">$</span> <span class="nx">sudo</span> <span class="nx">sh</span> <span class="o">./</span><span class="nx">compose_down</span><span class="o">.</span><span class="nx">sh</span>
+</code></pre></div></div>
+
+   </div>
 </div>
 
 
@@ -368,20 +643,19 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-06-01/v8-1-day-CVE-2020-6383" class="left arrow">&#8592;</a>
+   <a href="/2020-06-01/v8-1-day-CVE-2020-6383" class="left arrow">&#8592;</a>
   
   
-	<a href="/2020-06-01/TCTF-2020-Cloud-Computing" class="right arrow">&#8594;</a>
+   <a href="/2020-06-01/TCTF-2020-Cloud-Computing" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

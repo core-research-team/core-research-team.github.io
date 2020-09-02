@@ -21,7 +21,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-04-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"hw interrupt","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-04-01/hw-interrupt"},"author":{"@type":"Person","name":"wwwlk"},"url":"http://localhost:4000/2020-04-01/hw-interrupt","description":"라온화이트햇 핵심연구팀 조진호","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"hw interrupt","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","author":{"@type":"Person","name":"wwwlk"},"url":"http://localhost:4000/2020-04-01/hw-interrupt","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020-04-01/hw-interrupt"},"description":"라온화이트햇 핵심연구팀 조진호","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -60,18 +60,18 @@
 
     <main>
       <div class="post"> 
-	<h1 class="post-title">hw interrupt</h1>
-	<div class="post-line"></div>
+   <h1 class="post-title">hw interrupt</h1>
+   <div class="post-line"></div>
 
-	
-		
-			
-				<span class="tag"><center><i>Research</i></center></span>
-			
-		
-	
-
-	<p>라온화이트햇 핵심연구팀 조진호</p>
+   
+      
+         
+            <span class="tag"><center><i>Research</i></center></span>
+         
+      
+   
+   
+   <p>라온화이트햇 핵심연구팀 조진호</p>
 
 <p>인터럽트는 중단을 의미한다. 인터럽트가 발생하면 테이블에 등록된 핸들러를 실행하고, 다시 원래 코드로 돌아간다. 디바이스가 인터럽트를 발생시키면 실행하던 프로세스는 하던 일을 멈추고 인터럽트 핸들러를 실행한다. 커널은 이를 인식해 디바이스의 상태가 변한것을 인식하는 것이다.</p>
 
@@ -315,7 +315,252 @@
 
 <p>아키텍처별로 구현이 다르다.</p>
 
-	</div>
+   
+   <p>라온화이트햇 핵심연구팀 조진호</p>
+
+<p>인터럽트는 중단을 의미한다. 인터럽트가 발생하면 테이블에 등록된 핸들러를 실행하고, 다시 원래 코드로 돌아간다. 디바이스가 인터럽트를 발생시키면 실행하던 프로세스는 하던 일을 멈추고 인터럽트 핸들러를 실행한다. 커널은 이를 인식해 디바이스의 상태가 변한것을 인식하는 것이다.</p>
+
+<p>아래부터 리눅스 커널에서 인터럽트를 처리하는 과정이다. 하드웨어 인터럽트 발생시, 인터럽트 코드를 실행하기 전 현재 하던 레지스터들을 스택에 푸시한다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="n">__must_check</span>
+<span class="nf">request_irq</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">irq</span><span class="p">,</span> <span class="n">irq_handler_t</span> <span class="n">handler</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">,</span>
+	    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dev</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">return</span> <span class="n">request_threaded_irq</span><span class="p">(</span><span class="n">irq</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>
+<span class="p">}</span><span class="o">-</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">/include/linux/interrupt.h</code> 인터럽트 초기화 합수 <code class="highlighter-rouge">request_irq</code></p>
+
+<ul>
+  <li><code class="highlighter-rouge">irq</code>: 인터럽트 번호</li>
+  <li><code class="highlighter-rouge">handler</code>: 호출될 핸들러 주소</li>
+  <li><code class="highlighter-rouge">flags</code>: 속성 플래그</li>
+  <li><code class="highlighter-rouge">name</code>: 이름</li>
+  <li><code class="highlighter-rouge">dev</code>: 핸들러를 전달하는 파라미터, 보통 디바이스 드라이버 구조체</li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ret</span> <span class="o">=</span> <span class="n">request_irq</span><span class="p">(</span><span class="n">res2</span><span class="o">-&gt;</span><span class="n">start</span><span class="p">,</span> <span class="n">c67x00_irq</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pdev</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="n">c67x00</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">dev_err</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pdev</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">,</span> <span class="s">"Cannot claim IRQ</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+		<span class="k">goto</span> <span class="n">request_irq_failed</span><span class="p">;</span>
+	<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이런식으로 인터럽트 큐를 등록해 사용하게 된다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="n">irqreturn_t</span> <span class="nf">c67x00_irq</span><span class="p">(</span><span class="kt">int</span> <span class="n">irq</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">__dev</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">c67x00_device</span> <span class="o">*</span><span class="n">c67x00</span> <span class="o">=</span> <span class="n">__dev</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">c67x00_sie</span> <span class="o">*</span><span class="n">sie</span><span class="p">;</span>
+	<span class="n">u16</span> <span class="n">msg</span><span class="p">,</span> <span class="n">int_status</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+
+	<span class="n">int_status</span> <span class="o">=</span> <span class="n">c67x00_ll_hpi_status</span><span class="p">(</span><span class="n">c67x00</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">int_status</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">IRQ_NONE</span><span class="p">;</span>
+
+	<span class="k">while</span> <span class="p">(</span><span class="n">int_status</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">count</span><span class="o">--</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+		<span class="n">c67x00_ll_irq</span><span class="p">(</span><span class="n">c67x00</span><span class="p">,</span> <span class="n">int_status</span><span class="p">);</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">C67X00_SIES</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">sie</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">c67x00</span><span class="o">-&gt;</span><span class="n">sie</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+			<span class="n">msg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">int_status</span> <span class="o">&amp;</span> <span class="n">SIEMSG_FLG</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+				<span class="n">msg</span> <span class="o">=</span> <span class="n">c67x00_ll_fetch_siemsg</span><span class="p">(</span><span class="n">c67x00</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">sie</span><span class="o">-&gt;</span><span class="n">irq</span><span class="p">)</span>
+				<span class="n">sie</span><span class="o">-&gt;</span><span class="n">irq</span><span class="p">(</span><span class="n">sie</span><span class="p">,</span> <span class="n">int_status</span><span class="p">,</span> <span class="n">msg</span><span class="p">);</span>
+		<span class="p">}</span>
+		<span class="n">int_status</span> <span class="o">=</span> <span class="n">c67x00_ll_hpi_status</span><span class="p">(</span><span class="n">c67x00</span><span class="p">);</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">int_status</span><span class="p">)</span>
+		<span class="n">dev_warn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c67x00</span><span class="o">-&gt;</span><span class="n">pdev</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">,</span> <span class="s">"Not all interrupts handled! "</span>
+			 <span class="s">"status = 0x%04x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">int_status</span><span class="p">);</span>
+
+	<span class="k">return</span> <span class="n">IRQ_HANDLED</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>인터럽트 핸들러는 파라미터로 <code class="highlighter-rouge">irq</code>번호와 디바이스를 받게 된다. 위에서 큐에 등록할 때 <code class="highlighter-rouge">request_threaded_irq</code>라는 함수에 그대로 넣는 것을 확인할 수 있었다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">request_threaded_irq</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">irq</span><span class="p">,</span> <span class="n">irq_handler_t</span> <span class="n">handler</span><span class="p">,</span>
+			 <span class="n">irq_handler_t</span> <span class="n">thread_fn</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">irqflags</span><span class="p">,</span>
+			 <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">devname</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dev_id</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">irqaction</span> <span class="o">*</span><span class="n">action</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">irq_desc</span> <span class="o">*</span><span class="n">desc</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">retval</span><span class="p">;</span>
+
+	<span class="p">...</span>
+
+	<span class="c1">// 1</span>
+	<span class="n">desc</span> <span class="o">=</span> <span class="n">irq_to_desc</span><span class="p">(</span><span class="n">irq</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">desc</span><span class="p">)</span>
+		<span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+
+	<span class="c1">// 2</span>
+	<span class="n">action</span> <span class="o">=</span> <span class="n">kzalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">irqaction</span><span class="p">),</span> <span class="n">GFP_KERNEL</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">action</span><span class="p">)</span>
+		<span class="k">return</span> <span class="o">-</span><span class="n">ENOMEM</span><span class="p">;</span>
+
+	<span class="n">action</span><span class="o">-&gt;</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span><span class="p">;</span>
+	<span class="n">action</span><span class="o">-&gt;</span><span class="n">thread_fn</span> <span class="o">=</span> <span class="n">thread_fn</span><span class="p">;</span>
+	<span class="n">action</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">=</span> <span class="n">irqflags</span><span class="p">;</span>
+	<span class="n">action</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="n">devname</span><span class="p">;</span>
+	<span class="n">action</span><span class="o">-&gt;</span><span class="n">dev_id</span> <span class="o">=</span> <span class="n">dev_id</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">/kernel/irq/manage.c</code>에 구현되어있다.</p>
+
+<ol>
+  <li><code class="highlighter-rouge">irq</code>번호로 인터럽트 디스크립터를 가져온다.</li>
+  <li><code class="highlighter-rouge">irqaction</code>구조체를 만들고 값을 태워넣는다.</li>
+</ol>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="nf">free_irq</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">irq</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dev_id</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">irq_desc</span> <span class="o">*</span><span class="n">desc</span> <span class="o">=</span> <span class="n">irq_to_desc</span><span class="p">(</span><span class="n">irq</span><span class="p">);</span>
+	<span class="k">struct</span> <span class="n">irqaction</span> <span class="o">*</span><span class="n">action</span><span class="p">;</span>
+	<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">devname</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">desc</span> <span class="o">||</span> <span class="n">WARN_ON</span><span class="p">(</span><span class="n">irq_settings_is_per_cpu_devid</span><span class="p">(</span><span class="n">desc</span><span class="p">)))</span>
+		<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+<span class="cp">#ifdef CONFIG_SMP
+</span>	<span class="k">if</span> <span class="p">(</span><span class="n">WARN_ON</span><span class="p">(</span><span class="n">desc</span><span class="o">-&gt;</span><span class="n">affinity_notify</span><span class="p">))</span>
+		<span class="n">desc</span><span class="o">-&gt;</span><span class="n">affinity_notify</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+	<span class="n">action</span> <span class="o">=</span> <span class="n">__free_irq</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">dev_id</span><span class="p">);</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">action</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+	<span class="n">devname</span> <span class="o">=</span> <span class="n">action</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">;</span>
+	<span class="n">kfree</span><span class="p">(</span><span class="n">action</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">devname</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">free_irq</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">free_irq</code>로 등록된 <code class="highlighter-rouge">irq</code>를 지울 수 있다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+ * do_IRQ handles all normal device IRQ's (the special
+ * SMP cross-CPU interrupts have their own specific
+ * handlers).
+ */</span>
+<span class="n">__visible</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">__irq_entry</span> <span class="nf">do_IRQ</span><span class="p">(</span><span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">regs</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">old_regs</span> <span class="o">=</span> <span class="n">set_irq_regs</span><span class="p">(</span><span class="n">regs</span><span class="p">);</span>
+	<span class="k">struct</span> <span class="n">irq_desc</span> <span class="o">*</span> <span class="n">desc</span><span class="p">;</span>
+	<span class="cm">/* high bit used in ret_from_ code  */</span>
+	<span class="kt">unsigned</span> <span class="n">vector</span> <span class="o">=</span> <span class="o">~</span><span class="n">regs</span><span class="o">-&gt;</span><span class="n">orig_ax</span><span class="p">;</span>
+
+	<span class="n">entering_irq</span><span class="p">();</span>
+
+	<span class="cm">/* entering_irq() tells RCU that we're not quiescent.  Check it. */</span>
+	<span class="n">RCU_LOCKDEP_WARN</span><span class="p">(</span><span class="o">!</span><span class="n">rcu_is_watching</span><span class="p">(),</span> <span class="s">"IRQ failed to wake up RCU"</span><span class="p">);</span>
+
+	<span class="n">desc</span> <span class="o">=</span> <span class="n">__this_cpu_read</span><span class="p">(</span><span class="n">vector_irq</span><span class="p">[</span><span class="n">vector</span><span class="p">]);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="o">!</span><span class="n">IS_ERR_OR_NULL</span><span class="p">(</span><span class="n">desc</span><span class="p">)))</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IS_ENABLED</span><span class="p">(</span><span class="n">CONFIG_X86_32</span><span class="p">))</span>
+			<span class="n">handle_irq</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">regs</span><span class="p">);</span>
+		<span class="k">else</span>
+			<span class="n">generic_handle_irq_desc</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">ack_APIC_irq</span><span class="p">();</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">desc</span> <span class="o">==</span> <span class="n">VECTOR_UNUSED</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">pr_emerg_ratelimited</span><span class="p">(</span><span class="s">"%s: %d.%d No irq handler for vector</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+					     <span class="n">__func__</span><span class="p">,</span> <span class="n">smp_processor_id</span><span class="p">(),</span>
+					     <span class="n">vector</span><span class="p">);</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">__this_cpu_write</span><span class="p">(</span><span class="n">vector_irq</span><span class="p">[</span><span class="n">vector</span><span class="p">],</span> <span class="n">VECTOR_UNUSED</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">exiting_irq</span><span class="p">();</span>
+
+	<span class="n">set_irq_regs</span><span class="p">(</span><span class="n">old_regs</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">/arch/arm/kernel/irq.c</code>에 인터럽트 벡터 테이블의 <code class="highlighter-rouge">irq</code>핸들러가 있다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">old_regs</span> <span class="o">=</span> <span class="n">set_irq_regs</span><span class="p">(</span><span class="n">regs</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>첫출의 코드로 현재 레지스터를 저장하고,</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set_irq_regs</span><span class="p">(</span><span class="n">old_regs</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>마지막에 다시 원래 프로세스로 돌아간다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">pt_regs</span> <span class="p">{</span>
+<span class="cm">/*
+ * C ABI says these regs are callee-preserved. They aren't saved on kernel entry
+ * unless syscall needs a complete, fully filled "struct pt_regs".
+ */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r15</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r14</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r13</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r12</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rbp</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rbx</span><span class="p">;</span>
+<span class="cm">/* These regs are callee-clobbered. Always saved on kernel entry. */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r11</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r10</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r9</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r8</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rax</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rcx</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rdx</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rsi</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rdi</span><span class="p">;</span>
+<span class="cm">/*
+ * On syscall entry, this is syscall#. On CPU exception, this is error code.
+ * On hw interrupt, it's IRQ number:
+ */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">orig_rax</span><span class="p">;</span>
+<span class="cm">/* Return frame for iretq */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rip</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">cs</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">eflags</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rsp</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ss</span><span class="p">;</span>
+<span class="cm">/* top of stack page */</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>레지스터 구조체를 보면 진짜 그냥 레지스터다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">gic_handle_shared_int</span><span class="p">(</span><span class="n">bool</span> <span class="n">chained</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">intr</span><span class="p">,</span> <span class="n">virq</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">pcpu_mask</span><span class="p">;</span>
+	<span class="n">DECLARE_BITMAP</span><span class="p">(</span><span class="n">pending</span><span class="p">,</span> <span class="n">GIC_MAX_INTRS</span><span class="p">);</span>
+
+	<span class="p">...</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">chained</span><span class="p">)</span>
+			<span class="n">generic_handle_irq</span><span class="p">(</span><span class="n">virq</span><span class="p">);</span>
+		<span class="k">else</span>
+			<span class="n">do_IRQ</span><span class="p">(</span><span class="n">virq</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="err">}</span>
+</code></pre></div></div>
+
+<p>사용예시이다. 하드웨어에서 인터럽트가 발생하면 <code class="highlighter-rouge">irq desc</code>를 참조해 디바이스 드라이버에 작성된 인터럽트 핸들러를 실행한다.</p>
+
+<h2 id="전체-흐름">전체 흐름</h2>
+
+<p><img src="/assets/acaa16ca-36b1-4732-99b9-e88e160356ac/9c59d286-b683-4819-b0a0-efd32e819f46.png" alt="/assets/acaa16ca-36b1-4732-99b9-e88e160356ac/9c59d286-b683-4819-b0a0-efd32e819f46.png" /></p>
+
+<p>아키텍처별로 구현이 다르다.</p>
+
+   </div>
 </div>
 
 
@@ -334,20 +579,19 @@ End disqus -->
 
 <div class="pagination">
   
-	<a href="/2020-05-01/CVE-2020-8835" class="left arrow">&#8592;</a>
+   <a href="/2020-05-01/CVE-2020-8835" class="left arrow">&#8592;</a>
   
   
-	<a href="/2020-04-01/SMBGhost" class="right arrow">&#8594;</a>
+   <a href="/2020-04-01/SMBGhost" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
 </div>
-
     </main>
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-08-11 07:00:51 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 
