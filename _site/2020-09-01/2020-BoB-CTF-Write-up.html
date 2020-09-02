@@ -231,13 +231,12 @@
 <hr />
 
 <p><img src="/assets/bob/bob914.png" alt="/assets/bob/bob914.png" /></p>
-
-<p>[Javasciprt 난독화]
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Javasciprt 난독화]
 해당 문제는 Javascript 난독화이며, 간단하게 플래그가 숨겨져 있는 문제임
-(본 문제는 <a href="https://m.blog.naver.com/chiot_aile/221592247073">로얄 마카롱 앵무새</a>가 생각나서 만들게 되었으며,  라온에 놀러오시면 꼭 여기 마카롱집 가야됩니다.)</p>
+(본 문제는 [로얄 마카롱 앵무새](https://m.blog.naver.com/chiot_aile/221592247073)가 생각나서 만들게 되었으며,  라온에 놀러오시면 꼭 여기 마카롱집 가야됩니다.)
 
-<p>풀이는 어렵지 않으며, 간단하다. 별다른 안티 디버깅 및 복잡한 난독화가 아닌 단순히 플래그가 출력되지 못하도록 변수에 저장되어있는 걸 찾는 문제임</p>
-
+풀이는 어렵지 않으며, 간단하다. 별다른 안티 디버깅 및 복잡한 난독화가 아닌 단순히 플래그가 출력되지 못하도록 변수에 저장되어있는 걸 찾는 문제임
+</code></pre></div></div>
 <h3 id="1-문제-파악하기">1. 문제 파악하기</h3>
 
 <ul>
@@ -370,15 +369,14 @@
 <hr />
 
 <p><img src="/assets/bob/bob917.png" alt="/assets/bob/bob917.png" /></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Javasciprt 조작]
+문제 사이트에 접속 시 아래와 같은 페이지가 출력되며 게임이 진행되며 게임 플레이 방법은 "**BOB**" 라고 쓰여 있는 우주괴물을 다 제거되어야 Flag가 나오는 문제임.
+(본 문제는 [Raon Secure Fun Zone](https://www.raoncorp.com/ko/recruit/raonlife)를 모티브로 제작됨)
 
-<p>[Javasciprt 조작]
-문제 사이트에 접속 시 아래와 같은 페이지가 출력되며 게임이 진행되며 게임 플레이 방법은 “<strong>BOB</strong>” 라고 쓰여 있는 우주괴물을 다 제거되어야 Flag가 나오는 문제임.
-(본 문제는 <a href="https://www.raoncorp.com/ko/recruit/raonlife">Raon Secure Fun Zone</a>를 모티브로 제작됨)</p>
-
-<p>풀이는 대략 2가지로 생각할 수 있다.
+풀이는 대략 2가지로 생각할 수 있다.
 첫 번째는 직접 게임 플레이를 진행 후 전부 제거하여 Flag를 얻거나 (Physical),
-두 번째 방법으로는 자바스크립트 로직을 우회하여 게임핵(무적, 스피드)을 제작하여 게임을 진행하거나 또는 게임 진행할 필요 없이 Flag를 얻을 수 있다.</p>
-
+두 번째 방법으로는 자바스크립트 로직을 우회하여 게임핵(무적, 스피드)을 제작하여 게임을 진행하거나 또는 게임 진행할 필요 없이 Flag를 얻을 수 있다.
+</code></pre></div></div>
 <p><img src="/assets/bob/game_1.gif" alt="/assets/bob/game_1.gif" /></p>
 
 <h3 id="1-문제-로직-파악하기"><strong>1. 문제 로직 파악하기</strong></h3>
@@ -761,9 +759,8 @@
 <hr />
 
 <p><img src="/assets/bob/bob921.png" alt="/assets/bob/bob921.png" /></p>
-
-<p>문제 설명에 /readFlag 라고 되어 있으므로 RCE를 해야하는 문제이다.</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>문제 설명에 /readFlag 라고 되어 있으므로 RCE를 해야하는 문제이다.
+</code></pre></div></div>
 <p>문제 페이지에 접속하면 XML 사용하는 페이지가 나온다.</p>
 
 <p><img src="/assets/bob/bob922.png" alt="/assets/bob/bob922.png" /></p>
@@ -2112,14 +2109,12 @@ Visual Studio 컴파일 시 <a href="https://docs.microsoft.com/ko-kr/cpp/build/
 <p><strong><a href="https://en.wikipedia.org/wiki/Patch_(computing)#Hot_patching">Hot Patching</a>[1]</strong>이란, 서비스의 종료나 재시작 없이 패치를 적용하는 업데이트 방법이다.
 x86 어셈블리 언어에서는 패치를 위해 LONG JMP 명령을 사용한다.
 해당 명령은 5바이트가 필요하므로, <strong>3바이트</strong>인 <strong>함수 프롤로그</strong> 외 <strong>2바이트</strong>의 <strong>NOP 코드</strong>를
-추가하여 [<strong>Hot Patching](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc782258(v=ws.10)?redirectedfrom=MSDN)[2]</strong>에 사용한다.</p>
+추가하여 <strong><a href="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc782258(v=ws.10)?redirectedfrom=MSDN">Hot Patching</a>[2]</strong>에 사용한다.</p>
 
 <p><strong><em>Windows x86 라이브러리 모듈에서는 주로</em></strong> <code class="highlighter-rouge">movedi,edi</code> <strong><em>를 사용한다.</em></strong></p>
 
-<ul>
-  <li>Hot Patching에 사용할 5바이트 <code class="highlighter-rouge">0x66 0x90 0x55 0x8B 0xEC</code> 를 통해, 입력 값을 구할 수 있다.
-<strong>apple</strong> <code class="highlighter-rouge">0x61 0x70 0x70 0x6C 0x65=0x07 0xE0 0x25 0xE7 0x89**Xor**0x66 0x90 0x55 0x8B 0xEC</code></li>
-</ul>
+<p>Hot Patching에 사용할 5바이트 <code class="highlighter-rouge">0x66 0x90 0x55 0x8B 0xEC</code> 를 통해, 입력 값을 구할 수 있다.
+<strong>apple</strong> <code class="highlighter-rouge">0x61 0x70 0x70 0x6C 0x65=0x07 0xE0 0x25 0xE7 0x89**Xor**0x66 0x90 0x55 0x8B 0xEC</code></p>
 
 <p><img src="/assets/bob/07_apple.png" alt="/assets/bob/07_apple.png" /></p>
 <center>[그림 7] apple 입력 후 화면</center>
@@ -2209,9 +2204,8 @@ manda??? =&gt; mandari? =&gt; mandarin*
 <hr />
 
 <p><img src="/assets/bob/hot_patching_2.png" alt="/assets/bob/hot_patching_2.png" /></p>
-
-<p>공통된 명령 바이트를 통한 Key 추출 자동화</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>공통된 명령 바이트를 통한 Key 추출 자동화 
+</code></pre></div></div>
 <ul>
   <li>이전 <strong>Hot Patching</strong> 문제는 별도의 자동화 없이 문제를 해결할 수 있었다.</li>
 </ul>
@@ -2515,9 +2509,8 @@ manda??? =&gt; mandari? =&gt; mandarin*
 <hr />
 
 <p><img src="/assets/bob/bob961.png" alt="/assets/bob/bob961.png" /></p>
-
-<p>Find the leaked data</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Find the leaked data
+</code></pre></div></div>
 <ul>
   <li>해당 문제에서는 웹 서버의 access.log 파일이 제공되었다.</li>
 </ul>
@@ -2596,9 +2589,8 @@ manda??? =&gt; mandari? =&gt; mandarin*
 <hr />
 
 <p><img src="/assets/bob/bob962.png" alt="/assets/bob/bob962.png" /></p>
-
-<p>bvm에서 일부 경계 검사를 수행하지 않는 루틴을 이용하여 stack 영역 변조 및 쉘 획득</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bvm에서 일부 경계 검사를 수행하지 않는 루틴을 이용하여 stack 영역 변조 및 쉘 획득
+</code></pre></div></div>
 <p>bvm opcode를 해석하고 실행하는 과정에서 총 3가지 취약점이 존재한다.</p>
 
 <ol>
@@ -3035,9 +3027,8 @@ c
 <hr />
 
 <p><img src="/assets/bob/bob969.png" alt="/assets/bob/bob969.png" /></p>
-
-<p>Format String Bug를 이용한 stack 영역 변조 및 쉘 획득 (glibc 2.27)</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Format String Bug를 이용한 stack 영역 변조 및 쉘 획득 (glibc 2.27)
+</code></pre></div></div>
 <ul>
   <li>보호기법</li>
 </ul>
@@ -3124,11 +3115,8 @@ RelRO                         : Full
 <hr />
 
 <p><img src="/assets/bob/bob973.png" alt="/assets/bob/bob973.png" /></p>
-
-<ul>
-  <li>보호기법</li>
-</ul>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- 보호기법
+</code></pre></div></div>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Canary                        : ✓
 NX                            : ✓
 PIE                           : ✓
@@ -3254,9 +3242,8 @@ RelRO                         : Full
 <hr />
 
 <p><img src="/assets/bob/bob976.png" alt="/assets/bob/bob976.png" /></p>
-
-<p>race condition을 이용한 thread heap exploit challenge.</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>race condition을 이용한 thread heap exploit challenge.
+</code></pre></div></div>
 <h3 id="challenge">Challenge</h3>
 
 <p>사용할 수 있는 메뉴는 아래와 같다.</p>
@@ -3380,9 +3367,8 @@ c
 <hr />
 
 <p><img src="/assets/bob/bob977.png" alt="/assets/bob/bob977.png" /></p>
-
-<p>Easy polynomial factoring</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Easy polynomial factoring
+</code></pre></div></div>
 <ul>
   <li>문제에서는 공개키만 제공된다. 즉 이 문제에서는 N을 factorization하는 게 목표이다.</li>
   <li>code에서 N의 값을 13진법으로 살펴보라는 힌트가 주어졌다.</li>
@@ -3430,9 +3416,8 @@ c
 <hr />
 
 <p><img src="/assets/bob/bob978.png" alt="/assets/bob/bob978.png" /></p>
-
-<p>Oracle Padding Attack</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Oracle Padding Attack
+</code></pre></div></div>
 <p><img src="/assets/bob/bob979.png" alt="/assets/bob/bob979.png" /></p>
 
 <p><strong>문제확인</strong></p>
@@ -3635,12 +3620,9 @@ c
 
 <hr />
 
-<p>문제에 대한 간단 설명</p>
-
 <p><img src="/assets/bob/bob992.png" alt="/assets/bob/bob992.png" /></p>
-
-<p>easy gif misc</p>
-
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>easy gif misc
+</code></pre></div></div>
 <ul>
   <li>문제의 그림에서 gif 그림을 보면 반짝이는 글자가 두 위치에서 반짝이는 것을 볼 수 있다. 이 그림이 문제 파일이다.</li>
 </ul>
@@ -3724,13 +3706,12 @@ c
 <hr />
 
 <p><img src="/assets/bob/bob996.png" alt="/assets/bob/bob996.png" /></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>약 5만장의 강아지와 고양이 사진이 랜덤으로 나오며, 1초 안에 사진에 나온 동물이 강아지인지 고양이인지 맞춰야 하는 captcha solver 문제입니다. 300개의 스테이지를 모두 클리어하면 플래그를 획득할 수 있다.
 
-<p>약 5만장의 강아지와 고양이 사진이 랜덤으로 나오며, 1초 안에 사진에 나온 동물이 강아지인지 고양이인지 맞춰야 하는 captcha solver 문제입니다. 300개의 스테이지를 모두 클리어하면 플래그를 획득할 수 있다.</p>
+출제 의도는 일종의 '`자동 의사 결정기`'를 만들 수 있는가?' 이다.
 
-<p>출제 의도는 일종의 ‘<code class="highlighter-rouge">자동 의사 결정기</code>‘를 만들 수 있는가?’ 이다.</p>
-
-<p>의도했던 풀이는 사실 <code class="highlighter-rouge">CNN과 GAN을 적절히 섞어 하나의 앙상블 모델을 컴파일하고 주어진 데이터셋으로 학습 후 정답을 예측</code>하는 것이였으나,  문제의 난이도를 하향 조절 하다 보니(…) 문제에 제공되는 데이터셋을 전부 제공하게 되었고, 그로 인해 따로 모델을 컴파일하지 않고 주어진 데이터셋으로 일종의 hash table을 만들어 문제를 풀이할 수 있다.</p>
-
+의도했던 풀이는 사실 `CNN과 GAN을 적절히 섞어 하나의 앙상블 모델을 컴파일하고 주어진 데이터셋으로 학습 후 정답을 예측`하는 것이였으나,  문제의 난이도를 하향 조절 하다 보니(...) 문제에 제공되는 데이터셋을 전부 제공하게 되었고, 그로 인해 따로 모델을 컴파일하지 않고 주어진 데이터셋으로 일종의 hash table을 만들어 문제를 풀이할 수 있다.
+</code></pre></div></div>
 <h3 id="머신러닝으로-풀기">머신러닝으로 풀기</h3>
 
 <p>분류해야 할 데이터가 이미지이기 때문에 <code class="highlighter-rouge">CNN(Convolutional Neural Network) 모델</code>을 사용한다. 주어진 데이터셋의 이미지 사이즈가 모두 제각각이기 때문에 어느정도의 preprocessing 이 필요하다. 또한 훈련의 연산량을 줄여 훈련 효율을 높이기 위해 이미지를 grayscale로 변환했다.</p>
@@ -3832,11 +3813,10 @@ c
 <hr />
 
 <p><img src="/assets/bob/bob997.png" alt="/assets/bob/bob997.png" /></p>
-
-<p>description을 살펴보면 세상이 뒤집어진 것 같다는 말을 하고 있다.
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>description을 살펴보면 세상이 뒤집어진 것 같다는 말을 하고 있다.
 verrox를 뒤집으면 xorrev이며, xor + rev라는 것을 유추할 수 있다.
-해당 바이너리를 reverse한 후 8바이트 xor 키를 구해 연산하면 원본 ELF 파일이 나오게 되며, 실행 시 플래그를 얻을 수 있다.</p>
-
+해당 바이너리를 reverse한 후 8바이트 xor 키를 구해 연산하면 원본 ELF 파일이 나오게 되며, 실행 시 플래그를 얻을 수 있다.
+</code></pre></div></div>
 <h3 id="1-xor-key">1. xor key</h3>
 
 <p><img src="/assets/bob/bob998.png" alt="/assets/bob/bob998.png" /></p>
@@ -3899,7 +3879,7 @@ End disqus -->
 <div class="pagination">
   
   
-   <a href="/2020-07-01/chrome-CVE-2019-13720-exploit" class="right arrow">&#8594;</a>
+   <a href="/2020-09-01/2020-BoB-CTF-Write-up-2" class="right arrow">&#8594;</a>
   
 
   <a href="#" class="top">Top</a>
@@ -3908,7 +3888,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-09-02 01:18:08 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 13:28:59 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 
