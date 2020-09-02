@@ -91,13 +91,13 @@ http://bob.zairo.kr:1337/catview?**src=http://bob.zairo.kr:1337/cats/ae7d0baaa9b
 ---
 
 ![/assets/bob/bob914.png](/assets/bob/bob914.png)
-
+```
 [Javasciprt 난독화]
 해당 문제는 Javascript 난독화이며, 간단하게 플래그가 숨겨져 있는 문제임
 (본 문제는 [로얄 마카롱 앵무새](https://m.blog.naver.com/chiot_aile/221592247073)가 생각나서 만들게 되었으며,  라온에 놀러오시면 꼭 여기 마카롱집 가야됩니다.)
 
 풀이는 어렵지 않으며, 간단하다. 별다른 안티 디버깅 및 복잡한 난독화가 아닌 단순히 플래그가 출력되지 못하도록 변수에 저장되어있는 걸 찾는 문제임
-
+```
 ### 1. 문제 파악하기
 
 - 문제 사이트에 접속하면 Javascript Alert로 "**find Flag**"를 출력된다.
@@ -224,7 +224,7 @@ function 𓆣(𓂀){ alert(𓂀); }
 ---
 
 ![/assets/bob/bob917.png](/assets/bob/bob917.png)
-
+```
 [Javasciprt 조작]
 문제 사이트에 접속 시 아래와 같은 페이지가 출력되며 게임이 진행되며 게임 플레이 방법은 "**BOB**" 라고 쓰여 있는 우주괴물을 다 제거되어야 Flag가 나오는 문제임.
 (본 문제는 [Raon Secure Fun Zone](https://www.raoncorp.com/ko/recruit/raonlife)를 모티브로 제작됨)
@@ -232,7 +232,7 @@ function 𓆣(𓂀){ alert(𓂀); }
 풀이는 대략 2가지로 생각할 수 있다.
 첫 번째는 직접 게임 플레이를 진행 후 전부 제거하여 Flag를 얻거나 (Physical),
 두 번째 방법으로는 자바스크립트 로직을 우회하여 게임핵(무적, 스피드)을 제작하여 게임을 진행하거나 또는 게임 진행할 필요 없이 Flag를 얻을 수 있다.
-
+```
 ![/assets/bob/game_1.gif](/assets/bob/game_1.gif)
 
 ### **1. 문제 로직 파악하기**
@@ -588,9 +588,9 @@ $.post(url, data, function(response) {
 ---
 
 ![/assets/bob/bob921.png](/assets/bob/bob921.png)
-
+```
 문제 설명에 /readFlag 라고 되어 있으므로 RCE를 해야하는 문제이다.
-
+```
 문제 페이지에 접속하면 XML 사용하는 페이지가 나온다.
 
 ![/assets/bob/bob922.png](/assets/bob/bob922.png)
@@ -1984,9 +1984,9 @@ manda??? => mandari? => mandarin*
 ---
 
 ![/assets/bob/hot_patching_2.png](/assets/bob/hot_patching_2.png)
-
+```
 공통된 명령 바이트를 통한 Key 추출 자동화 
-
+```
 - 이전 **Hot Patching** 문제는 별도의 자동화 없이 문제를 해결할 수 있었다.
 
 ![/assets/bob/12_flag_xor.png](/assets/bob/12_flag_xor.png)
@@ -2277,9 +2277,9 @@ am start -n jeong.su.bob9_easy_android/.MainActivity
 ---
 
 ![/assets/bob/bob961.png](/assets/bob/bob961.png)
-
+```
 Find the leaked data
-
+```
 - 해당 문제에서는 웹 서버의 access.log 파일이 제공되었다.
 
 ```
@@ -2361,9 +2361,9 @@ for line in f.readlines():
 ---
 
 ![/assets/bob/bob962.png](/assets/bob/bob962.png)
-
+```
 bvm에서 일부 경계 검사를 수행하지 않는 루틴을 이용하여 stack 영역 변조 및 쉘 획득
-
+```
 bvm opcode를 해석하고 실행하는 과정에서 총 3가지 취약점이 존재한다.
 
 1. `COMP reg, reg` opcode에서 left register index에 대해서는 경계 검사를 하지만 right register index는 경계 검사를 하지 않아, 경계를 넘는 register index를 참조하여 255번 반복 비교를 통해 일부 stack 영역을 간접적으로 leak 할 수 있다.
@@ -2791,9 +2791,9 @@ p.interactive()
 ---
 
 ![/assets/bob/bob969.png](/assets/bob/bob969.png)
-
+```
 Format String Bug를 이용한 stack 영역 변조 및 쉘 획득 (glibc 2.27)
-
+```
 - 보호기법
 
 ```bash
@@ -2876,9 +2876,9 @@ r.interactive()
 ---
 
 ![/assets/bob/bob973.png](/assets/bob/bob973.png)
-
+```
 - 보호기법
-
+```
 ```bash
 Canary                        : ✓
 NX                            : ✓
@@ -2993,9 +2993,9 @@ r.interactive()
 ---
 
 ![/assets/bob/bob976.png](/assets/bob/bob976.png)
-
+```
 race condition을 이용한 thread heap exploit challenge.
-
+```
 ### Challenge
 
 사용할 수 있는 메뉴는 아래와 같다.
@@ -3116,9 +3116,9 @@ r.interactive()
 ---
 
 ![/assets/bob/bob977.png](/assets/bob/bob977.png)
-
+```
 Easy polynomial factoring
-
+```
 - 문제에서는 공개키만 제공된다. 즉 이 문제에서는 N을 factorization하는 게 목표이다.
 - code에서 N의 값을 13진법으로 살펴보라는 힌트가 주어졌다.
 - N을 base 13으로 살펴보면 아래와 같다.
@@ -3165,9 +3165,9 @@ sage: q = 13^200 + 13^3 + 13^2 + 13 + 1
 ---
 
 ![/assets/bob/bob978.png](/assets/bob/bob978.png)
-
+```
 Oracle Padding Attack
-
+```
 ![/assets/bob/bob979.png](/assets/bob/bob979.png)
 
 **문제확인**
@@ -3344,12 +3344,10 @@ print("plain =>", plain)
 
 ---
 
-문제에 대한 간단 설명
-
 ![/assets/bob/bob992.png](/assets/bob/bob992.png)
-
+```
 easy gif misc
-
+```
 - 문제의 그림에서 gif 그림을 보면 반짝이는 글자가 두 위치에서 반짝이는 것을 볼 수 있다. 이 그림이 문제 파일이다.
 
 ![/assets/bob/bob993.png](/assets/bob/bob993.png)
@@ -3432,13 +3430,13 @@ easy gif misc
 ---
 
 ![/assets/bob/bob996.png](/assets/bob/bob996.png)
-
+```
 약 5만장의 강아지와 고양이 사진이 랜덤으로 나오며, 1초 안에 사진에 나온 동물이 강아지인지 고양이인지 맞춰야 하는 captcha solver 문제입니다. 300개의 스테이지를 모두 클리어하면 플래그를 획득할 수 있다.
 
 출제 의도는 일종의 '`자동 의사 결정기`'를 만들 수 있는가?' 이다.
 
 의도했던 풀이는 사실 `CNN과 GAN을 적절히 섞어 하나의 앙상블 모델을 컴파일하고 주어진 데이터셋으로 학습 후 정답을 예측`하는 것이였으나,  문제의 난이도를 하향 조절 하다 보니(...) 문제에 제공되는 데이터셋을 전부 제공하게 되었고, 그로 인해 따로 모델을 컴파일하지 않고 주어진 데이터셋으로 일종의 hash table을 만들어 문제를 풀이할 수 있다.
-
+```
 ### 머신러닝으로 풀기
 
 분류해야 할 데이터가 이미지이기 때문에 `CNN(Convolutional Neural Network) 모델`을 사용한다. 주어진 데이터셋의 이미지 사이즈가 모두 제각각이기 때문에 어느정도의 preprocessing 이 필요하다. 또한 훈련의 연산량을 줄여 훈련 효율을 높이기 위해 이미지를 grayscale로 변환했다.
@@ -3541,11 +3539,11 @@ easy gif misc
 ---
 
 ![/assets/bob/bob997.png](/assets/bob/bob997.png)
-
+```
 description을 살펴보면 세상이 뒤집어진 것 같다는 말을 하고 있다.
 verrox를 뒤집으면 xorrev이며, xor + rev라는 것을 유추할 수 있다.
 해당 바이너리를 reverse한 후 8바이트 xor 키를 구해 연산하면 원본 ELF 파일이 나오게 되며, 실행 시 플래그를 얻을 수 있다.
-
+```
 ### 1. xor key
 
 ![/assets/bob/bob998.png](/assets/bob/bob998.png)
