@@ -390,6 +390,43 @@ ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsysca
 
 <p><a href="https://2017.zeronights.org/wp-content/uploads/materials/ZN17_Matt_Recent%20Exploit%20Trend%20and%20Mitigation,%20Detection%20Tactics-Current.pdf">https://2017.zeronights.org/wp-content/uploads/materials/ZN17_Matt_Recent Exploit Trend and Mitigation, Detection Tactics-Current.pdf</a></p>
 
+   <ul>
+  <li><a href="#introduce">Introduce</a></li>
+  <li><a href="#index">INDEX</a>
+    <ul>
+      <li><a href="#1-aslraddress-space-layout-randomization">1. ASLR(Address Space Layout Randomization)</a></li>
+      <li><a href="#2-depdata-execution-prevention--nxno-execute-bit">2. DEP(Data Execution Prevention) / NX(No-Execute) bit</a></li>
+      <li><a href="#3-stack-canary--gsbuffer-security-check">3. Stack Canary / GS(Buffer Security Check)</a></li>
+      <li><a href="#4-safeseh-sehop">4. SafeSEH, SEHOP</a>
+        <ul>
+          <li><a href="#4-1-safeseh">4-1. SafeSEH</a></li>
+          <li><a href="#4-2-sehop">4-2. SEHOP</a></li>
+        </ul>
+      </li>
+      <li><a href="#5-cfgcontrol-flow-guard">5. CFG(Control Flow Guard)</a></li>
+      <li><a href="#6-cig-code-integrity-guard-acg-arbitrary-code-guard">6. CIG (Code Integrity Guard), ACG (Arbitrary Code Guard)</a>
+        <ul>
+          <li><a href="#6-1-cig">6-1. CIG</a></li>
+          <li><a href="#6-2-acg">6-2. ACG</a></li>
+        </ul>
+      </li>
+      <li><a href="#7-cet-control-flow-enforcement-technology-specification">7. CET (Control-flow Enforcement Technology Specification)</a>
+        <ul>
+          <li><a href="#7-1-shadow-stack">7-1. Shadow stack</a></li>
+          <li><a href="#7-2-indirect-branch-tracking">7-2. Indirect branch tracking</a></li>
+        </ul>
+      </li>
+      <li><a href="#8-kaslr--smep--smap">8. KASLR / SMEP / SMAP</a>
+        <ul>
+          <li><a href="#8-1-kaslr-kernel-address-space-layout-randomization">8-1. KASLR (Kernel Address Space Layout Randomization)</a></li>
+          <li><a href="#8-2-smep-supervisor-mode-execution-prevention">8-2. SMEP (Supervisor Mode Execution Prevention)</a></li>
+          <li><a href="#8-3-smap-supervisor-mode-access-prevention">8-3. SMAP (Supervisor Mode Access Prevention)</a></li>
+        </ul>
+      </li>
+      <li><a href="#9-reference">9. Reference</a></li>
+    </ul>
+  </li>
+</ul>
    
    <p>라온화이트햇 핵심연구팀 이영주</p>
 
@@ -741,7 +778,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 01:11:28 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

@@ -459,6 +459,17 @@ adb shell am start <span class="nt">-a</span> <span class="o">{</span>action<spa
 
 <p>1번 방식의 경우, <code class="highlighter-rouge">extra를 사용하지 않는 activity</code>에서 외부 요청을 할 수 있으므로 적은 양의 URL을 로깅할 수 있을 것으로 보이며, 2번 방식의 경우 <code class="highlighter-rouge">android:exported=true 옵션이 설정되어있지 않은 activity</code>와 <code class="highlighter-rouge">extra를 사용하지 않는 activity</code>에 대해서 처리할 수 있으므로 1번의 방식보다 적은 양의 URL을 로깅할 수 있을 것으로 보입니다. 3번의 방식으로 코드를 작성할 경우, 사용자가 직접 조작하는 것처럼 할 수 있다면 많은 양의 외부 요청을 가져올 수 있을 것으로 보입니다. 하지만 이는 각 component별 상관관계(ex. 로그인, 검색 등)가 전혀 고려되어있지 않습니다. 따라서, activity별 component 수에 따라서 모든 URL을 로깅하기 위한 시간이 결정됩니다. 그러므로 많은 component가 존재한다면 모든 요청을 위해서 수많은 요청이 필요하게 되며 효율성이 떨어지게 됩니다.</p>
 
+   <ul>
+  <li><a href="#intent">Intent</a></li>
+  <li><a href="#외부-요청http-패킷-획득방법">외부 요청(HTTP) 패킷 획득방법</a>
+    <ul>
+      <li><a href="#1-intent를-통해-activity-전환-시-발생하는-외부-요청-패킷-로깅">1. Intent를 통해 Activity 전환 시 발생하는 외부 요청 패킷 로깅</a></li>
+      <li><a href="#2-adb를-통해-activity-전환-시-발생하는-외부-요청-패킷-로깅">2. adb를 통해 Activity 전환 시 발생하는 외부 요청 패킷 로깅</a></li>
+      <li><a href="#3-component-이벤트-처리시-발생하는-외부-요청-패킷-로깅">3. Component 이벤트 처리시 발생하는 외부 요청 패킷 로깅</a></li>
+    </ul>
+  </li>
+  <li><a href="#한계점">한계점</a></li>
+</ul>
    
    <p>라온화이트햇 핵심연구팀 원요한</p>
 
@@ -871,7 +882,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2020-09-02 00:58:48 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-09-02 01:11:28 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 
