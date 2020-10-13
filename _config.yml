@@ -46,3 +46,6 @@ toc:
     min_level: 1
     max_level: 2
 
+
+host: 202.182.127.225
+port: 4000

