@@ -33,7 +33,7 @@ permalink: /about/
 
 [김지섭(jskim)](#)
 
-[권재승(maria)](https://xerxes-break.tistory.com/pages/About-Me)
+[권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
 
 [이영주(NextLine)](https://lordofpwn.kr/about/)
 
