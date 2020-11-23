@@ -28,11 +28,12 @@ permalink: /about/
 
 [최규범(qbeom)](#)
 
-[김낙현(mathboy7)](https://blog.naver.com/mathboy7)
 
 [김동민(gpsfly)](https://blog.int80.kr)
 
 [김지섭(jskim)](#)
+
+[권재승(maria)](https://xerxes-break.tistory.com/pages/About-Me)
 
 [이영주(NextLine)](https://lordofpwn.kr/about/)
 
