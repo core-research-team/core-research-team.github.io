@@ -14,6 +14,23 @@
 </url>
   
     <url>
+      <loc>http://202.182.127.225:4000/2021-01-01/XMAS-CTF</loc>
+
+      
+        <lastmod>2021-01-01T00:00:00+00:00</lastmod>
+      
+
+      
+        <changefreq>daily</changefreq>
+      
+
+      
+          <priority>0.5</priority>
+      
+
+    </url>
+  
+    <url>
       <loc>http://202.182.127.225:4000/2020-10-01/hybrid-fuzzing-1315f7575836434785ab9885c31279b7</loc>
 
       
@@ -66,6 +83,23 @@
   
     <url>
       <loc>http://202.182.127.225:4000/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b</loc>
+
+      
+        <lastmod>2020-10-01T00:00:00+00:00</lastmod>
+      
+
+      
+        <changefreq>daily</changefreq>
+      
+
+      
+          <priority>0.5</priority>
+      
+
+    </url>
+  
+    <url>
+      <loc>http://202.182.127.225:4000/2020-10-01/Expressjs</loc>
 
       
         <lastmod>2020-10-01T00:00:00+00:00</lastmod>
