@@ -6,14 +6,14 @@ permalink: /about/
 ---
 
 <center><i>RAON Whitehat CRT(core-research-team) blog</i></center>
-<center><i>contact : korea.hellsonic at gmail.com</i></center>
+<center><i>contact : jeon9.5u at gmail.com</i></center>
 
 ## Why RAON Whitehat?
 
 [About RAON Whitehat...](https://www.whitehat.co.kr/ko/)
 
 ## Team leader
-[이종호(Hellsonic)](https://blog.hellsonic.kr/)
+[최정수(jeong.su)](https://tblog.jeong.su/category/Profile)
 
 ## Team member
 [최정수(jeong.su)](https://tblog.jeong.su/category/Profile)
@@ -48,3 +48,7 @@ permalink: /about/
 [최용선(choiys)](https://blog.choiys.kr)
 
 [황정식(kkamikoon)](https://kkamikoon.tistory.com)
+
+
+## with us
+[이종호(Hellsonic)](https://blog.hellsonic.kr/)
