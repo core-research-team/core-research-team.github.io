@@ -16,8 +16,6 @@ permalink: /about/
 [최정수(jeong.su)](https://tblog.jeong.su/category/Profile)
 
 ## Team member
-[최정수(jeong.su)](https://tblog.jeong.su/category/Profile)
-
 [강인욱(hkkiw0823)](https://github.com/hkkiw0823/hkkiw0823.github.io)
 
 [김재성(badSpell)](#)

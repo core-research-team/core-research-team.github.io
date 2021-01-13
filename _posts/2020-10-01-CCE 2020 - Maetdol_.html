@@ -1,0 +1,823 @@
+---
+layout: post
+title: "CCE 2020 - Maetdol"
+author: "qbeom"
+comments: true
+tags: [write-up, ctf]
+toc: true
+---
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title></title><style>
+/* webkit printing magic: print all background colors */
+
+
+
+
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+
+
+
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+
+
+
+
+
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+	white-space: pre-wrap;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head>
+<body>
+<div class="page-body">
+	<blockquote id="8c0ad004-81f7-4e85-bfe3-e631229526a5" class=""><strong>2020.09</strong>
+	라온화이트햇 핵심연구팀 최규범
+	kbchoi@raoncorp.com</blockquote>
+<hr id="45f0f058-1e1b-4426-8031-3ff0569051d9"/><p id="6e4cb13d-3c5c-42ed-9f20-2d13ea19be32" class="">
+</p><ul id="eb933523-0b64-4230-b5ab-a291d51ae5b1" class="toggle"><li><details open=""><summary><strong>목차</strong></summary><hr id="95591210-f0c2-4cfe-aef5-1e9e3b922773"/><nav id="fee0fdf2-3df5-49a5-a8ce-db4f72015b3f" class="block-color-gray table_of_contents"><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#6add7037-6432-4909-9298-50e1d729a155">개요</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#53a65a01-363a-4889-82be-f22b8b45c1d2">바이너리 분석</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#c1863d4e-b571-4947-a2b1-7bf2f8b8e9cc">&quot;그치만&quot;</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#51ecf720-e1ed-4da0-96f2-179573257631">역연산</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#63de9e75-53e5-4859-a007-0b70654e57d5">문제 풀이 코드</a></div></nav><hr id="a98fbd18-5a0e-4cfb-8ee5-59e22cf60333"/></details></li></ul><h3 id="6add7037-6432-4909-9298-50e1d729a155" class="">개요</h3><p id="98305159-f992-4754-8953-44c4cbca73fe" class="">CCE 2020 예선 리버싱 문제 Maetdol 풀이 보고서입니다.</p><p id="98c77633-731f-42c2-8828-1fc7f3853286" class="">대회 종료까지 4팀이 해결한 문제로, 패킹과 관련된 속임수때문에  문제 풀이에 혼돈을 주었습니다.</p><p id="73755fb8-5176-46b5-a973-79ecd8fdfe80" class="">문제 해결까지 중간 중간 실패한 과정들도 포함하여, 문제 풀이 과정을 상세히 작성해보았습니다.</p><p id="2183b332-5ccb-4d4b-9993-3bebaf780190" class="">
+</p><h3 id="53a65a01-363a-4889-82be-f22b8b45c1d2" class="">바이너리 분석</h3><figure id="f8ed0b7b-0e30-4332-935f-336f3c99f687" class="image"><a href="/assets/202010/202010_qb.png"><img style="width:813px" src="/assets/202010/202010_qb.png"/></a></figure><p id="a6d91ace-2c53-4380-9b19-4b7c4a6e9362" class="">먼저, Maetdol.exe를 Hex Editor로 기본적인 정보를 살펴보았다.</p><p id="9a0ed803-6d2d-44a7-a998-827302fa30c7" class="">Section 정보에서 UPX 패커 정보를 알 수 있다.</p><p id="77c461f7-a1d6-46fc-9aea-c576ae323af1" class="">
+</p><figure id="21c36372-d527-4985-8802-6703bbc8b082" class="image"><a href="/assets/202010/202010_qb1.png"><img style="width:631px" src="/assets/202010/202010_qb1.png"/></a></figure><p id="3430011b-162f-4759-85bd-4d77f550564f" class="">UPX 패커의 &#x27;-d&#x27; 옵션을 통해서 바이너리를 Unpack 하였다.</p><p id="7018fda6-c1f4-4440-b7f9-e49d7ca9e895" class="">
+</p><figure id="111af78e-330b-4134-b142-14fdd69f1ad3" class="image"><a href="/assets/202010/202010_qb2.png"><img style="width:429px" src="/assets/202010/202010_qb2.png"/></a></figure><p id="c1254d22-be8d-462a-8bc5-26e4c3a876e6" class="">IDA를 통해 Unpack한 바이너리를 열고, 0x401000 주소를 분석하였다.
+<mark class="highlight-gray"><em><strong>(Windows 환경의 실행 파일 대부분이 해당 주소에서 주요 기능을 수행한다.)</strong></em></mark></p><p id="aad98524-aeb8-4489-879c-8d2ba7d27572" class="">무언가 Hash로 보이는 데이터를 저장하는 것으로 보인다.</p><p id="95cb9791-b74f-4426-a981-65802abc3925" class="">
+</p><figure id="35af7a00-a1a3-4f2a-9509-e0b6a37b7f63" class="image"><a href="/assets/202010/202010_qb3.png"><img style="width:487px" src="/assets/202010/202010_qb3.png"/></a></figure><p id="b7b24c19-4dab-4395-91b7-8639bdf17e23" class="">scanf를 통해 입력 값을 받은 후, 최상위 비트가 존재하는지 확인한다.</p><p id="62cd4360-1c21-43f4-b155-c123c239732f" class="">입력 받은 글자 수가 55글자인지, 0x80 미만의 출력 가능한 문자열인지 확인한다.</p><p id="9aae17b5-66a2-4a4b-84f6-204950bcfa65" class="">
+</p><figure id="cf71ef4c-fc1c-4669-87fb-6b5150d85d14" class="image"><a href="/assets/202010/202010_qb4.png"><img style="width:464px" src="/assets/202010/202010_qb4.png"/></a></figure><p id="1bb987bf-0532-4b5d-94d6-9fe1d77a1927" class="">글자 시작이 &#x27;cce2020{M&#x27;인지 확인 후, 입력 받은 글자를 이진 문자열로 변환한다.</p><p id="0243ed11-5429-43a0-af8d-94137b98163b" class="">
+</p><figure id="f1982d76-60ea-4ffc-9f2c-45175f797ef5" class="image"><a href="/assets/202010/202010_qb5.png"><img style="width:277px" src="/assets/202010/202010_qb5.png"/></a></figure><p id="8ceddf3a-d916-4397-8233-82835c43d8d0" class="">&#x27;0&#x27;을 7개 더한 후 변환한 이진 문자열의 크기가 392인지 확인한다.</p><p id="29476160-a2bb-4a2f-96e1-dcf182c8d5de" class="">55개의 입력을 받고 7개의 &#x27;0&#x27;을 더했으므로 해당 이진 문자열 크기는 392가 된다.</p><p id="1117bb91-dfcd-4561-b153-baf69de376b6" class="">
+</p><pre id="13465afc-a469-49fc-b291-6b06f478613c" class="code"><code>55 * 7 + 7 = 392</code></pre><figure id="376cf9df-0d03-44f9-9ec3-fc6a5dca12b8" class="image"><a href="/assets/202010/202010_qb6.png"><img style="width:370px" src="/assets/202010/202010_qb6.png"/></a></figure><p id="a72876cb-05e5-4ab8-bd7a-47f92c2ed29c" class="">그리고 어떠한 연산을 수행하여 다시 배열에 저장한다.</p><p id="8a091ba6-9d8e-4a14-8b5a-45692ae03c72" class="">디버깅을 통해 <strong>입력 값 → 이진 문자열 → 배열</strong>의 관계를 확인해보았다.</p><p id="5bf7e79d-8904-4609-ad2f-f11876b7ac23" class="">
+</p><figure id="c5619b97-6ece-4a93-9ba6-dc6287172fed" class="image"><a href="/assets/202010/202010_qb7.png"><img style="width:445px" src="/assets/202010/202010_qb7.png"/></a></figure><p id="e2a6bc46-fd5f-43a5-9094-f34ac01f6fe3" class="">위 비교 조건을 만족하는 임의 값을 입력하여 진행하였다.</p><p id="0ee4275b-77b1-4282-94d2-230d1c0ab4c1" class="">
+</p><figure id="077bf354-8726-42b9-b931-2d6daed1681c" class="image"><a href="/assets/202010/202010_qb8.png"><img style="width:626px" src="/assets/202010/202010_qb8.png"/></a></figure><p id="66b4118b-0e24-4e9a-a59a-4d75fa3273fc" class="">마지막 배열을 저장하는 Maetdol.exe+0x16CB를 디버깅하여 확인하였다.</p><p id="7061974f-1ae7-4043-a5e2-03aa7c283d12" class="">처음에는 0xC7이 저장된다. </p><p id="cb1bbd6d-f356-40d2-8321-dc47295a8e12" class="">
+</p><figure id="d9c47444-e710-4080-a62d-5804c4aa7edb" class="image"><a href="/assets/202010/202010_qb9.png"><img style="width:455px" src="/assets/202010/202010_qb9.png"/></a></figure><p id="780f9c32-e65d-4a48-a3f3-131ee574777e" class="">위와 같은 데이터가 배열에 저장되었다. 이진 데이터로 보면, &#x27;<strong>11000111 10001110 10011010</strong> ...&#x27; 이다.</p><p id="0d9bbc92-70ce-4c03-8c4c-15f0a88a35a6" class="">입력 값 &#x27;cce...&#x27;를 이진 데이터로 보면, &#x27;<strong>01100011 01100011 01100101</strong> ...&#x27; 이다.
+</p><p id="4d64529b-d5aa-4a6d-b315-918e94248a4a" class=""> &#x27;<mark class="highlight-red"><strong>1100011</strong></mark><mark class="highlight-blue"><strong>1 100011</strong></mark><mark class="highlight-teal"><strong>10 10011</strong></mark><strong>010</strong> ...&#x27; ⇒ 저장된 배열</p><p id="565f836a-9f63-43cb-9d5e-fa4be4d8c6da" class=""> &#x27;<strong>0</strong><mark class="highlight-red"><strong>1100011</strong></mark><strong> 0</strong><mark class="highlight-blue"><strong>1100011</strong></mark><strong> 0</strong><mark class="highlight-teal"><strong>1100101</strong></mark> ...&#x27; ⇒ &#x27;cce...&#x27;</p><p id="a79eb4a9-df45-495d-93a2-b5bc19c21756" class="">
+자세히 보니 둘과의 관계가 일부 보인다.</p><p id="06837f6f-18fd-4f20-99a1-7baf65b4cf99" class="">우선 이미 상위 비트를 검사하였기에, 입력 값에서 7개 비트만 사용한 것을 알 수 있다.</p><p id="d1425a42-9812-4d9b-9b33-0022ec9ab834" class=""><strong>&#x27;e&#x27; ⇒ </strong><mark class="highlight-teal"><strong>1100101 </strong></mark><strong>⇒ </strong><mark class="highlight-teal"><strong>1010011</strong></mark></p><p id="05f63ade-d958-4578-ad3c-504175bdb9c3" class="">또한 이진 문자열로 변경하면서, 그 순서를 뒤집은 것으로 보여진다.</p><p id="1cffc783-06f1-48d9-b45c-e8f04244a063" class="">
+</p><figure id="72310cea-e874-4549-b18d-32c317296cfc" class="image"><a href="/assets/202010/202010_qb10.png"><img style="width:559px" src="/assets/202010/202010_qb10.png"/></a></figure><figure id="3af672b5-d337-440d-b901-2fe58f0b73cc" class="image"><a href="/assets/202010/202010_qb11.png"><img style="width:521px" src="/assets/202010/202010_qb11.png"/></a></figure><p id="c6a3c6d9-8c1e-4388-b133-818c1981ad3f" class="">이후 저장된 배열을 8바이트 단위로 더하여 저장한다.</p><p id="5c4a88b7-d035-484f-8df5-78c7cf19af09" class="">
+</p><figure id="45aedf7a-9ed5-4430-a0a8-b509b5d7d225" class="image"><a href="/assets/202010/202010_qb12.png"><img style="width:805px" src="/assets/202010/202010_qb12.png"/></a></figure><p id="43c43e4e-6ef1-4106-8ee6-1b1bc53c30c5" class="">그리고 Hash 함수로 추정되는 sub_403634를 호출하고, 그 결과 Hash를 저장한다.</p><p id="06bcb26d-04fa-456f-becc-24d49b714d9d" class="">
+</p><figure id="bcc11c35-e8ef-4dc8-9445-9f4c11edd6ba" class="image"><a href="/assets/202010/202010_qb13.png"><img style="width:287px" src="/assets/202010/202010_qb13.png"/></a></figure><p id="25dc54c0-3826-4249-a43d-79712369dc73" class="">그리고 처음 저장된 6개의 Hash와 비교하는 것으로 추정된다.</p><p id="817c87a1-13dd-4245-b5b1-cc82cea4d582" class="">모두 일치할 경우 해당 입력 값이 Flag일 것이다.</p><p id="7f267fd0-a612-49b1-a32b-8b672afd28ba" class="">이제 Hash 함수로 추정되는 sub_403634를 분석해야한다.</p><p id="c6ffeb57-0dd6-47a9-b42e-35bd5023ec79" class="">
+</p><figure id="6bdf6755-8a35-474d-a0f2-ff7d118af966" class="image"><a href="/assets/202010/202010_qb14.png"><img style="width:729px" src="/assets/202010/202010_qb14.png"/></a></figure><p id="76df4756-ab29-4af7-b134-46ca87decac0" class="">sub_403634 함수는 위와 같이 동작한다. 
+<mark class="highlight-gray"><strong><em>(무언가 복잡한 식이 많고, 이미 존재하는 함수처럼 보일 때는 구글 검색해보는 것이 좋다.)</em></strong></mark></p><p id="8ee68270-3689-4d65-bd3b-af8e520e8da1" class="">
+</p><figure id="a8fa28d7-4b3e-4f9a-bd93-35ebba38d51e" class="image"><a href="/assets/202010/202010_qb15.png"><img style="width:857px" src="/assets/202010/202010_qb15.png"/></a></figure><p id="478f49a7-2f0f-486e-800e-c0eed76e5bb1" class="">함수 시작에서 사용되는 값을 검색하였다.</p><p id="44a7f68c-f0a1-4d82-8f27-2b2ecb20e405" class="">SHA1과 MD5에 대한 결과가 보이며 비교하는 Hash의 길이를 보았을 때, MD5로 추정된다.</p><p id="7aa73ba2-4f41-4482-9ec5-c209463cc1fa" class="">
+</p><figure id="993288b6-5523-432e-81da-406f25bdaec5" class="image"><a href="/assets/202010/202010_qb16.png"><img style="width:492px" src="/assets/202010/202010_qb16.png"/></a></figure><p id="95f4acd2-0ebe-4c17-a84b-a22019b8cf2a" class=""><a href="https://en.wikipedia.org/wiki/MD5">Wikipedia</a>에서 MD5 의사 코드를 발견하였는데, sub_403634와 아주 동일한 형태를 띄고 있다.</p><p id="66d42cc8-eac0-461d-ba43-abae06d22d6f" class="">sub_403634는 MD5 Hash 함수임을 알 수 있다.</p><p id="71c91ea8-57ab-413a-b690-be6618e05efd" class="">
+</p><h3 id="c1863d4e-b571-4947-a2b1-7bf2f8b8e9cc" class="">&quot;그치만&quot;</h3><p id="549bec90-d0d3-407c-b059-c2fbd19d0cdb" class="">단방향 함수인 MD5 Hash를 역으로 계산할 방법은 없어보인다.</p><p id="6c86ab65-b804-459a-939d-8254cc412bdc" class="">하지만 분명 풀 수 있게 낸 문제이므로, 무언가 해결에 필요한 속임수가 존재할 것이다.
+<mark class="highlight-gray"><strong><em>&quot;그치만... 동적 디버깅이라도 하지 않으면, Hash 값이 이상한지 알 수 없는 걸...&quot;</em></strong></mark></p><p id="63726c85-4e36-4dce-8fd7-ca17a6f5ad33" class="">
+</p><figure id="167fc324-b7c1-47f1-a83d-bbd82c612c74" class="image"><a href="/assets/202010/202010_qb17.png"><img style="width:417px" src="/assets/202010/202010_qb17.png"/></a></figure><p id="64caffea-c6eb-4a94-b06c-bdcafac1adf8" class="">먼저 sub_403634 함수의 인자를 원하는 값으로 넣고, 실제 MD5의 값과 비교하였다.</p><p id="6b67545b-6860-4305-b871-929d257010a9" class="">
+</p><figure id="4f7014cd-fd5d-4641-8474-46823e15d90c" class="image"><a href="/assets/202010/202010_qb18.png"><img style="width:286px" src="/assets/202010/202010_qb18.png"/></a></figure><figure id="7cbe0226-0e6b-4f0f-9add-13db9c62bea5" class="image"><a href="/assets/202010/202010_qb19.png"><img style="width:587px" src="/assets/202010/202010_qb19.png"/></a></figure><p id="5af04067-6eee-4f37-a989-1bc454086e4c" class="">그 결과, 알던 것과는 너무나도 다른 내용의 무언가가 나왔다.</p><p id="86e419cf-bee5-4ff5-b704-20065f1f1cc7" class="">
+</p><figure id="28b82142-4aef-4b63-81ba-84983728cedd" class="image"><a href="/assets/202010/202010_qb20.png"><img style="width:300px" src="/assets/202010/202010_qb20.png"/></a></figure><p id="8849b20b-3543-4e24-89ee-d5a161b7a84a" class="">64회 수행되는 위 <a href="https://en.wikipedia.org/wiki/MD5#Algorithm">MD5 알고리즘</a>의 결과가 저장되는 곳과, 반복문이 끝나는 지점을 확인했다.</p><p id="9cdaea1e-c671-418f-b3c7-20ecec42d5c5" class="">
+</p><figure id="32f89e48-3f1e-4a45-b097-7e0b3d168bd4" class="image"><a href="/assets/202010/202010_qb21.png"><img style="width:694px" src="/assets/202010/202010_qb21.png"/></a></figure><p id="dc87d0df-ffd6-4f78-987a-32d784a80270" class="">실제 MD5 Hash의 연산 중간 값 64개와, 마지막 연산의 결과를 비교해본다.</p><p id="dc08e042-286e-476a-bf94-d8404d2daf1c" class="">
+</p><figure id="b91544da-b764-4bc8-8cb8-ab0e243c580e" class="image"><a href="/assets/202010/202010_qb22.png"><img style="width:476px" src="/assets/202010/202010_qb22.png"/></a></figure><p id="b9364710-c3a0-4ea8-ad1b-e657cdf0aabf" class="">64번 반복되어야 할 연산이, 기묘하게도 16번만 반복하고 끝난다.</p><p id="ca615f83-4077-461d-bdf9-a016ac2720fe" class=""><mark class="highlight-gray"><em><strong>&quot;대체 무슨 </strong></em></mark><mark class="highlight-gray"><em><strong><a href="https://people.search.naver.com/search.naver?where=nexearch&amp;sm=tab_ppn&amp;query=%EB%85%B8%EC%82%AC%EC%97%B0&amp;os=96492&amp;ie=utf8&amp;key=PeopleService">사연</a></strong></em></mark><mark class="highlight-gray"><em><strong>이..? 취재팀은 급하게  반복문 조건으로 발길을 돌렸다.&quot;</strong></em></mark></p><p id="32e4a408-1525-4e31-86e2-52ade25bb3a3" class="">
+</p><figure id="6341b7b2-c5d7-471c-806d-d9e052297318" class="image"><a href="/assets/202010/202010_qb23.png"><img style="width:847px" src="/assets/202010/202010_qb23.png"/></a></figure><p id="9e2767d5-2319-48a9-b555-2bb133cfd3b2" class="">반복문 조건을 확인해보니, 본래 64회 반복해야할 내용이 16회로 달라져있다.</p><p id="a037b813-f416-41f9-bbf8-7dac720b18a0" class="">보고도 믿기지 않아 어려번 재실행해보았지만, 16회 반복으로 되어있었다.</p><p id="31b52f86-56d3-4673-ab1a-bf15db3080eb" class="">UPX 패커의 &#x27;-d&#x27; 옵션 결과와 실행하여 Unpack 된 내용이 다르도록, 특정 속임수가 있는 것 같다.</p><p id="4c7be583-82db-404c-84eb-a4bd4ad6d4e2" class="">
+</p><h3 id="51ecf720-e1ed-4da0-96f2-179573257631" class="">역연산</h3><figure id="e4454cb8-1f86-4f05-8200-8e79dba46ef9" class="image"><a href="/assets/202010/202010_qb24.png"><img style="width:437px" src="/assets/202010/202010_qb24.png"/></a></figure><p id="96959890-422d-4450-97c0-5f990e72cb97" class="">16회만 반복 연산할 경우, F값이 정해지는 조건은 일정해진다.</p><p id="8c7a7017-62db-40c6-b49a-ba3071620805" class="">
+</p><figure id="c9ed5c50-c9ee-4d57-84a3-a6fd78148053" class="image"><a href="/assets/202010/202010_qb25.png"><img style="width:341px" src="/assets/202010/202010_qb25.png"/></a></figure><figure id="d7a2329a-5302-43a4-b6a6-6059b0b11ae9" class="image"><a href="/assets/202010/202010_qb26.png"><img style="width:523px" src="/assets/202010/202010_qb26.png"/></a></figure><p id="8e1a5eb6-d740-4f3a-a341-cecb337c09fe" class="">연산에 사용되는 M[g]의 경우, 위와 같은 형태로 구성되며 4바이트 단위로 쓰인다.</p><p id="65b2b412-93cc-4aa1-9ce0-c281efc22b95" class="">중간에 사용되는 K, s는 고정된 참조 값이다.</p><p id="0272f7e0-9a16-4535-aab3-fdfc9005e1e4" class="">
+</p><figure id="b1423057-0ca4-411e-bd5d-c5a59a78c44d" class="image"><a href="/assets/202010/202010_qb27.png"><img style="width:1292px" src="/assets/202010/202010_qb27.png"/></a></figure><p id="142c3ad6-0f81-42f7-be3a-264997f6a7a5" class=""><mark class="highlight-gray"><em><strong> &quot; 1/4 밖에 안남은 MD5를 보았다. 웅장하게 코드를 수호하던 그 MD5 맞나..?&quot;</strong></em></mark></p><p id="65bdca73-2119-4a99-a208-6ede859e4f04" class="">
+</p><pre id="66b30909-380d-4da6-ae04-4cd69dd60ed4" class="code code-wrap"><code>def md5_custom(buf):
+    a0 = 0x67452301   # A
+    b0 = 0xefcdab89   # B
+    c0 = 0x98badcfe   # C
+    d0 = 0x10325476   # D
+
+    data = [buf &amp; 0xFFFFFFFF, (buf &gt;&gt; 32) &amp; 0xFFFFFFFF, 0x80, 0, 
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0x40, 0  ]
+    
+    A, B, C, D = a0, b0, c0, d0
+    for i in range(16):
+        F = ((B &amp; C) | (D &amp; (~B))) &amp; 0xFFFFFFFF
+        tmp = (A + F + K[i] + data[i]) &amp; 0xFFFFFFFF
+        new_B = (B + ROL(tmp, R[i])) &amp; 0xFFFFFFFF
+        A, B, C, D = D, new_B, B, C
+
+    a0 = (a0 + A) &amp; 0xFFFFFFFF
+    b0 = (b0 + B) &amp; 0xFFFFFFFF
+    c0 = (c0 + C) &amp; 0xFFFFFFFF
+    d0 = (d0 + D) &amp; 0xFFFFFFFF
+
+    return [a0, b0, c0, d0]</code></pre><p id="be2412a7-a2bc-446a-943c-764754d7b687" class="">위 내용을 토대로 4등분 된 MD5 함수를 구현하였다.</p><p id="a88b1aaf-18c8-46d7-9dbd-30bf285063ed" class="">8바이트 입력 값을 제외한 나머지 연산에 필요한 값(<code>data[2] ~ data[16], K, R</code>)을 모두 알고 있다.</p><p id="7c1dd9d3-d9f5-4de8-9d6c-f827cdd25e55" class="">
+</p><pre id="c6a8d970-aef7-457c-9fb6-60513261649f" class="code code-wrap"><code>def rev_md5_custom(result):
+    A = (result[0] - 0x67452301) &amp; 0xFFFFFFFF
+    B = (result[1] - 0xefcdab89) &amp; 0xFFFFFFFF
+    C = (result[2] - 0x98badcfe) &amp; 0xFFFFFFFF
+    D = (result[3] - 0x10325476) &amp; 0xFFFFFFFF
+
+    data = [1, 1, 0x80, 0, 
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0x40, 0]
+		&quot;&quot;&quot;
+		F &lt;= ((B &amp; C) | (D &amp; (~B)))
+		new_A &lt;= D
+		new_B &lt;= B + ROL( (A + F + K[i] + data[i]), R[i] )
+		new_C &lt;= B
+		new_D &lt;= C
+		&quot;&quot;&quot;
+    for i in range(15, 1, -1):
+        orgD = A
+        orgB = C
+        orgC = D
+        tmp = ROR(B - C, R[i])
+
+        F = ((orgB &amp; orgC) | (orgD &amp; (~orgB)))
+        orgA = tmp - F - K[i] - data[i]
+        orgA &amp;= 0xFFFFFFFF
+
+        A,B,C,D = orgA, orgB, orgC, orgD</code></pre><p id="cc682149-3331-4cf2-9827-6ae394e918c8" class="">따라서, 역연산을 통해 4등분 된 MD5 함수의 <strong>&quot;2번째 반복문 중간 결과(</strong><strong><code>A,B,C,D</code></strong><strong>)&quot;</strong>를 알아낼 수 있다.</p><p id="3a1df67c-c32a-46fe-b299-f3deb0075916" class="">
+</p><pre id="b08f5a07-8805-4772-93af-124b928c1860" class="code code-wrap"><code>A = 0x67452301
+B = 0xEFCDAB89
+C = 0x98BADCFE
+D = 0x10325476
+
+#i : 0
+F1 = ((B &amp; C) | (D &amp; (~B))) &amp; 0xFFFFFFFF
+tmp = (A + F1 + K[0] + data[0])
+new_B1 = (B + ROL(tmp, R[0])) &amp; 0xFFFFFFFF
+A, B, C, D = D, new_B, B, C
+#A1 : D
+#B1 : new_B1
+#C1 : B
+#D1 : C
+
+#i : 1
+F2 = ((new_B &amp; B) | (C &amp; (~new_B))) &amp; 0xFFFFFFFF
+#   ((B1    &amp; C1)|(D1 &amp; (~B1)))    &amp; 0xFFFFFFFF
+tmp = (D + F2 + K[1] + data[1])
+#    (A1 + F + K[1] + data[1])
+new_B2 = (new_B1 + ROL(tmp, R[1])) &amp; 0xFFFFFFFF
+A, B, C, D = D, new_B, B, C
+#A2 : C
+#B2 : <strong><mark class="highlight-pink">new_B2</mark></strong> = (<mark class="highlight-blue"><strong>new_B1 </strong></mark>+ ROL((D + ((<strong><mark class="highlight-blue">new_B</mark></strong> &amp; B)|(C &amp; (~<mark class="highlight-blue"><strong>new_B</strong></mark>))) + K[1] + <mark class="highlight-purple"><strong>data[1]</strong></mark>), R[1]))
+#C2 : <mark class="highlight-blue"><strong>new_B1</strong></mark> = (B + ROL((A + <mark class="highlight-teal"><strong>((B &amp; C) | (D &amp; (~B)))</strong></mark> + K[0] + <strong><mark class="highlight-purple">data[0]</mark></strong>), R[0]))
+#D2 : B</code></pre><p id="246c8cd2-6aa8-453c-8527-02faccf99986" class=""><strong>&quot;2번째 반복문 중간 결과(</strong><strong><code>A,B,C,D</code></strong><strong>)&quot;</strong>는 위와 같다.</p><p id="c807151a-1d25-436b-a98b-9cc678165c8e" class=""><mark class="highlight-blue"><code>new_B1</code></mark>의 역연산을 통해서 첫번째 입력 값 <mark class="highlight-purple"><code>data[0]</code></mark>을 구할 수 있다.</p><p id="f63dfbbc-0ff7-4315-9f96-624277e9cf8c" class="">이후 <mark class="highlight-blue"><code>new_B1</code></mark>을 통해 <mark class="highlight-pink"><code>new_B2</code></mark>의 역연산이 가능해지고, <mark class="highlight-purple"><code>data[1]</code></mark>을 구할 수 있게 된다.</p><p id="f3a2e0b9-e8c4-43d1-8357-2d8067090222" class="">
+</p><h3 id="63de9e75-53e5-4859-a007-0b70654e57d5" class="">문제 풀이 코드</h3><pre id="01d308a2-2ff1-4b35-b9fa-098c238eb4c5" class="code code-wrap"><code>from pwn import *
+
+f = open(&quot;Maetdol_unpacked.exe&quot;, &quot;rb&quot;)#UPX Unpacked Binary
+data = f.read()
+f.close()
+
+R,K = [],[]
+tmp = data[0x1C3A0:0x1C3A0+0x100]
+for i in range(0, 0x100, 4):
+    R.append(u32(tmp[i:i+4]))
+    
+tmp = data[0x1C4A0:0x1C4A0+0x100]
+for i in range(0, 0x100, 4):
+    K.append(u32(tmp[i:i+4]))
+    
+def ROL(x, c):
+    x &amp;= 0xFFFFFFFF
+    return ((x &lt;&lt; c) | (x &gt;&gt; (32 - c))) &amp; 0xFFFFFFFF
+
+def ROR(x, c):
+    x &amp;= 0xFFFFFFFF
+    return ((x &gt;&gt; c) | (x &lt;&lt; (32 - c))) &amp; 0xFFFFFFFF
+
+def reverse_md5_custom(res):
+    A = (res[0] - 0x67452301) &amp; 0xFFFFFFFF
+    B = (res[1] - 0xEFCDAB89) &amp; 0xFFFFFFFF
+    C = (res[2] - 0x98BADCFE) &amp; 0xFFFFFFFF
+    D = (res[3] - 0x10325476) &amp; 0xFFFFFFFF
+
+    data = [1, 1, 0x80, 0, 
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0x40, 0]
+
+    for i in range(15, 1, -1):
+        orgD = A
+        orgB = C
+        orgC = D
+        to_rotate = ROR(B - C, R[i])
+
+        F = ((orgB &amp; orgC) | (orgD &amp; (~orgB)))
+        orgA = to_rotate - F - K[i] - data[i]
+        orgA &amp;= 0xFFFFFFFF
+
+        A,B,C,D = orgA, orgB, orgC, orgD
+
+
+    x0 = (ROR((C - 0xefcdab89), R[0]) - 0x67452301 - 0x98badcfe - K[0]) &amp; 0xFFFFFFFF
+    F0 = 0x98badcfe
+    new_B = (0xefcdab89 + ROL(0x67452301 + F0 + K[0] + x0, R[0])) &amp; 0xFFFFFFFF
+    
+    F1 = ((new_B &amp; 0xefcdab89) | (0x98badcfe &amp; (~new_B)))
+    x1 = (ROR(B - C, R[1]) - 0x10325476 - F1 - K[1]) &amp; 0xFFFFFFFF
+
+    return (x1 &lt;&lt; 32) + x0
+
+import z3
+
+goal = [[0x3b1d2597, 0xda0fa46a, 0x6d8bbe1c, 0xeef458e9],
+        [0x7f526ea1, 0xf7523f94, 0xe22f7b6f, 0x4c753bd2],
+        [0x80fc359e, 0x09eebdae, 0x8a4834f5, 0x370642cd],
+        [0xbac882bf, 0xb7a23e35, 0xdb1cfff9, 0x994b2ce6],
+        [0x605be09c, 0x418902f1, 0x53808dfb, 0x83c2964f],
+        [0x9c32a2b5, 0x0eee2f36, 0x119dbf2c, 0xd31fb222]]
+
+x = [ z3.BitVec(&#x27;x%i&#x27; % i, 64) for i in range(6)]
+s = z3.Solver()
+s.add(z3.Or(x[0] == 0xB36F83C9609A8EC7, x[0] == 0xB26F83C9609A8EC7))
+#cce2020{M
+
+for i in range(6):
+    sm = x[i] + x[(i + 1) % 6]
+    s.add(sm == rev(goal[i]))
+
+if s.check() == z3.sat:
+    m = s.model()
+    enc = [0] * 6
+    for d in m.decls():
+        if str(d)[0] == &#x27;x&#x27;:
+            enc[int(str(d)[1:])] = int(str(m[d]))
+            
+    enc_s = b&quot;&quot;
+    for i in range(6):
+        enc_s += p64(enc[i])
+
+    dec_s = &quot;&quot;
+    for x in enc_s:
+        dec_s += bin(x)[2:].rjust(8, &quot;0&quot;)
+
+    flag = b&quot;&quot;
+    for i in range(0, len(dec_s), 7):
+        flag += bytes([int(dec_s[i:i+7][::-1], 2)])
+    print(flag)
+		#cce2020{M4r13_Anto1ne773_did_n0t_s4y_l3t_7h3m_eat_c4K3=
+    #cce2020{M4r13_Anto1ne773_did_n0t_s4y_l3t_7h3m_eat_c4K3}</code></pre><p id="e56deb0a-2162-4cea-8d30-5d3ea8dad540" class="">
+</p><p id="fda0c473-0857-45f1-88d7-6c6d6f3db34b" class="">
+</p><p id="d13bbcfb-3427-4b72-8442-83bb48184a70" class="">
+</p><p id="90f729c4-b981-4a1b-b53f-213dc7618cb3" class="">
+</p><p id="a7638272-88d8-4243-a53d-dd98834a5705" class="">
+</p><p id="ac7e2726-a585-40de-ae78-be8d8f08ca42" class="">
+</p><p id="5d2618ab-d06c-4d9e-ac54-48207b3eda38" class="">
+</p></div></article></body></html>

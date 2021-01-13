@@ -167,6 +167,23 @@
     </url>
   
     <url>
+      <loc>http://202.182.127.225:4000/2020-10-01/CCE-2020-Maetdol_</loc>
+
+      
+        <lastmod>2020-10-01T00:00:00+00:00</lastmod>
+      
+
+      
+        <changefreq>daily</changefreq>
+      
+
+      
+          <priority>0.5</priority>
+      
+
+    </url>
+  
+    <url>
       <loc>http://202.182.127.225:4000/2020-09-01/2020-BoB-CTF-Write-up-2</loc>
 
       

