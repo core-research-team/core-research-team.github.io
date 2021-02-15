@@ -26,10 +26,7 @@ permalink: /about/
 
 [최규범(qbeom)](#)
 
-
 [김동민(gpsfly)](https://blog.int80.kr)
-
-[김지섭(jskim)](#)
 
 [권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
 

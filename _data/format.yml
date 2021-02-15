@@ -24,3 +24,5 @@ pentest : pen-test
 fuzzing : fuzzing
 methology : methology
 node.js : node.js
+analysis : Analysis
+drm : DRM
