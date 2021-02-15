@@ -3,7 +3,7 @@ layout: post
 title:  "Chrome EME (MediaSession) - 1"
 author: "KuroNeko"
 comments: true
-tags: [research]
+tags: [analysis, drm]
 ---
 
 라온화이트햇 핵심연구팀 원요한
