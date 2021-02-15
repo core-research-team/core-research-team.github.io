@@ -28,9 +28,13 @@ permalink: /about/
 
 [김동민(gpsfly)](https://blog.int80.kr)
 
+[김재유(epist)](#)
+
 [권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
 
 [이영주(NextLine)](https://lordofpwn.kr/about/)
+
+[임재연(imreplay)](#)
 
 [유선동(DongDongE)](https://blog.d0ngd0nge.xyz)
 
