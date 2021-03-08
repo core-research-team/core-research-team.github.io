@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Chrome EME (MediaSession) - 1 | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Chrome EME (MediaSession) - 1" />
+<meta name="author" content="KuroNeko" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 원요한" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 원요한" />
+<link rel="canonical" href="http://202.182.127.225:4000/2021-02-01/Chrome-EME" />
+<meta property="og:url" content="http://202.182.127.225:4000/2021-02-01/Chrome-EME" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Chrome EME (MediaSession) - 1","dateModified":"2021-02-01T00:00:00+00:00","datePublished":"2021-02-01T00:00:00+00:00","author":{"@type":"Person","name":"KuroNeko"},"url":"http://202.182.127.225:4000/2021-02-01/Chrome-EME","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2021-02-01/Chrome-EME"},"description":"라온화이트햇 핵심연구팀 원요한","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+   <h1 class="post-title">Chrome EME (MediaSession) - 1</h1>
+   <div class="post-line"></div>
+
+   
+      
+         
+            <span class="tag"><center><i>Analysis</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>DRM</i></center></span>
+         
+      
+   
+   
+   <ul>
+  <li><a href="#chrome-eme-mediasession---1">Chrome EME (MediaSession) - 1</a>
+    <ul>
+      <li><a href="#11-eme-encrypted-media-extensions">1.1 EME (Encrypted Media Extensions)</a></li>
+      <li><a href="#reference">Reference</a></li>
+    </ul>
+  </li>
+</ul>
+   
+   <p>라온화이트햇 핵심연구팀 원요한</p>
+
+<h1 id="chrome-eme-mediasession---1">Chrome EME (MediaSession) - 1</h1>
+
+<p>이 문서는 Chrome에서 사용하는 MediaSession EME 코드 분석으로 내부 구조를 파악하기 위해 작성되었습니다.</p>
+
+<h2 id="11-eme-encrypted-media-extensions">1.1 EME (Encrypted Media Extensions)</h2>
+
+<p>EME란, 미디어 컨텐츠의 저작권 보호를 위해 사용되는 DRM 방식 중 하나입니다. 그리고 브라우저에서 사용할 수 있도록 디자인되었습니다.</p>
+
+<p><img src="/assets/202102/202102won.png" alt="/assets/202102/202102won.png" /></p>
+
+<p>위의 그림과 같이 License 서버에서 받은 License를 MediaKeySession을 통해 내부 Content Decryption Module에 전달하며 해당 구조로 인해서 브라우저마다 암/복호화 방식의 차이가 존재하면 안되기 때문에 어느정도 정해진 암/복호화 알고리즘을 사용할 것으로 보입니다. 이에 따라서, <code class="highlighter-rouge">CMAF(Common Media Application Format)</code> 이 등장하였습니다.</p>
+
+<p><img src="/assets/202102/202102won1.png" alt="/assets/202102/202102won1.png" /></p>
+
+<p>해당 포맷은 MPEG-DASH, HLS 방식의 프로토콜을 통해 미디어 컨텐츠들을 조각내 스트리밍 방식으로 전송합니다. 이 방식은 기존에 사용하던 코덱과 같이 하나의 컨텐츠 파일을 모두 다운로드되기 전까지 미디어 재생이 불가능한 단점을 극복하기 위해 고안되었습니다. 또한, 컨턴츠의 암호화를 통해 DRM과 같은 부가적인 서비스까지 적용가능합니다. DRM은 위의 그림과 같이 CMAF 포맷에서 표준 암호화 규격으로 <code class="highlighter-rouge">CENC(Common Encryption/AES-CTR)</code>와 <code class="highlighter-rouge">CBCS(AES-CBC)</code> 를 사용합니다. 각각의 복호화 방식에 대해서 <a href="http://cs.chromium.org">http://cs.chromium.org</a> 에서 CDM의 소스코드를 분석해 어떤식으로 코드가 구성되어있는지 확인해보겠습니다.</p>
+
+<h3 id="111-cenccommon-encryption">1.1.1 CENC(Common Encryption)</h3>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/cdm/cenc_decryptor.cc </span>
+<span class="n">scoped_refptr</span><span class="o">&lt;</span><span class="n">DecoderBuffer</span><span class="o">&gt;</span> <span class="n">DecryptCencBuffer</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">DecoderBuffer</span><span class="o">&amp;</span> <span class="n">input</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">crypto</span><span class="o">::</span><span class="n">SymmetricKey</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">sample</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+  <span class="k">const</span> <span class="kt">size_t</span> <span class="n">sample_size</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="n">data_size</span><span class="p">();</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"No data to decrypt."</span><span class="p">;</span>
+
+  <span class="k">const</span> <span class="n">DecryptConfig</span><span class="o">*</span> <span class="n">decrypt_config</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="n">decrypt_config</span><span class="p">();</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">decrypt_config</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"No need to call Decrypt() on unencrypted buffer."</span><span class="p">;</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">EncryptionScheme</span><span class="o">::</span><span class="n">kCenc</span><span class="p">,</span> <span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">encryption_scheme</span><span class="p">());</span>
+
+  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">iv</span> <span class="o">=</span> <span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">iv</span><span class="p">();</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">iv</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">DecryptConfig</span><span class="o">::</span><span class="n">kDecryptionKeySize</span><span class="p">));</span>
+
+  <span class="n">crypto</span><span class="o">::</span><span class="n">Encryptor</span> <span class="n">encryptor</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">encryptor</span><span class="p">.</span><span class="n">Init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="p">,</span> <span class="n">crypto</span><span class="o">::</span><span class="n">Encryptor</span><span class="o">::</span><span class="n">CTR</span><span class="p">,</span> <span class="s">""</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Could not initialize decryptor."</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">encryptor</span><span class="p">.</span><span class="n">SetCounter</span><span class="p">(</span><span class="n">iv</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Could not set counter block."</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SubsampleEntry</span><span class="o">&gt;&amp;</span> <span class="n">subsamples</span> <span class="o">=</span> <span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">subsamples</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">subsamples</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+  <span class="p">}</span>
+
+  <span class="kt">size_t</span> <span class="n">total_encrypted_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">subsample</span> <span class="o">:</span> <span class="n">subsamples</span><span class="p">)</span>
+    <span class="n">total_encrypted_size</span> <span class="o">+=</span> <span class="n">subsample</span><span class="p">.</span><span class="n">cypher_bytes</span><span class="p">;</span>
+
+  <span class="c1">// No need to decrypt if there is no encrypted data.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">total_encrypted_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">output</span> <span class="o">=</span> <span class="n">DecoderBuffer</span><span class="o">::</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">sample_size</span><span class="p">);</span>
+    <span class="n">CopyExtraSettings</span><span class="p">(</span><span class="n">input</span><span class="p">,</span> <span class="n">output</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+    <span class="k">return</span> <span class="n">output</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="p">[]</span><span class="o">&gt;</span> <span class="n">encrypted_bytes</span><span class="p">(</span><span class="k">new</span> <span class="kt">uint8_t</span><span class="p">[</span><span class="n">total_encrypted_size</span><span class="p">]);</span>
+  <span class="n">CopySubsamples</span><span class="p">(</span><span class="n">subsamples</span><span class="p">,</span> <span class="n">kSrcContainsClearBytes</span><span class="p">,</span>
+                 <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">uint8_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sample</span><span class="p">),</span>
+                 <span class="n">encrypted_bytes</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+
+  <span class="n">base</span><span class="o">::</span><span class="n">StringPiece</span> <span class="n">encrypted_text</span><span class="p">(</span>
+      <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">encrypted_bytes</span><span class="p">.</span><span class="n">get</span><span class="p">()),</span>
+      <span class="n">total_encrypted_size</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">decrypted_text</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">encryptor</span><span class="p">.</span><span class="n">Decrypt</span><span class="p">(</span><span class="n">encrypted_text</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">decrypted_text</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Could not decrypt data."</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">decrypted_text</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">encrypted_text</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+
+  <span class="n">scoped_refptr</span><span class="o">&lt;</span><span class="n">DecoderBuffer</span><span class="o">&gt;</span> <span class="n">output</span> <span class="o">=</span> <span class="n">DecoderBuffer</span><span class="o">::</span><span class="n">CopyFrom</span><span class="p">(</span>
+      <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">uint8_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sample</span><span class="p">),</span> <span class="n">sample_size</span><span class="p">);</span>
+  <span class="n">CopySubsamples</span><span class="p">(</span><span class="n">subsamples</span><span class="p">,</span> <span class="n">kDstContainsClearBytes</span><span class="p">,</span>
+                 <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">uint8_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">decrypted_text</span><span class="p">.</span><span class="n">data</span><span class="p">()),</span>
+                 <span class="n">output</span><span class="o">-&gt;</span><span class="n">writable_data</span><span class="p">());</span>
+  <span class="n">CopyExtraSettings</span><span class="p">(</span><span class="n">input</span><span class="p">,</span> <span class="n">output</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+  <span class="k">return</span> <span class="n">output</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="112-cbcsaes-cbc">1.1.2 CBCS(AES-CBC)</h3>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/cdm/cbcs_decryptor.cc</span>
+<span class="n">scoped_refptr</span><span class="o">&lt;</span><span class="n">DecoderBuffer</span><span class="o">&gt;</span> <span class="n">DecryptCbcsBuffer</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">DecoderBuffer</span><span class="o">&amp;</span> <span class="n">input</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">crypto</span><span class="o">::</span><span class="n">SymmetricKey</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">size_t</span> <span class="n">sample_size</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="n">data_size</span><span class="p">();</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"No data to decrypt."</span><span class="p">;</span>
+
+  <span class="k">const</span> <span class="n">DecryptConfig</span><span class="o">*</span> <span class="n">decrypt_config</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="n">decrypt_config</span><span class="p">();</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">decrypt_config</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"No need to call Decrypt() on unencrypted buffer."</span><span class="p">;</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">EncryptionScheme</span><span class="o">::</span><span class="n">kCbcs</span><span class="p">,</span> <span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">encryption_scheme</span><span class="p">());</span>
+
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">HasPattern</span><span class="p">());</span>
+  <span class="k">const</span> <span class="n">EncryptionPattern</span> <span class="n">pattern</span> <span class="o">=</span>
+      <span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">encryption_pattern</span><span class="p">().</span><span class="n">value</span><span class="p">();</span>
+
+  <span class="k">auto</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">base</span><span class="o">::</span><span class="n">MakeRefCounted</span><span class="o">&lt;</span><span class="n">DecoderBuffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sample_size</span><span class="p">);</span>
+  <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">output_data</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">writable_data</span><span class="p">();</span>
+  <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">set_timestamp</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">timestamp</span><span class="p">());</span>
+  <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">set_duration</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">duration</span><span class="p">());</span>
+  <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">set_is_key_frame</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">is_key_frame</span><span class="p">());</span>
+  <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">CopySideDataFrom</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">side_data</span><span class="p">(),</span> <span class="n">input</span><span class="p">.</span><span class="n">side_data_size</span><span class="p">());</span>
+
+  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SubsampleEntry</span><span class="o">&gt;&amp;</span> <span class="n">subsamples</span> <span class="o">=</span> <span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">subsamples</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">subsamples</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">VerifySubsamplesMatchSize</span><span class="p">(</span><span class="n">subsamples</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Subsample sizes do not equal input size"</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">const</span> <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">src</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="n">data</span><span class="p">();</span>
+  <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">dest</span> <span class="o">=</span> <span class="n">output_data</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">subsample</span> <span class="o">:</span> <span class="n">subsamples</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">subsample</span><span class="p">.</span><span class="n">clear_bytes</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">DVLOG</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Copying clear_bytes: "</span> <span class="o">&lt;&lt;</span> <span class="n">subsample</span><span class="p">.</span><span class="n">clear_bytes</span><span class="p">;</span>
+      <span class="n">memcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">subsample</span><span class="p">.</span><span class="n">clear_bytes</span><span class="p">);</span>
+      <span class="n">src</span> <span class="o">+=</span> <span class="n">subsample</span><span class="p">.</span><span class="n">clear_bytes</span><span class="p">;</span>
+      <span class="n">dest</span> <span class="o">+=</span> <span class="n">subsample</span><span class="p">.</span><span class="n">clear_bytes</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subsample</span><span class="p">.</span><span class="n">cypher_bytes</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">DVLOG</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Processing cypher_bytes: "</span> <span class="o">&lt;&lt;</span> <span class="n">subsample</span><span class="p">.</span><span class="n">cypher_bytes</span>
+               <span class="o">&lt;&lt;</span> <span class="s">", pattern("</span> <span class="o">&lt;&lt;</span> <span class="n">pattern</span><span class="p">.</span><span class="n">crypt_byte_block</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">","</span>
+               <span class="o">&lt;&lt;</span> <span class="n">pattern</span><span class="p">.</span><span class="n">skip_byte_block</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">")"</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">DecryptWithPattern</span><span class="p">(</span>
+              <span class="n">key</span><span class="p">,</span> <span class="n">base</span><span class="o">::</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">base</span><span class="o">::</span><span class="n">make_span</span><span class="p">(</span><span class="n">decrypt_config</span><span class="o">-&gt;</span><span class="n">iv</span><span class="p">())),</span>
+              <span class="n">pattern</span><span class="p">,</span> <span class="n">base</span><span class="o">::</span><span class="n">make_span</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">subsample</span><span class="p">.</span><span class="n">cypher_bytes</span><span class="p">),</span> <span class="n">dest</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">src</span> <span class="o">+=</span> <span class="n">subsample</span><span class="p">.</span><span class="n">cypher_bytes</span><span class="p">;</span>
+      <span class="n">dest</span> <span class="o">+=</span> <span class="n">subsample</span><span class="p">.</span><span class="n">cypher_bytes</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">buffer</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="nf">DecryptWithPattern</span><span class="p">(</span><span class="k">const</span> <span class="n">crypto</span><span class="o">::</span><span class="n">SymmetricKey</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span>
+                        <span class="n">base</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">uint8_t</span><span class="o">&gt;</span> <span class="n">iv</span><span class="p">,</span>
+                        <span class="k">const</span> <span class="n">EncryptionPattern</span><span class="o">&amp;</span> <span class="n">pattern</span><span class="p">,</span>
+                        <span class="n">base</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">uint8_t</span><span class="o">&gt;</span> <span class="n">input_data</span><span class="p">,</span>
+                        <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">output_data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// The AES_CBC decryption is reset for each subsample.</span>
+  <span class="n">AesCbcCrypto</span> <span class="n">aes_cbc_crypto</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">aes_cbc_crypto</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">iv</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="c1">// |total_blocks| is the number of blocks in the buffer, ignoring any</span>
+  <span class="c1">// partial block at the end. |remaining_bytes| is the number of bytes</span>
+  <span class="c1">// in the partial block at the end of the buffer, if any.</span>
+  <span class="kt">size_t</span> <span class="n">total_blocks</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">.</span><span class="n">size_bytes</span><span class="p">()</span> <span class="o">/</span> <span class="n">kAesBlockSizeInBytes</span><span class="p">;</span>
+  <span class="kt">size_t</span> <span class="n">remaining_bytes</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">.</span><span class="n">size_bytes</span><span class="p">()</span> <span class="o">%</span> <span class="n">kAesBlockSizeInBytes</span><span class="p">;</span>
+
+  <span class="kt">size_t</span> <span class="n">crypt_byte_block</span> <span class="o">=</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">strict_cast</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">pattern</span><span class="p">.</span><span class="n">crypt_byte_block</span><span class="p">());</span>
+  <span class="kt">size_t</span> <span class="n">skip_byte_block</span> <span class="o">=</span> <span class="n">base</span><span class="o">::</span><span class="n">strict_cast</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">pattern</span><span class="p">.</span><span class="n">skip_byte_block</span><span class="p">());</span>
+
+  <span class="c1">// |crypt_byte_block| and |skip_byte_block| come from 4 bit values, so fail</span>
+  <span class="c1">// if these are too large.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">crypt_byte_block</span> <span class="o">&gt;=</span> <span class="mi">16</span> <span class="o">||</span> <span class="n">skip_byte_block</span> <span class="o">&gt;=</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">crypt_byte_block</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">skip_byte_block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// From ISO/IEC 23001-7:2016(E), section 9.6.1:</span>
+    <span class="c1">// "When the fields default_crypt_byte_block and default_skip_byte_block</span>
+    <span class="c1">// in a version 1 Track Encryption Box ('tenc') are non-zero numbers,</span>
+    <span class="c1">// pattern encryption SHALL be applied."</span>
+    <span class="c1">// So for the pattern 0:0, assume that all blocks are encrypted.</span>
+    <span class="n">crypt_byte_block</span> <span class="o">=</span> <span class="n">total_blocks</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Apply the pattern to |input_data|.</span>
+  <span class="c1">// Example (using Pattern(2,3), Ex is encrypted, Ux unencrypted)</span>
+  <span class="c1">//   input_data:  |E1|E2|U3|U4|U5|E6|E7|U8|U9|U10|E11|</span>
+  <span class="c1">// We must decrypt 2 blocks, then simply copy the next 3 blocks, and</span>
+  <span class="c1">// repeat until the end. Note that the input does not have to contain</span>
+  <span class="c1">// a full pattern or even |crypt_byte_block| blocks at the end.</span>
+  <span class="kt">size_t</span> <span class="n">blocks_processed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">src</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">.</span><span class="n">data</span><span class="p">();</span>
+  <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">dest</span> <span class="o">=</span> <span class="n">output_data</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">is_encrypted_blocks</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">blocks_processed</span> <span class="o">&lt;</span> <span class="n">total_blocks</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">is_encrypted_blocks</span> <span class="o">=</span> <span class="o">!</span><span class="n">is_encrypted_blocks</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">blocks_to_process</span> <span class="o">=</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">is_encrypted_blocks</span> <span class="o">?</span> <span class="n">crypt_byte_block</span> <span class="o">:</span> <span class="n">skip_byte_block</span><span class="p">,</span>
+                 <span class="n">total_blocks</span> <span class="o">-</span> <span class="n">blocks_processed</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">blocks_to_process</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="k">continue</span><span class="p">;</span>
+
+    <span class="kt">size_t</span> <span class="n">bytes_to_process</span> <span class="o">=</span> <span class="n">blocks_to_process</span> <span class="o">*</span> <span class="n">kAesBlockSizeInBytes</span><span class="p">;</span>
+
+    <span class="c1">// From ISO/IEC 23001-7:2016(E), section 10.4.2:</span>
+    <span class="c1">// For a typical pattern length of 10 (e.g. 1:9) "the pattern is repeated</span>
+    <span class="c1">// every 160 bytes of the protected range, until the end of the range. If</span>
+    <span class="c1">// the protected range of the slice body is not a multiple of the pattern</span>
+    <span class="c1">// length (e.g. 160 bytes), then the pattern sequence applies to the</span>
+    <span class="c1">// included whole 16-byte Blocks and a partial 16-byte Block that may</span>
+    <span class="c1">// remain where the pattern is terminated by the byte length of the range</span>
+    <span class="c1">// BytesOfProtectedData, is left unencrypted."</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">is_encrypted_blocks</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">aes_cbc_crypto</span><span class="p">.</span><span class="n">Decrypt</span><span class="p">(</span><span class="n">base</span><span class="o">::</span><span class="n">make_span</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">bytes_to_process</span><span class="p">),</span>
+                                  <span class="n">dest</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">memcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">bytes_to_process</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">blocks_processed</span> <span class="o">+=</span> <span class="n">blocks_to_process</span><span class="p">;</span>
+    <span class="n">src</span> <span class="o">+=</span> <span class="n">bytes_to_process</span><span class="p">;</span>
+    <span class="n">dest</span> <span class="o">+=</span> <span class="n">bytes_to_process</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Any partial block data remaining in this subsample is considered</span>
+  <span class="c1">// unencrypted so simply copy it into |dest|.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">remaining_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">remaining_bytes</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>위의 CENC, CBCS 코드를 요약하면 다음과 같습니다.</p>
+
+<ul>
+  <li>CENC
+    <ol>
+      <li>AES-CTR init(key=fnParam, iv=buffer.iv)</li>
+      <li>Decrypt(encrypted_subsample_data)</li>
+    </ol>
+  </li>
+  <li>CBCS
+    <ol>
+      <li>AES-CBC init(key=fnParam, iv=buffer.iv)</li>
+      <li>Decrypt_Foreach_with_pattern(encrypted_subsamples_data)</li>
+    </ol>
+  </li>
+</ul>
+
+<p>여기서 관심을 가져야할 것은 <code class="highlighter-rouge">DecoderBuffer가 어떤식으로 만들어지는지, 어떻게 전달되는지</code> 입니다. 다음으로는 DecoderBuffer가 어디서 생성되는지 알아보도록 하겠습니다.</p>
+
+<h3 id="113-decoderbuffer">1.1.3 DecoderBuffer</h3>
+
+<p>아래의 그림과 같은 구조를 가진 chromium에서는 Browser와 Render 프로세스 간의 IPC 통신으로 메세지 필터링 후, 메세지에 알맞은 Renderer에 전달하게 됩니다.</p>
+
+<p><img src="/assets/202102/202102won2.png" alt="/assets/202102/202102won2.png" /></p>
+
+<p>즉, Renderer에서 Audio/Video Packet을 처리를 위한 Stream을 관리가 필요하므로 내부적으로 DecoderBuffer를 생성해야함을 알 수 있습니다. 저는 Audio와 관련된 Renderer에 관심을 가졌고 audio stream을 가져오는 초기화 과정부터 살펴봤습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/renderers/renderer_impl.cc</span>
+<span class="kt">void</span> <span class="n">RendererImpl</span><span class="o">::</span><span class="n">InitializeAudioRenderer</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span><span class="p">;</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">task_runner_</span><span class="o">-&gt;</span><span class="n">BelongsToCurrentThread</span><span class="p">());</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">state_</span><span class="p">,</span> <span class="n">STATE_INITIALIZING</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">init_cb_</span><span class="p">);</span>
+
+  <span class="n">DemuxerStream</span><span class="o">*</span> <span class="n">audio_stream</span> <span class="o">=</span>
+      <span class="n">media_resource_</span><span class="o">-&gt;</span><span class="n">GetFirstStream</span><span class="p">(</span><span class="n">DemuxerStream</span><span class="o">::</span><span class="n">AUDIO</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">audio_stream</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">audio_renderer_</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
+    <span class="n">task_runner_</span><span class="o">-&gt;</span><span class="n">PostTask</span><span class="p">(</span>
+        <span class="n">FROM_HERE</span><span class="p">,</span> <span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span><span class="o">&amp;</span><span class="n">RendererImpl</span><span class="o">::</span><span class="n">OnAudioRendererInitializeDone</span><span class="p">,</span>
+                                  <span class="n">weak_this_</span><span class="p">,</span> <span class="n">PIPELINE_OK</span><span class="p">));</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">current_audio_stream_</span> <span class="o">=</span> <span class="n">audio_stream</span><span class="p">;</span>
+
+  <span class="n">audio_renderer_client_</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span>
+      <span class="k">new</span> <span class="n">RendererClientInternal</span><span class="p">(</span><span class="n">DemuxerStream</span><span class="o">::</span><span class="n">AUDIO</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="n">media_resource_</span><span class="p">));</span>
+  <span class="o">**</span><span class="n">audio_renderer_</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span>
+      <span class="n">audio_stream</span><span class="p">,</span> <span class="n">cdm_context_</span><span class="p">,</span> <span class="n">audio_renderer_client_</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span><span class="o">&amp;</span><span class="n">RendererImpl</span><span class="o">::</span><span class="n">OnAudioRendererInitializeDone</span><span class="p">,</span> <span class="n">weak_this_</span><span class="p">));</span><span class="o">**</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>위와 같이 media_resource에서 stream을 획득하고 해당 audio stream을 audio renderer에 설정해줍니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/renderers/renderer_impl.cc</span>
+<span class="kt">void</span> <span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">DemuxerStream</span><span class="o">*</span> <span class="n">stream</span><span class="p">,</span>
+                                   <span class="n">CdmContext</span><span class="o">*</span> <span class="n">cdm_context</span><span class="p">,</span>
+                                   <span class="n">RendererClient</span><span class="o">*</span> <span class="n">client</span><span class="p">,</span>
+                                   <span class="n">PipelineStatusCallback</span> <span class="n">init_cb</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span><span class="p">;</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">task_runner_</span><span class="o">-&gt;</span><span class="n">BelongsToCurrentThread</span><span class="p">());</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">client</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">stream</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">(),</span> <span class="n">DemuxerStream</span><span class="o">::</span><span class="n">AUDIO</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">init_cb</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">state_</span> <span class="o">==</span> <span class="n">kUninitialized</span> <span class="o">||</span> <span class="n">state_</span> <span class="o">==</span> <span class="n">kFlushed</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">sink_</span><span class="p">);</span>
+  <span class="n">TRACE_EVENT_ASYNC_BEGIN0</span><span class="p">(</span><span class="s">"media"</span><span class="p">,</span> <span class="s">"AudioRendererImpl::Initialize"</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">state_</span> <span class="o">==</span> <span class="n">kFlushed</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">sink_</span><span class="o">-&gt;</span><span class="n">Stop</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">null_sink_</span><span class="p">)</span>
+      <span class="n">null_sink_</span><span class="o">-&gt;</span><span class="n">Stop</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="n">state_</span> <span class="o">=</span> <span class="n">kInitializing</span><span class="p">;</span>
+  <span class="n">demuxer_stream_</span> <span class="o">=</span> <span class="n">stream</span><span class="p">;</span>
+  <span class="n">client_</span> <span class="o">=</span> <span class="n">client</span><span class="p">;</span>
+
+  <span class="n">init_cb_</span> <span class="o">=</span> <span class="n">BindToCurrentLoop</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">init_cb</span><span class="p">));</span>
+
+  <span class="o">**</span><span class="n">sink_</span><span class="o">-&gt;</span><span class="n">GetOutputDeviceInfoAsync</span><span class="p">(</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span><span class="o">&amp;</span><span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">OnDeviceInfoReceived</span><span class="p">,</span>
+                     <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">(),</span> <span class="n">demuxer_stream_</span><span class="p">,</span> <span class="n">cdm_context</span><span class="p">));</span><span class="o">**</span>
+
+<span class="cp">#if !defined(OS_ANDROID)
+</span>  <span class="k">if</span> <span class="p">(</span><span class="n">speech_recognition_client_</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">speech_recognition_client_</span><span class="o">-&gt;</span><span class="n">SetOnReadyCallback</span><span class="p">(</span><span class="n">BindToCurrentLoop</span><span class="p">(</span>
+        <span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span><span class="o">&amp;</span><span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">EnableSpeechRecognition</span><span class="p">,</span>
+                       <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">())));</span>
+  <span class="p">}</span>
+<span class="cp">#endif
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>초기화 과정에서는 Audio Ouput Device 정보를 획득하고 OnDeviceInfoReceived 콜백함수를 호출하는 걸 볼 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/renderers/renderer_impl.cc</span>
+<span class="kt">void</span> <span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">OnDeviceInfoReceived</span><span class="p">(</span>
+    <span class="n">DemuxerStream</span><span class="o">*</span> <span class="n">stream</span><span class="p">,</span>
+    <span class="n">CdmContext</span><span class="o">*</span> <span class="n">cdm_context</span><span class="p">,</span>
+    <span class="n">OutputDeviceInfo</span> <span class="n">output_device_info</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span><span class="p">;</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">task_runner_</span><span class="o">-&gt;</span><span class="n">BelongsToCurrentThread</span><span class="p">());</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">client_</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">stream</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">(),</span> <span class="n">DemuxerStream</span><span class="o">::</span><span class="n">AUDIO</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">init_cb_</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">state_</span><span class="p">,</span> <span class="n">kInitializing</span><span class="p">);</span>
+
+  <span class="c1">//...</span>
+
+  <span class="n">current_decoder_config_</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">();</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">current_decoder_config_</span><span class="p">.</span><span class="n">IsValidConfig</span><span class="p">());</span>
+
+  <span class="k">const</span> <span class="n">AudioParameters</span><span class="o">&amp;</span> <span class="n">hw_params</span> <span class="o">=</span> <span class="n">output_device_info</span><span class="p">.</span><span class="n">output_params</span><span class="p">();</span>
+  <span class="n">ChannelLayout</span> <span class="n">hw_channel_layout</span> <span class="o">=</span>
+      <span class="n">hw_params</span><span class="p">.</span><span class="n">IsValid</span><span class="p">()</span> <span class="o">?</span> <span class="n">hw_params</span><span class="p">.</span><span class="n">channel_layout</span><span class="p">()</span> <span class="o">:</span> <span class="n">CHANNEL_LAYOUT_NONE</span><span class="p">;</span>
+
+  <span class="n">audio_decoder_stream_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">AudioDecoderStream</span><span class="o">&gt;</span><span class="p">(</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">AudioDecoderStream</span><span class="o">::</span><span class="n">StreamTraits</span><span class="o">&gt;</span><span class="p">(</span><span class="n">media_log_</span><span class="p">,</span>
+                                                         <span class="n">hw_channel_layout</span><span class="p">),</span>
+      <span class="n">task_runner_</span><span class="p">,</span> <span class="n">create_audio_decoders_cb_</span><span class="p">,</span> <span class="n">media_log_</span><span class="p">);</span>
+
+  <span class="n">audio_decoder_stream_</span><span class="o">-&gt;</span><span class="n">set_config_change_observer</span><span class="p">(</span><span class="n">base</span><span class="o">::</span><span class="n">BindRepeating</span><span class="p">(</span>
+      <span class="o">&amp;</span><span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">OnConfigChange</span><span class="p">,</span> <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">()));</span>
+
+  <span class="n">AudioCodec</span> <span class="n">codec</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">codec</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="k">auto</span><span class="o">*</span> <span class="n">mc</span> <span class="o">=</span> <span class="n">GetMediaClient</span><span class="p">())</span>
+    <span class="n">is_passthrough_</span> <span class="o">=</span> <span class="n">mc</span><span class="o">-&gt;</span><span class="n">IsSupportedBitstreamAudioCodec</span><span class="p">(</span><span class="n">codec</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">is_passthrough_</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="n">expecting_config_changes_</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">SupportsConfigChanges</span><span class="p">();</span>
+
+  <span class="kt">bool</span> <span class="n">use_stream_params</span> <span class="o">=</span> <span class="o">!</span><span class="n">expecting_config_changes_</span> <span class="o">||</span> <span class="o">!</span><span class="n">hw_params</span><span class="p">.</span><span class="n">IsValid</span><span class="p">()</span> <span class="o">||</span>
+                           <span class="n">hw_params</span><span class="p">.</span><span class="n">format</span><span class="p">()</span> <span class="o">==</span> <span class="n">AudioParameters</span><span class="o">::</span><span class="n">AUDIO_FAKE</span> <span class="o">||</span>
+                           <span class="o">!</span><span class="n">sink_</span><span class="o">-&gt;</span><span class="n">IsOptimizedForHardwareParameters</span><span class="p">();</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channel_layout</span><span class="p">()</span> <span class="o">==</span>
+          <span class="n">CHANNEL_LAYOUT_DISCRETE</span> <span class="o">&amp;&amp;</span>
+      <span class="n">sink_</span><span class="o">-&gt;</span><span class="n">IsOptimizedForHardwareParameters</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">use_stream_params</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">preferred_buffer_size</span> <span class="o">=</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">samples_per_second</span><span class="p">()</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span>
+               <span class="n">hw_params</span><span class="p">.</span><span class="n">IsValid</span><span class="p">()</span> <span class="o">?</span> <span class="n">hw_params</span><span class="p">.</span><span class="n">frames_per_buffer</span><span class="p">()</span> <span class="o">:</span> <span class="mi">0</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">is_passthrough_</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">AudioParameters</span><span class="o">::</span><span class="n">Format</span> <span class="n">format</span> <span class="o">=</span> <span class="n">AudioParameters</span><span class="o">::</span><span class="n">AUDIO_FAKE</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">codec</span> <span class="o">==</span> <span class="n">kCodecAC3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">format</span> <span class="o">=</span> <span class="n">AudioParameters</span><span class="o">::</span><span class="n">AUDIO_BITSTREAM_AC3</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">codec</span> <span class="o">==</span> <span class="n">kCodecEAC3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">format</span> <span class="o">=</span> <span class="n">AudioParameters</span><span class="o">::</span><span class="n">AUDIO_BITSTREAM_EAC3</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">NOTREACHED</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">buffer_size</span> <span class="o">=</span>
+        <span class="n">AudioParameters</span><span class="o">::</span><span class="n">kMaxFramesPerCompressedAudioBuffer</span> <span class="o">*</span>
+        <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">bytes_per_frame</span><span class="p">();</span>
+
+    <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">Reset</span><span class="p">(</span>
+        <span class="n">format</span><span class="p">,</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channel_layout</span><span class="p">(),</span>
+        <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">samples_per_second</span><span class="p">(),</span> <span class="n">buffer_size</span><span class="p">);</span>
+    <span class="n">buffer_converter_</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">use_stream_params</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">Reset</span><span class="p">(</span><span class="n">AudioParameters</span><span class="o">::</span><span class="n">AUDIO_PCM_LOW_LATENCY</span><span class="p">,</span>
+                            <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channel_layout</span><span class="p">(),</span>
+                            <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">samples_per_second</span><span class="p">(),</span>
+                            <span class="n">preferred_buffer_size</span><span class="p">);</span>
+    <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">set_channels_for_discrete</span><span class="p">(</span>
+        <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channels</span><span class="p">());</span>
+    <span class="n">buffer_converter_</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sample_rate</span> <span class="o">=</span> <span class="n">hw_params</span><span class="p">.</span><span class="n">sample_rate</span><span class="p">();</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">AudioLatency</span><span class="o">::</span><span class="n">IsResamplingPassthroughSupported</span><span class="p">(</span>
+            <span class="n">AudioLatency</span><span class="o">::</span><span class="n">LATENCY_PLAYBACK</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+        <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">samples_per_second</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">44100</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">sample_rate</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">samples_per_second</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">stream_channel_count</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channels</span><span class="p">();</span>
+
+    <span class="kt">bool</span> <span class="n">try_supported_channel_layouts</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<span class="cp">#if defined(OS_WIN)
+</span>    <span class="n">try_supported_channel_layouts</span> <span class="o">=</span>
+        <span class="n">base</span><span class="o">::</span><span class="n">CommandLine</span><span class="o">::</span><span class="n">ForCurrentProcess</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">HasSwitch</span><span class="p">(</span>
+            <span class="n">switches</span><span class="o">::</span><span class="n">kTrySupportedChannelLayouts</span><span class="p">);</span>
+<span class="cp">#endif
+</span>
+    <span class="n">ChannelLayout</span> <span class="n">hw_channel_layout</span> <span class="o">=</span>
+        <span class="n">hw_params</span><span class="p">.</span><span class="n">channel_layout</span><span class="p">()</span> <span class="o">==</span> <span class="n">CHANNEL_LAYOUT_DISCRETE</span> <span class="o">||</span>
+                <span class="n">try_supported_channel_layouts</span>
+            <span class="o">?</span> <span class="n">CHANNEL_LAYOUT_STEREO</span>
+            <span class="o">:</span> <span class="n">hw_params</span><span class="p">.</span><span class="n">channel_layout</span><span class="p">();</span>
+    <span class="kt">int</span> <span class="n">hw_channel_count</span> <span class="o">=</span> <span class="n">ChannelLayoutToChannelCount</span><span class="p">(</span><span class="n">hw_channel_layout</span><span class="p">);</span>
+
+    <span class="n">ChannelLayout</span> <span class="n">renderer_channel_layout</span> <span class="o">=</span>
+        <span class="n">hw_channel_count</span> <span class="o">&gt;</span> <span class="n">stream_channel_count</span>
+            <span class="o">?</span> <span class="n">hw_channel_layout</span>
+            <span class="o">:</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channel_layout</span><span class="p">();</span>
+
+    <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">Reset</span><span class="p">(</span><span class="n">hw_params</span><span class="p">.</span><span class="n">format</span><span class="p">(),</span> <span class="n">renderer_channel_layout</span><span class="p">,</span>
+                            <span class="n">sample_rate</span><span class="p">,</span>
+                            <span class="n">AudioLatency</span><span class="o">::</span><span class="n">GetHighLatencyBufferSize</span><span class="p">(</span>
+                                <span class="n">sample_rate</span><span class="p">,</span> <span class="n">preferred_buffer_size</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">set_effects</span><span class="p">(</span><span class="n">audio_parameters_</span><span class="p">.</span><span class="n">effects</span><span class="p">()</span> <span class="o">|</span>
+                                <span class="n">AudioParameters</span><span class="o">::</span><span class="n">MULTIZONE</span><span class="p">);</span>
+
+  <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">set_latency_tag</span><span class="p">(</span><span class="n">AudioLatency</span><span class="o">::</span><span class="n">LATENCY_PLAYBACK</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">client_</span><span class="o">-&gt;</span><span class="n">IsVideoStreamAvailable</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">set_effects</span><span class="p">(</span><span class="n">audio_parameters_</span><span class="p">.</span><span class="n">effects</span><span class="p">()</span> <span class="o">|</span>
+                                  <span class="n">AudioParameters</span><span class="o">::</span><span class="n">AUDIO_PREFETCH</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">last_decoded_channel_layout_</span> <span class="o">=</span>
+      <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channel_layout</span><span class="p">();</span>
+
+  <span class="n">is_encrypted_</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">is_encrypted</span><span class="p">();</span>
+
+  <span class="n">last_decoded_channels_</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">audio_decoder_config</span><span class="p">().</span><span class="n">channels</span><span class="p">();</span>
+
+  <span class="p">{</span>
+    <span class="n">base</span><span class="o">::</span><span class="n">AutoLock</span> <span class="n">lock</span><span class="p">(</span><span class="n">lock_</span><span class="p">);</span>
+    <span class="n">audio_clock_</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span>
+        <span class="k">new</span> <span class="n">AudioClock</span><span class="p">(</span><span class="n">base</span><span class="o">::</span><span class="n">TimeDelta</span><span class="p">(),</span> <span class="n">audio_parameters_</span><span class="p">.</span><span class="n">sample_rate</span><span class="p">()));</span>
+  <span class="p">}</span>
+
+  <span class="o">**</span><span class="n">audio_decoder_stream_</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span>
+      <span class="n">stream</span><span class="p">,</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span><span class="o">&amp;</span><span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">OnAudioDecoderStreamInitialized</span><span class="p">,</span>
+                     <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">()),</span>
+      <span class="n">cdm_context</span><span class="p">,</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindRepeating</span><span class="p">(</span><span class="o">&amp;</span><span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">OnStatisticsUpdate</span><span class="p">,</span>
+                          <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">()),</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindRepeating</span><span class="p">(</span><span class="o">&amp;</span><span class="n">AudioRendererImpl</span><span class="o">::</span><span class="n">OnWaiting</span><span class="p">,</span>
+                          <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">()));</span><span class="o">**</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>OnDeviceInfoReceived 함수는 Output Device가 재생가능한 상태인지 확인한 이후, Audio의 정보(ex. is_encrypted)를 Renderer의 멤버 변수에 설정합니다. 또한 Decoder Stream을 초기화 진행합니다. 이제 초기화가 완료되었고, 해당 Stream에서 Buffer를 사용할 것으로 보이므로 해당 DecodeStream을 추가 분석했습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/filters/decoder_stream.h</span>
+<span class="k">using</span> <span class="n">AudioDecoderStream</span> <span class="o">=</span> <span class="n">DecoderStream</span><span class="o">&lt;</span><span class="n">DemuxerStream</span><span class="o">::</span><span class="n">AUDIO</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="c1">// ./src/media/filters/decoder_stream.cc</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">DemuxerStream</span><span class="o">::</span><span class="n">Type</span> <span class="n">StreamType</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">DecoderStream</span><span class="o">&lt;</span><span class="n">StreamType</span><span class="o">&gt;::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">DemuxerStream</span><span class="o">*</span> <span class="n">stream</span><span class="p">,</span>
+                                           <span class="n">InitCB</span> <span class="n">init_cb</span><span class="p">,</span>
+                                           <span class="n">CdmContext</span><span class="o">*</span> <span class="n">cdm_context</span><span class="p">,</span>
+                                           <span class="n">StatisticsCB</span> <span class="n">statistics_cb</span><span class="p">,</span>
+                                           <span class="n">WaitingCB</span> <span class="n">waiting_cb</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">FUNCTION_DVLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">task_runner_</span><span class="o">-&gt;</span><span class="n">RunsTasksInCurrentSequence</span><span class="p">());</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">state_</span><span class="p">,</span> <span class="n">STATE_UNINITIALIZED</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="o">!</span><span class="n">init_cb_</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">init_cb</span><span class="p">);</span>
+
+  <span class="n">stream_</span> <span class="o">=</span> <span class="n">stream</span><span class="p">;</span>
+  <span class="n">init_cb_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">init_cb</span><span class="p">);</span>
+  <span class="n">cdm_context_</span> <span class="o">=</span> <span class="n">cdm_context</span><span class="p">;</span>
+  <span class="n">statistics_cb_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">statistics_cb</span><span class="p">);</span>
+
+  <span class="c1">// Make a copy here since it's also passed to |decoder_selector_| below.</span>
+  <span class="n">waiting_cb_</span> <span class="o">=</span> <span class="n">waiting_cb</span><span class="p">;</span>
+
+  <span class="n">traits_</span><span class="o">-&gt;</span><span class="n">OnStreamReset</span><span class="p">(</span><span class="n">stream_</span><span class="p">);</span>
+  <span class="n">decoder_selector_</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">traits_</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span> <span class="n">stream</span><span class="p">,</span> <span class="n">cdm_context</span><span class="p">,</span>
+                               <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">waiting_cb</span><span class="p">));</span>
+
+  <span class="n">state_</span> <span class="o">=</span> <span class="n">STATE_INITIALIZING</span><span class="p">;</span>
+  <span class="o">**</span><span class="n">SelectDecoder</span><span class="p">();</span><span class="o">**</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">DemuxerStream</span><span class="o">::</span><span class="n">Type</span> <span class="n">StreamType</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">DecoderSelector</span><span class="o">&lt;</span><span class="n">StreamType</span><span class="o">&gt;::</span><span class="n">SelectDecoder</span><span class="p">(</span>
+    <span class="n">SelectDecoderCB</span> <span class="n">select_decoder_cb</span><span class="p">,</span>
+    <span class="k">typename</span> <span class="n">Decoder</span><span class="o">::</span><span class="n">OutputCB</span> <span class="n">output_cb</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span><span class="p">;</span>
+  <span class="n">DCHECK_CALLED_ON_VALID_SEQUENCE</span><span class="p">(</span><span class="n">sequence_checker_</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">select_decoder_cb</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="o">!</span><span class="n">select_decoder_cb_</span><span class="p">);</span>
+  <span class="n">select_decoder_cb_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">select_decoder_cb</span><span class="p">);</span>
+  <span class="n">output_cb_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">output_cb</span><span class="p">);</span>
+  <span class="n">config_</span> <span class="o">=</span> <span class="n">traits_</span><span class="o">-&gt;</span><span class="n">GetDecoderConfig</span><span class="p">(</span><span class="n">stream_</span><span class="p">);</span>
+
+  <span class="n">TRACE_EVENT_ASYNC_BEGIN2</span><span class="p">(</span><span class="s">"media"</span><span class="p">,</span> <span class="n">kSelectDecoderTrace</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="s">"type"</span><span class="p">,</span>
+                           <span class="n">DemuxerStream</span><span class="o">::</span><span class="n">GetTypeName</span><span class="p">(</span><span class="n">StreamType</span><span class="p">),</span> <span class="s">"config"</span><span class="p">,</span>
+                           <span class="n">config_</span><span class="p">.</span><span class="n">AsHumanReadableString</span><span class="p">());</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">config_</span><span class="p">.</span><span class="n">IsValidConfig</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">DLOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Invalid stream config"</span><span class="p">;</span>
+    <span class="n">ReturnNullDecoder</span><span class="p">();</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// If this is the first selection (ever or since FinalizeDecoderSelection()),</span>
+  <span class="c1">// start selection with the full list of potential decoders.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_selecting_decoders_</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">is_selecting_decoders_</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="n">decoder_selection_start_</span> <span class="o">=</span> <span class="n">base</span><span class="o">::</span><span class="n">TimeTicks</span><span class="o">::</span><span class="n">Now</span><span class="p">();</span>
+    <span class="n">CreateDecoders</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="o">**</span><span class="n">InitializeDecoder</span><span class="p">();</span><span class="o">**</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>위의 코드에서 볼 수 있듯, DecoderStream를 초기화할 때 Decoder를 선택하는 것을 볼 수 있습니다. 그리고 선택된 Decoder를 초기화하는 것을 볼 수 있는데, 해당 함수를 따라가다보면 아래의 함수를 볼 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">DemuxerStream</span><span class="o">::</span><span class="n">Type</span> <span class="n">StreamType</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">DecoderSelector</span><span class="o">&lt;</span><span class="n">StreamType</span><span class="o">&gt;::</span><span class="n">InitializeDecoder</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span><span class="p">;</span>
+  <span class="n">DCHECK_CALLED_ON_VALID_SEQUENCE</span><span class="p">(</span><span class="n">sequence_checker_</span><span class="p">);</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="o">!</span><span class="n">decoder_</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">decoders_</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// Decoder selection failed. If the stream is encrypted, try again using</span>
+    <span class="c1">// DecryptingDemuxerStream.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">config_</span><span class="p">.</span><span class="n">is_encrypted</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">cdm_context_</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">InitializeDecryptingDemuxerStream</span><span class="p">();</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">ReturnNullDecoder</span><span class="p">();</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>decoders 변수가 비어있을 경우, encrypted media인 것을 볼 수 있고 Decrypt기능이 포함된 DemuxerStream을 초기화합니다.  그러므로 이후에 media 데이터를 demux할 때, DecryptingDemuxerStream을 사용해서 decrypt 처리를 진행한다는 것을 알 수 있습니다. 따라서, 해당 클래스가 Demux시 사용하는 함수를 분석해야합니다. 아래는 해당 코드입니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ./src/media/filters/decrypting_demuxer_stream.cc</span>
+<span class="kt">void</span> <span class="n">DecryptingDemuxerStream</span><span class="o">::</span><span class="n">Read</span><span class="p">(</span><span class="n">ReadCB</span> <span class="n">read_cb</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span><span class="p">;</span>
+  <span class="n">DCHECK_CALLED_ON_VALID_SEQUENCE</span><span class="p">(</span><span class="n">sequence_checker_</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">state_</span><span class="p">,</span> <span class="n">kIdle</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">state_</span><span class="p">;</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">read_cb</span><span class="p">);</span>
+  <span class="n">CHECK</span><span class="p">(</span><span class="o">!</span><span class="n">read_cb_</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Overlapping reads are not supported."</span><span class="p">;</span>
+
+  <span class="n">read_cb_</span> <span class="o">=</span> <span class="n">BindToCurrentLoop</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">read_cb</span><span class="p">));</span>
+  <span class="n">state_</span> <span class="o">=</span> <span class="n">kPendingDemuxerRead</span><span class="p">;</span>
+  <span class="o">**</span><span class="n">demuxer_stream_</span><span class="o">-&gt;</span><span class="n">Read</span><span class="p">(</span>
+      <span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DecryptingDemuxerStream</span><span class="o">::</span><span class="n">OnBufferReadFromDemuxerStream</span><span class="p">,</span>
+                     <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">()));</span><span class="o">**</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">DecryptingDemuxerStream</span><span class="o">::</span><span class="n">OnBufferReadFromDemuxerStream</span><span class="p">(</span>
+    <span class="n">DemuxerStream</span><span class="o">::</span><span class="n">Status</span> <span class="n">status</span><span class="p">,</span>
+    <span class="n">scoped_refptr</span><span class="o">&lt;</span><span class="n">DecoderBuffer</span><span class="o">&gt;</span> <span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">DVLOG</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span> <span class="o">&lt;&lt;</span> <span class="s">": status = "</span> <span class="o">&lt;&lt;</span> <span class="n">status</span><span class="p">;</span>
+  <span class="n">DCHECK_CALLED_ON_VALID_SEQUENCE</span><span class="p">(</span><span class="n">sequence_checker_</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">state_</span><span class="p">,</span> <span class="n">kPendingDemuxerRead</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">state_</span><span class="p">;</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="n">read_cb_</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">nullptr</span><span class="p">,</span> <span class="n">status</span> <span class="o">==</span> <span class="n">kOk</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">status</span><span class="p">;</span>
+
+  <span class="c1">// Even when |reset_cb_|, we need to pass |kConfigChanged| back to</span>
+  <span class="c1">// the caller so that the downstream decoder can be properly reinitialized.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">kConfigChanged</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span> <span class="o">&lt;&lt;</span> <span class="s">": config change"</span><span class="p">;</span>
+    <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">demuxer_stream_</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">AUDIO</span><span class="p">,</span> <span class="n">audio_config_</span><span class="p">.</span><span class="n">IsValidConfig</span><span class="p">());</span>
+    <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">demuxer_stream_</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">VIDEO</span><span class="p">,</span> <span class="n">video_config_</span><span class="p">.</span><span class="n">IsValidConfig</span><span class="p">());</span>
+
+    <span class="c1">// Update the decoder config, which the decoder will use when it is notified</span>
+    <span class="c1">// of kConfigChanged.</span>
+    <span class="n">InitializeDecoderConfig</span><span class="p">();</span>
+
+    <span class="n">state_</span> <span class="o">=</span> <span class="n">kIdle</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">read_cb_</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">kConfigChanged</span><span class="p">,</span> <span class="nb">nullptr</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">reset_cb_</span><span class="p">)</span>
+      <span class="n">DoReset</span><span class="p">();</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">reset_cb_</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">read_cb_</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">kAborted</span><span class="p">,</span> <span class="nb">nullptr</span><span class="p">);</span>
+    <span class="n">DoReset</span><span class="p">();</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">kAborted</span> <span class="o">||</span> <span class="n">status</span> <span class="o">==</span> <span class="n">kError</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">kError</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">MEDIA_LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">media_log_</span><span class="p">)</span>
+          <span class="o">&lt;&lt;</span> <span class="n">GetDisplayName</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">": demuxer stream read error."</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">state_</span> <span class="o">=</span> <span class="n">kIdle</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">read_cb_</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">nullptr</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">kOk</span><span class="p">,</span> <span class="n">status</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">end_of_stream</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span> <span class="o">&lt;&lt;</span> <span class="s">": EOS buffer"</span><span class="p">;</span>
+    <span class="n">state_</span> <span class="o">=</span> <span class="n">kIdle</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">read_cb_</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">kOk</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">decrypt_config</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">DVLOG</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">__func__</span> <span class="o">&lt;&lt;</span> <span class="s">": clear buffer"</span><span class="p">;</span>
+    <span class="n">state_</span> <span class="o">=</span> <span class="n">kIdle</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">read_cb_</span><span class="p">).</span><span class="n">Run</span><span class="p">(</span><span class="n">kOk</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">pending_buffer_to_decrypt_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+  <span class="n">state_</span> <span class="o">=</span> <span class="n">kPendingDecrypt</span><span class="p">;</span>
+  <span class="o">**</span><span class="n">DecryptPendingBuffer</span><span class="p">();</span><span class="o">**</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">DecryptingDemuxerStream</span><span class="o">::</span><span class="n">DecryptPendingBuffer</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">DCHECK_CALLED_ON_VALID_SEQUENCE</span><span class="p">(</span><span class="n">sequence_checker_</span><span class="p">);</span>
+  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">state_</span><span class="p">,</span> <span class="n">kPendingDecrypt</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">state_</span><span class="p">;</span>
+  <span class="n">DCHECK</span><span class="p">(</span><span class="o">!</span><span class="n">pending_buffer_to_decrypt_</span><span class="o">-&gt;</span><span class="n">end_of_stream</span><span class="p">());</span>
+  <span class="n">TRACE_EVENT_ASYNC_BEGIN2</span><span class="p">(</span>
+      <span class="s">"media"</span><span class="p">,</span> <span class="s">"DecryptingDemuxerStream::DecryptPendingBuffer"</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="s">"type"</span><span class="p">,</span>
+      <span class="n">DemuxerStream</span><span class="o">::</span><span class="n">GetTypeName</span><span class="p">(</span><span class="n">demuxer_stream_</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">()),</span> <span class="s">"timestamp_us"</span><span class="p">,</span>
+      <span class="n">pending_buffer_to_decrypt_</span><span class="o">-&gt;</span><span class="n">timestamp</span><span class="p">().</span><span class="n">InMicroseconds</span><span class="p">());</span>
+  <span class="o">**</span><span class="n">decryptor_</span><span class="o">-&gt;</span><span class="n">Decrypt</span><span class="p">(</span><span class="n">GetDecryptorStreamType</span><span class="p">(),</span> <span class="n">pending_buffer_to_decrypt_</span><span class="p">,</span>
+                      <span class="n">BindToCurrentLoop</span><span class="p">(</span><span class="n">base</span><span class="o">::</span><span class="n">BindOnce</span><span class="p">(</span>
+                          <span class="o">&amp;</span><span class="n">DecryptingDemuxerStream</span><span class="o">::</span><span class="n">OnBufferDecrypted</span><span class="p">,</span>
+                          <span class="n">weak_factory_</span><span class="p">.</span><span class="n">GetWeakPtr</span><span class="p">())));</span><span class="o">**</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>위의 코드에서 알 수 있듯, Demux를 진행하기에 앞서 데이터를 읽는 부분에서 DecoderBuffer를 사용하는 것을 볼 수 있고, 읽어들인 Buffer를 Decrypt까지 하는 것을 확인할 수 있습니다.</p>
+
+<p>따라서, DecoderBuffer가 처리되는 흐름을 요약하면 다음과 같습니다.</p>
+
+<p>AudioRenderer reset &amp; init → Output Device Status check → DecoderStream init → DemuxerStream init → Encrypted media check → DecryptingDemuxerStream init → ready to play → DecryptingDemuxerStream Read → read status check → Decrypt buffer &amp; demux</p>
+
+<p>다음 문서는 동적 분석을 통한 Chrome EME Drm 해제 가능 여부에 대해서 알아보도록 하겠습니다.</p>
+
+<h2 id="reference">Reference</h2>
+
+<ol>
+  <li>
+    <p>EME specification</p>
+
+    <p><a href="https://w3.org/TR/encrypted-media">https://w3.org/TR/encrypted-media</a></p>
+  </li>
+  <li>
+    <p>Common Encryption (CENC)</p>
+
+    <p><a href="https://source.chromium.org/chromium/chromium/src/+/master:media/cdm/cenc_decryptor.cc;l=62;bpv=0;bpt=0">https://source.chromium.org/chromium/chromium/src/+/master:media/cdm/cenc_decryptor.cc;l=62;bpv=0;bpt=0</a></p>
+  </li>
+  <li>
+    <p>CBCS(AES-CBC CENC)</p>
+
+    <p><a href="https://source.chromium.org/chromium/chromium/src/+/master:media/cdm/cbcs_decryptor.cc;l=121;bpv=0;bpt=0">https://source.chromium.org/chromium/chromium/src/+/master:media/cdm/cbcs_decryptor.cc;l=121;bpv=0;bpt=0</a></p>
+  </li>
+  <li>
+    <p>DecoderBuffer</p>
+
+    <p><a href="https://source.chromium.org/chromium/chromium/src/+/master:media/base/decoder_buffer.h;l=34;drc=1febd4367152c37a707817cbc25a1b88c527b6bb">https://source.chromium.org/chromium/chromium/src/+/master:media/base/decoder_buffer.h;l=34;drc=1febd4367152c37a707817cbc25a1b88c527b6bb</a></p>
+  </li>
+</ol>
+
+   </div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+   <a href="/2021-03-01/Magnetic" class="left arrow">&#8592;</a>
+  
+  
+   <a href="/2021-01-01/XMAS-CTF" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

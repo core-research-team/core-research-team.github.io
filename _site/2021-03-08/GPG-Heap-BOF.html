@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="soS2al0KuMZmiyPzu87KFbqGSn0K9edQ8EkWp_m35n0" />
+  
+
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>GPG, Heap BOF in Libgcrypt | Core-Research-Team</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="GPG, Heap BOF in Libgcrypt" />
+<meta name="author" content="myria" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="라온화이트햇 핵심연구팀 권재승" />
+<meta property="og:description" content="라온화이트햇 핵심연구팀 권재승" />
+<link rel="canonical" href="http://202.182.127.225:4000/2021-03-08/GPG-Heap-BOF" />
+<meta property="og:url" content="http://202.182.127.225:4000/2021-03-08/GPG-Heap-BOF" />
+<meta property="og:site_name" content="Core-Research-Team" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-08T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"GPG, Heap BOF in Libgcrypt","dateModified":"2021-03-08T00:00:00+00:00","datePublished":"2021-03-08T00:00:00+00:00","author":{"@type":"Person","name":"myria"},"url":"http://202.182.127.225:4000/2021-03-08/GPG-Heap-BOF","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2021-03-08/GPG-Heap-BOF"},"description":"라온화이트햇 핵심연구팀 권재승","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+
+  <!-- Google Analytics-->
+  
+ 
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">RAON - Core Research Team</h2>
+    </a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/">Posts</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post"> 
+   <h1 class="post-title">GPG, Heap BOF in Libgcrypt</h1>
+   <div class="post-line"></div>
+
+   
+      
+         
+      
+         
+      
+   
+   
+   <ul>
+  <li><a href="#소개">소개</a></li>
+  <li><a href="#환경세팅">환경세팅</a></li>
+  <li><a href="#취약점-분석">취약점 분석</a></li>
+  <li><a href="#패치">패치</a></li>
+  <li><a href="#결론">결론</a></li>
+  <li><a href="#reference">Reference</a></li>
+</ul>
+   
+   <p>라온화이트햇 핵심연구팀 권재승</p>
+
+<h2 id="소개">소개</h2>
+
+<p>이 문서는 구글 프로젝트 제로팀에서 발견한 Libgcrypt 1.9.0 암호화 라이브러리의 <code class="highlighter-rouge">힙 버퍼 오버플로우</code>에 대한 설명 및 분석 글입니다.</p>
+
+<h3 id="gnupg-및-libgcrypt">GnuPG 및 Libgcrypt</h3>
+
+<p><img src="/assets/202103/jae_.png" alt="/assets/202103/jae_.png" /></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">GnuPG</code>는 GNU 프로젝트 중 이메일 보안 표준으로 자리잡은 PGP를 대체하는 소프트웨어이다. 여기서 데이터 암호화 및 전자서명을 위해 Libcrypt 암호화 라이브러리를 사용하며, OpenSSL이나 LibreSSL만큼 널리 사용되는 암호화 툴킷은 아니나 Fedora나  Gento와 같은 많은 리눅스 배포판, 맥OS 패키지 관리자인 Homebrew에서 디지털 보안 목적으로 사용되고 있다. Libgcrypt는 기본적인 암호화 모드 및 알고리즘을 지원하며 GnuPG와 분리되어 개발되어 독립적으로 사용 가능하다.</p>
+</blockquote>
+
+<h2 id="환경세팅">환경세팅</h2>
+
+<p>Libgcrypt 1.9.0에서 발생한 <code class="highlighter-rouge">힙 오버플로우</code>를 재현하기 위한 환경세팅 방법입니다. 해당 취약점은 오직 1.9.0버전(released 2021-01-19)에만 영향을 미치기 때문에 정확히 해당 버전을 설치해줄 필요가 있습니다.</p>
+
+<p>Libgcrypt 1.9.0 환경 구성은 Ubuntu 18.04에서 진행하였으며 아래 스크립트를 사용하면 취약점이 있는 GPG 소프트웨어를 설치할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/bin/bash
+# ---------
+# Script to build and install GnuPG 2.2.x	
+# Setting libgcrypt-1.9.0
+</span>
+<span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="c1">#  libgnutls-dev
+</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">bzip2</span> <span class="n">make</span> <span class="n">gettext</span> <span class="n">texinfo</span> <span class="n">gnutls</span><span class="o">-</span><span class="nb">bin</span> <span class="n">libgnutls28</span><span class="o">-</span><span class="n">dev</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span> <span class="n">libsqlite3</span><span class="o">-</span><span class="n">dev</span> <span class="n">libldap2</span><span class="o">-</span><span class="n">dev</span> <span class="o">||</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">libgnutls28</span><span class="o">-</span><span class="n">dev</span> <span class="n">bzip2</span> <span class="n">make</span> <span class="n">gettext</span> <span class="n">texinfo</span> <span class="n">gnutls</span><span class="o">-</span><span class="nb">bin</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span> <span class="n">libsqlite3</span><span class="o">-</span><span class="n">dev</span> <span class="n">libldap2</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">gnupg22</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">gnupg22</span>
+<span class="n">gpg</span> <span class="o">--</span><span class="nb">list</span><span class="o">-</span><span class="n">keys</span>
+<span class="n">gpg</span> <span class="o">--</span><span class="n">keyserver</span> <span class="n">hkp</span><span class="p">:</span><span class="o">//</span><span class="n">keyserver</span><span class="p">.</span><span class="n">ubuntu</span><span class="p">.</span><span class="n">com</span><span class="p">:</span><span class="mi">80</span> <span class="o">--</span><span class="n">recv</span><span class="o">-</span><span class="n">keys</span> <span class="mi">249</span><span class="n">B39D24F25E3B6</span> <span class="mi">04376</span><span class="n">F3EE0856959</span> <span class="mi">2071</span><span class="n">B08A33BD3F06</span> <span class="mi">8</span><span class="n">A861B1C7EFD60D9</span>
+
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libgpg</span><span class="o">-</span><span class="n">error</span><span class="o">/</span><span class="n">libgpg</span><span class="o">-</span><span class="n">error</span><span class="o">-</span><span class="mf">1.41</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libgpg</span><span class="o">-</span><span class="n">error</span><span class="o">/</span><span class="n">libgpg</span><span class="o">-</span><span class="n">error</span><span class="o">-</span><span class="mf">1.41</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libgcrypt</span><span class="o">/</span><span class="n">libgcrypt</span><span class="o">-</span><span class="mf">1.9</span><span class="p">.</span><span class="mi">0</span><span class="n">_do_not_use</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libgcrypt</span><span class="o">/</span><span class="n">libgcrypt</span><span class="o">-</span><span class="mf">1.9</span><span class="p">.</span><span class="mi">0</span><span class="n">_do_not_use</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libassuan</span><span class="o">/</span><span class="n">libassuan</span><span class="o">-</span><span class="mf">2.5</span><span class="p">.</span><span class="mf">4.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libassuan</span><span class="o">/</span><span class="n">libassuan</span><span class="o">-</span><span class="mf">2.5</span><span class="p">.</span><span class="mf">4.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libksba</span><span class="o">/</span><span class="n">libksba</span><span class="o">-</span><span class="mf">1.5</span><span class="p">.</span><span class="mf">0.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">libksba</span><span class="o">/</span><span class="n">libksba</span><span class="o">-</span><span class="mf">1.5</span><span class="p">.</span><span class="mf">0.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">npth</span><span class="o">/</span><span class="n">npth</span><span class="o">-</span><span class="mf">1.6</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">npth</span><span class="o">/</span><span class="n">npth</span><span class="o">-</span><span class="mf">1.6</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">pinentry</span><span class="o">/</span><span class="n">pinentry</span><span class="o">-</span><span class="mf">1.1</span><span class="p">.</span><span class="mf">1.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">pinentry</span><span class="o">/</span><span class="n">pinentry</span><span class="o">-</span><span class="mf">1.1</span><span class="p">.</span><span class="mf">1.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">gnupg</span><span class="o">/</span><span class="n">gnupg</span><span class="o">-</span><span class="mf">2.2</span><span class="p">.</span><span class="mf">27.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnupg</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="n">ftp</span><span class="o">/</span><span class="n">gcrypt</span><span class="o">/</span><span class="n">gnupg</span><span class="o">/</span><span class="n">gnupg</span><span class="o">-</span><span class="mf">2.2</span><span class="p">.</span><span class="mf">27.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span><span class="p">.</span><span class="n">sig</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">libgpg</span><span class="o">-</span><span class="n">error</span><span class="o">-</span><span class="mf">1.41</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">libgcrypt</span><span class="o">-</span><span class="mf">1.9</span><span class="p">.</span><span class="mi">0</span><span class="n">_do_not_use</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">libassuan</span><span class="o">-</span><span class="mf">2.5</span><span class="p">.</span><span class="mf">4.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">libksba</span><span class="o">-</span><span class="mf">1.5</span><span class="p">.</span><span class="mf">0.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">npth</span><span class="o">-</span><span class="mf">1.6</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">pinentry</span><span class="o">-</span><span class="mf">1.1</span><span class="p">.</span><span class="mf">1.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">gnupg</span><span class="o">-</span><span class="mf">2.2</span><span class="p">.</span><span class="mf">27.</span><span class="n">tar</span><span class="p">.</span><span class="n">bz2</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">libgpg</span><span class="o">-</span><span class="n">error</span><span class="o">-</span><span class="mf">1.41</span><span class="o">/</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="p">..</span><span class="o">/</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">libgcrypt</span><span class="o">-</span><span class="mf">1.9</span><span class="p">.</span><span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="p">..</span><span class="o">/</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">libassuan</span><span class="o">-</span><span class="mf">2.5</span><span class="p">.</span><span class="mi">4</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="p">..</span><span class="o">/</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">libksba</span><span class="o">-</span><span class="mf">1.5</span><span class="p">.</span><span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="p">..</span><span class="o">/</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">npth</span><span class="o">-</span><span class="mf">1.6</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="p">..</span><span class="o">/</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">pinentry</span><span class="o">-</span><span class="mf">1.1</span><span class="p">.</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">pinentry</span><span class="o">-</span><span class="n">curses</span> <span class="o">--</span><span class="n">disable</span><span class="o">-</span><span class="n">pinentry</span><span class="o">-</span><span class="n">qt4</span> <span class="o">&amp;&amp;</span> \
+<span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="p">..</span><span class="o">/</span> <span class="o">&amp;&amp;</span> \
+<span class="n">cd</span> <span class="n">gnupg</span><span class="o">-</span><span class="mf">2.2</span><span class="p">.</span><span class="mi">27</span> <span class="o">&amp;&amp;</span> <span class="p">.</span><span class="o">/</span><span class="n">configure</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> \
+<span class="n">echo</span> <span class="s">"/usr/local/lib"</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">ld</span><span class="p">.</span><span class="n">so</span><span class="p">.</span><span class="n">conf</span><span class="p">.</span><span class="n">d</span><span class="o">/</span><span class="n">gpg2</span><span class="p">.</span><span class="n">conf</span> <span class="o">&amp;&amp;</span> <span class="n">ldconfig</span> <span class="o">-</span><span class="n">v</span> <span class="o">&amp;&amp;</span> \
+<span class="n">echo</span> <span class="s">"Complete!!!"</span>
+</code></pre></div></div>
+
+<p>Libgcrypt 1.9.0의 자동 업데이트 및 기존 스크립트에서의 다운을 방지하기 위해 FTP서버의 파일이름이 <code class="highlighter-rouge">libgcrypt-1.9.0_do_not_use</code>로 변경되어있습니다.</p>
+
+<p>위 스크립트를 통해 설치 및 업데이트를 진행하고 나면 다음과 같이 <code class="highlighter-rouge">gpg --version</code> 을 통해  취약한 버전이 설치된 것을 확인할 수 있습니다.</p>
+
+<p><img src="/assets/202103/jae_1.png" alt="/assets/202103/jae_1.png" /></p>
+
+<h2 id="취약점-분석">취약점 분석</h2>
+
+<p>Libcrypt 1.9.0의 블록 버퍼 관리 코드에서 잘못된 가정으로 인해 <code class="highlighter-rouge">힙 버퍼 오버플로우</code>가 발생하게 됩니다. 공격자는 라이브러리에 특수 제작된 데이터 블록을 전송하여 공격을 유발할 수 있으며, 블럭의 일부 데이터가 단순히 복호화되는 것만으로도 힙 버퍼 오버플로우가 발생합니다.</p>
+
+<p>libgcrypt의 hash-common.c를 보면 _gcry_md_block_write에서 다음과 같이 블록 버퍼의 점유 공간(<code class="highlighter-rouge">hd-&gt;count</code>)이 블록크기를 초과할 수 없다고 가정합니다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// libgcrypt/cipher/hash-common.c:150</span>
+<span class="mi">129</span> <span class="kt">size_t</span> <span class="n">copylen</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="mi">149</span>	  <span class="n">copylen</span> <span class="o">=</span> <span class="n">inlen</span><span class="p">;</span>
+<span class="mi">150</span>	  <span class="k">if</span> <span class="p">(</span><span class="n">copylen</span> <span class="o">&gt;</span> <span class="n">blocksize</span> <span class="o">-</span> <span class="n">hd</span><span class="o">-&gt;</span><span class="n">count</span><span class="p">)</span>
+<span class="mi">151</span>	    <span class="n">copylen</span> <span class="o">=</span> <span class="n">blocksize</span> <span class="o">-</span> <span class="n">hd</span><span class="o">-&gt;</span><span class="n">count</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>그러나 만약 <code class="highlighter-rouge">blocksize</code>보다 <code class="highlighter-rouge">hd-&gt;count</code>값이 더 크게된다면, 언더플로우가 발생하게 될 것입니다. 이 후, <code class="highlighter-rouge">hd-&gt;count</code> 및 <code class="highlighter-rouge">copylen</code>은 memcpy의 wrapper함수인 buf_cpy로 전달됩니다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// libgcrypt/cipher/hash-common.c</span>
+<span class="mi">152</span>		<span class="k">if</span> <span class="p">(</span><span class="n">copylen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="mi">153</span>	    <span class="k">break</span><span class="p">;</span>
+<span class="mi">154</span>
+<span class="mi">155</span>	  <span class="nf">buf_cpy</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">[</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">count</span><span class="p">],</span> <span class="n">inbuf</span><span class="p">,</span> <span class="n">copylen</span><span class="p">);</span>
+<span class="mi">156</span>	  <span class="n">hd</span><span class="o">-&gt;</span><span class="n">count</span> <span class="o">+=</span> <span class="n">copylen</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>_gcry_md_block_write에서는 <code class="highlighter-rouge">hd-&gt;count</code>값이 <code class="highlighter-rouge">blocksize</code>를 넘을수 없다고 가정했지만, libgcrypt의 sha1 코드를 보면, sha1_final을 통해 count값을 blocksize를 넘게끔 설정하는 부분을 찾아볼 수 있습니다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// libgcrypt/cipher/sha1.c</span>
+<span class="mi">545</span>		<span class="k">else</span>  <span class="cm">/* need one extra block */</span>
+<span class="mi">546</span>		<span class="p">{</span>
+<span class="mi">547</span>			<span class="n">hd</span><span class="o">-&gt;</span><span class="n">bctx</span><span class="p">.</span><span class="n">buf</span><span class="p">[</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">bctx</span><span class="p">.</span><span class="n">count</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x80</span><span class="p">;</span> <span class="cm">/* pad character */</span>
+<span class="mi">548</span>			<span class="cm">/* fill pad and next block with zeroes */</span>
+<span class="mi">549</span>			<span class="n">memset</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">bctx</span><span class="p">.</span><span class="n">buf</span><span class="p">[</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">bctx</span><span class="p">.</span><span class="n">count</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">64</span> <span class="o">-</span> <span class="n">hd</span><span class="o">-&gt;</span><span class="n">bctx</span><span class="p">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">56</span><span class="p">);</span>
+<span class="mi">550</span>			<span class="n">hd</span><span class="o">-&gt;</span><span class="n">bctx</span><span class="p">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">64</span> <span class="o">+</span> <span class="mi">56</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>여기서 <code class="highlighter-rouge">count</code>값은 120으로 설정됩니다.  hd 구조체는 다음과 같으므로, count값과 copylen이 클수록 오버플로우가 날 확률도 높아집니다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* SHA1 needs 2x64 bytes and SHA-512 needs 128 bytes. */</span>
+<span class="cp">#define MD_BLOCK_CTX_BUFFER_SIZE 128
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">gcry_md_block_ctx</span>
+<span class="p">{</span>
+    <span class="n">byte</span> <span class="n">buf</span><span class="p">[</span><span class="n">MD_BLOCK_CTX_BUFFER_SIZE</span><span class="p">];</span>
+    <span class="n">MD_NBLOCKS_TYPE</span> <span class="n">nblocks</span><span class="p">;</span>
+    <span class="n">MD_NBLOCKS_TYPE</span> <span class="n">nblocks_high</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">blocksize_shift</span><span class="p">;</span>
+    <span class="n">_gcry_md_block_write_t</span> <span class="n">bwrite</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">gcry_md_block_ctx_t</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>이제 sha1_final 이후, <code class="highlighter-rouge">count</code>값이 120으로 설정되고 _gcry_md_block_write를 호출하게 될 경우, blocksize는 여전히 64이기 때문에 <code class="highlighter-rouge">blocksize - hd-&gt;count</code>는 언더플로우로 copylen을 설정하는 if문을 들어가지 않게 됩니다.</p>
+
+<p>그렇다면 <code class="highlighter-rouge">buf_cpy</code>는 전체입력을 버퍼에 복사하게 되고, count값이 120이므로, copylen이 8이상이라면 힙 오버플로우가 발생합니다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">155</span>	  <span class="nf">buf_cpy</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">[</span><span class="n">hd</span><span class="o">-&gt;</span><span class="n">count</span><span class="p">],</span> <span class="n">inbuf</span><span class="p">,</span> <span class="n">copylen</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>또한 오버플로우된 버퍼에서 조금 떨어진 곳에 있는 bwrite는 함수 포인터로, _gcry_md_block_write에서 버퍼 복사를 수행한 후 <code class="highlighter-rouge">hd-&gt;bwrite(hd, inbuf, inblocks)</code>를 호출합니다. 때문에 공격자가 오버플로우를 통해 <code class="highlighter-rouge">bwrite</code>를 덮어 프로그램 흐름을 쉽게 컨트롤할 수 있습니다.</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// libgcrypt/cipher/hash-common.c</span>
+<span class="mi">166</span>		<span class="k">if</span> <span class="p">(</span><span class="n">inlen</span> <span class="o">&gt;=</span> <span class="n">blocksize</span><span class="p">)</span>
+<span class="mi">167</span>    <span class="p">{</span>
+<span class="mi">168</span>      <span class="n">inblocks</span> <span class="o">=</span> <span class="n">inlen</span> <span class="o">&gt;&gt;</span> <span class="n">blocksize_shift</span><span class="p">;</span>
+<span class="mi">169</span>      <span class="n">nburn</span> <span class="o">=</span> <span class="n">hd</span><span class="o">-&gt;</span><span class="n">bwrite</span> <span class="p">(</span><span class="n">hd</span><span class="p">,</span> <span class="n">inbuf</span><span class="p">,</span> <span class="n">inblocks</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>이제 <a href="https://bugs.chromium.org/p/project-zero/issues/attachment?aid=486952&amp;signed_aid=hXelt91sJk0bhikNO2DOBA==">PoC파일</a> 실행 결과, 재현된 취약점을 gdb를 통해 살펴보도록하겠습니다.</p>
+
+<p>gpg에 pwndbg를 붙여 <code class="highlighter-rouge">hash-common.c+150</code>, <code class="highlighter-rouge">sha1.c+550</code>에 중단점을 설정하였습니다.</p>
+
+<p>먼저 아래 부분에서 sha1.c의 550행에 접근하여 <code class="highlighter-rouge">hd-&gt;bctx.count = 64 + 56</code>을 실행하여 count값이 120이 된 것을 확인할 수 있었습니다.</p>
+
+<p><img src="/assets/202103/jae_2.png" alt="/assets/202103/jae_2.png" /></p>
+
+<p>다음으로 <code class="highlighter-rouge">hash-common.c+150</code>에 중단점이 걸렸을 때, <code class="highlighter-rouge">copylen</code>, <code class="highlighter-rouge">blocksize</code>, <code class="highlighter-rouge">hd-&gt;count</code>의 값입니다.</p>
+
+<p><img src="/assets/202103/jae_3.png" alt="/assets/202103/jae_3.png" /></p>
+
+<p>언더플로우로 인해 copylen은 재설정되지않고, 그대로 buf_cpy를 실행하여 복사가 수행되게 됩니다.</p>
+
+<p><img src="/assets/202103/jae_4.png" alt="/assets/202103/jae_4.png" /></p>
+
+<p><img src="/assets/202103/jae_5.png" alt="/assets/202103/jae_5.png" /></p>
+
+<p>이후 다음번 _gcry_md_block_write 호출에서 <code class="highlighter-rouge">hd-&gt;bwrite</code>함수를 호출되게 됩니다.</p>
+
+<h2 id="패치">패치</h2>
+
+<p>hash-common.c의  _gcry_md_block_write에 다음 코드가 추가되었습니다. <code class="highlighter-rouge">hd-&gt;count</code>의 값이 <code class="highlighter-rouge">blocksize</code>를 넘지 못하게하여 위와 같은 취약점이 발생하는 것을 방어하였습니다.</p>
+
+<p><img src="/assets/202103/jae_6.png" alt="/assets/202103/jae_6.png" /></p>
+
+<h2 id="결론">결론</h2>
+
+<p>이 취약점은 트리거를 위해 어떠한 인증(verification)이나 서명(signature)도 필요하지 않기 때문에 심각한 취약점으로 받아들여졌습니다. 현재 익스플로잇을 위한 암호 데이터 블럭의 구성 방법은 90일의 공개 마감(2021-01-29 기준)에 따르기 때문에 그 내용이 알려지지는 않았습니다. 하지만 취약점 자체가 간단하기 때문에 공개된 분석 내용과 PoC 파일을 이용한다면 쉽게 악용할 수 있을 것으로 보입니다. 때문에 영향을 받는 버전인 libgcrypt 1.9.0을 사용하고 있다면 빠른 패치를 해야할 것입니다.</p>
+<h2 id="reference">Reference</h2>
+
+<ul>
+  <li><a href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2145">https://bugs.chromium.org/p/project-zero/issues/detail?id=2145</a></li>
+  <li><a href="https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550">https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550</a></li>
+  <li><a href="https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550">https://github.com/gpg/libgcrypt/blob/f9d8b5a0369cc94e125d36d9c8864d5cd2eaa1d2/cipher/sha1.c#L550</a></li>
+  <li><a href="https://gist.github.com/vt0r/a2f8c0bcb1400131ff51">https://gist.github.com/vt0r/a2f8c0bcb1400131ff51</a></li>
+  <li><a href="https://lists.gnupg.org/pipermail/gnupg-announce/2021q1/000456.html">https://lists.gnupg.org/pipermail/gnupg-announce/2021q1/000456.html</a></li>
+  <li><a href="https://gist.github.com/vt0r/a2f8c0bcb1400131ff51">https://gist.github.com/vt0r/a2f8c0bcb1400131ff51</a></li>
+  <li><a href="https://ko.wikipedia.org/wiki/GNU_%ED%94%84%EB%9D%BC%EC%9D%B4%EB%B2%84%EC%8B%9C_%EA%B0%80%EB%93%9C">https://ko.wikipedia.org/wiki/GNU_프라이버시_가드</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Libgcrypt">https://en.wikipedia.org/wiki/Libgcrypt</a></li>
+</ul>
+
+   </div>
+</div>
+
+
+  <!-- Start disqus 
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://jekyll-tale.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+End disqus -->
+
+
+<div class="pagination">
+  
+  
+   <a href="/2021-03-01/Magnetic" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--footer>
+  <span>
+    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer-->
+
+  </body>
+</html>
