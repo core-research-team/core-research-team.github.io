@@ -3,7 +3,7 @@ layout: post
 title:  "GPG, Heap BOF in Libgcrypt"
 author: "myria"
 comments: true
-tags: [Heap, Analysis]
+tags: [heap, analysis]
 ---
 
 라온화이트햇 핵심연구팀 권재승

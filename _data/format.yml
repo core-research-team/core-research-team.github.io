@@ -26,3 +26,5 @@ methology : methology
 node.js : node.js
 analysis : Analysis
 drm : DRM
+hardware : hardward
+heap : Heap
