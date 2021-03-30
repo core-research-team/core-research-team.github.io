@@ -27,4 +27,3 @@ analysis : Analysis
 drm : DRM
 hardware : Hardware
 heap : Heap
-rev : Reversing
