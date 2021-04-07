@@ -15,11 +15,11 @@ tags: [ctf, misc, php]
 
 # 1. 문제 설명
 
-![/assets/choi600.png](/assets/choi600.png)
+![/assets/2020-06-01/choi600.png](/assets/2020-06-01/choi600.png)
 
 **Cloud Computing**
 
-![/assets/choi601.png](/assets/choi601.png)
+![/assets/2020-06-01/choi601.png](/assets/2020-06-01/choi601.png)
 
 **Cloud Computing 문제 설명**
 
@@ -121,7 +121,7 @@ function initShellEnv($dir)
 
 function.php의 `initShellEnv` 를 살펴보면 open_basedir을 사용자 경로로 설정하는 것을 확인할 수 있습니다.
 
-![/assets/choi60.png](/assets/choi60.png)
+![/assets/2020-06-01/choi60.png](/assets/2020-06-01/choi60.png)
 
 **open_basedir**
 
@@ -199,10 +199,10 @@ res: Linux rev 1.0 ext2 filesystem data (mounted or unclean), UUID=d4d08581-e309
 
 추출한 파일을 확인해보면 gzip으로 압축되어있으며, 압축 해제 시 ext2 이미지를 얻을 수 있습니다.
 
-![/assets/choi61.png](/assets/choi61.png)
+![/assets/2020-06-01/choi61.png](/assets/2020-06-01/choi61.png)
 
 해당 이미지를 hex에디터로 살펴보면 PNG파일이 존재하는 것을 확인할 수 있으며, 카빙하여 이미지를 추출하면 플래그를 얻을 수 있습니다.
 
-![/assets/choi62.png](/assets/choi62.png)
+![/assets/2020-06-01/choi62.png](/assets/2020-06-01/choi62.png)
 
 FLAG : **flag{do_u_like_cloud_computing}**

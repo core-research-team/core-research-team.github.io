@@ -140,7 +140,7 @@ void PlaidStoreImpl::GetData(
 
 첫번째 취약점은 GetData 함수에 있다. GetData 함수는 인자로 key, count를 받는데 count에 대한 범위 검사가 존재하지 않는다. 따라서 원하는 만큼 메모리를 읽어 반환할 수 있다.
 
-![/assets/7bacb2f1-3ed4-480e-b685-34eecdee7029/f3659752-c967-4a31-85d6-02b115109455.png](/assets/7bacb2f1-3ed4-480e-b685-34eecdee7029/f3659752-c967-4a31-85d6-02b115109455.png)
+![/assets/2020-04-01/PlaidCTF/mojo.png](/assets/2020-04-01/PlaidCTF/mojo.png)
 
 data_store_에서 65(A), 66(B)이 있는 사이즈 16의 vector를 저장하고 취약점을 트리거해서 뒤에 메모리까지 읽은 모습이다.
 
@@ -235,7 +235,7 @@ RenderFrameHostImpl::CreatePlaidStore를 바인딩할 때, 인자인 host(conten
 
 UAF 취약점이 발생하게 되면, storeData와 getData 함수를 호출할 때 render_frame_host_가 free된 pointer이다. 그래서 `render_frame_host_->IsRenderFrameLive()` 함수를 호출할 때 크래시가 발생한다.
 
-![/assets/0350c1e2-6822-4c6e-ae56-7aa843a72534/32e97a92-7980-40d2-809d-85883f145779.png](/assets/0350c1e2-6822-4c6e-ae56-7aa843a72534/32e97a92-7980-40d2-809d-85883f145779.png)
+![/assets/2020-04-01/PlaidCTF/mojo1.png](/assets/2020-04-01/PlaidCTF/mojo1.png)
 
 취약점을 트리거 하면 위와같은 모습이다. `call qword ptr [rax + 0x160]` 에서 크래시가 발생하며 rax가 이상한 값으로 덮혀있는 것을 확인할 수 있다.
 

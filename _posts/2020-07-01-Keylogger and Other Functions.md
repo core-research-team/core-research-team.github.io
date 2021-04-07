@@ -163,7 +163,7 @@ def moveCursor():
 
 [schtasks](https://docs.microsoft.com/ko-kr/windows-server/administration/windows-commands/schtasks)
 
-![/assets/sam0700.png](/assets/sam0700.png)
+![/assets/2020-07-01/sam0700.png](/assets/2020-07-01/sam0700.png)
 
 ```bash
 2020/07/03 14:30에 "Task Command"를 한 번 실행시키는 작업을 "Task Name"이라는 이름으로 작업 스케줄 등록

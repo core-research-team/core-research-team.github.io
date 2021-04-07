@@ -10,7 +10,7 @@ tags: [pwn, ctf]
 
 ## Intro
 
-![/assets/2010joo..png](/assets/2010joo.png)
+![/assets/2020-10-01/Midnightsun_CTF.png](/assets/2020-10-01/Midnightsun_CTF.png)
 
 올해 진행된 midnightsun CTF 2020 final에 출제된 maze 문제에 관한 writeup 입니다.
 

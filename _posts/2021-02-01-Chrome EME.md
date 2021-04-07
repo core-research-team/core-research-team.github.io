@@ -17,11 +17,11 @@ tags: [analysis, drm]
 
 EME란, 미디어 컨텐츠의 저작권 보호를 위해 사용되는 DRM 방식 중 하나입니다. 그리고 브라우저에서 사용할 수 있도록 디자인되었습니다.
 
-![/assets/202102/202102won.png](/assets/202102/202102won.png)
+![/assets/2021-02-01/202102won.png](/assets/2021-02-01/202102won.png)
 
 위의 그림과 같이 License 서버에서 받은 License를 MediaKeySession을 통해 내부 Content Decryption Module에 전달하며 해당 구조로 인해서 브라우저마다 암/복호화 방식의 차이가 존재하면 안되기 때문에 어느정도 정해진 암/복호화 알고리즘을 사용할 것으로 보입니다. 이에 따라서, `CMAF(Common Media Application Format)` 이 등장하였습니다.
 
-![/assets/202102/202102won1.png](/assets/202102/202102won1.png)
+![/assets/2021-02-01/202102won1.png](/assets/2021-02-01/202102won1.png)
 
 해당 포맷은 MPEG-DASH, HLS 방식의 프로토콜을 통해 미디어 컨텐츠들을 조각내 스트리밍 방식으로 전송합니다. 이 방식은 기존에 사용하던 코덱과 같이 하나의 컨텐츠 파일을 모두 다운로드되기 전까지 미디어 재생이 불가능한 단점을 극복하기 위해 고안되었습니다. 또한, 컨턴츠의 암호화를 통해 DRM과 같은 부가적인 서비스까지 적용가능합니다. DRM은 위의 그림과 같이 CMAF 포맷에서 표준 암호화 규격으로 `CENC(Common Encryption/AES-CTR)`와 `CBCS(AES-CBC)` 를 사용합니다. 각각의 복호화 방식에 대해서 [http://cs.chromium.org](http://cs.chromium.org) 에서 CDM의 소스코드를 분석해 어떤식으로 코드가 구성되어있는지 확인해보겠습니다.
 
@@ -260,7 +260,7 @@ bool DecryptWithPattern(const crypto::SymmetricKey& key,
 
 아래의 그림과 같은 구조를 가진 chromium에서는 Browser와 Render 프로세스 간의 IPC 통신으로 메세지 필터링 후, 메세지에 알맞은 Renderer에 전달하게 됩니다.
 
-![/assets/202102/202102won2.png](/assets/202102/202102won2.png)
+![/assets/2021-02-01/202102won2.png](/assets/2021-02-01/202102won2.png)
 
 즉, Renderer에서 Audio/Video Packet을 처리를 위한 Stream을 관리가 필요하므로 내부적으로 DecoderBuffer를 생성해야함을 알 수 있습니다. 저는 Audio와 관련된 Renderer에 관심을 가졌고 audio stream을 가져오는 초기화 과정부터 살펴봤습니다.
 

@@ -22,7 +22,7 @@ tags: [ctf, writeup, web, reversing]
 Come and check my latest innovation! It's normal to encounter some bugs and glitches since it is still in beta development.
 [http://pwnable.org:5000/](http://pwnable.org:5000/)
 
-![/assets/jeong61.png](/assets/jeong61.png)
+![/assets/2020-06-01/jeong61.png](/assets/2020-06-01/jeong61.png)
 
 Wechat Generator 문제의 컨셉은 입력한 내용을 바탕으로 Fake Wechat 이미지를 생성해주는 서비스입니다.
 
@@ -60,7 +60,7 @@ Content-Length: 95404
 
 대화 내용(data)을 넣고 요청하면 응답으로 `previewid`와 `data`를 받을 수 있습니다. `data`는 Base64로 인코딩된 이미지이며 새로운 대화 내용을 화면에 출력시켜줍니다.
 
-![/assets/jeong62.png](/assets/jeong62.png)
+![/assets/2020-06-01/jeong62.png](/assets/2020-06-01/jeong62.png)
 
 `data`의 내용을 보면 `image/svg+xml`을 확인 할 수 있고 Base64로 인코딩된 이미지 파일을 디코딩을 하면  위와 같이 svg로 생성된 이미지인 것을 확인할 수 있습니다.
 
@@ -170,7 +170,7 @@ xlink:href="text:/app/app.py"
 [{"type":0,"message":"[smile.png\"/><image xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:href=\"text:/app/app.py\"/><test x=\"]"}]
 ```
 
-![/assets/jeong63.png](/assets/jeong63.png)
+![/assets/2020-06-01/jeong63.png](/assets/2020-06-01/jeong63.png)
 
 [http://pwnable.org:5000/SUp3r_S3cret_URL/0Nly_4dM1n_Kn0ws](http://pwnable.org:5000/SUp3r_S3cret_URL/0Nly_4dM1n_Kn0ws)
 
@@ -271,7 +271,7 @@ Content-Security-Policy: img-src * data:; default-src 'self'; style-src 'self' '
 
 위 JSON을 Javascript Console에서 사용하면 당연히 alert 메세지가 잘뜹니다. 하지만 script의 js 파일처럼 불러오게 되면 아래와 같은 에러가 발생합니다.
 
-![/assets/jeong64.png](/assets/jeong64.png)
+![/assets/2020-06-01/jeong64.png](/assets/2020-06-01/jeong64.png)
 
 따라서 JSON 파일을 <script> 태그의 src로 바로 가져올 수 있는 방법을 검색하다보니 보통은 Callback Function을 통해 사용한다고 되어있습니다.
 

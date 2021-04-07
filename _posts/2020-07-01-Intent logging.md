@@ -284,7 +284,7 @@ adb shell am start -a {action} -c {category} -n {package}/{activity_name}
 </manifest>
 ```
 
-![/assets/yo0700.png](/assets/yo0700.png)
+![/assets/2020-07-01/yo0700.png](/assets/2020-07-01/yo0700.png)
 
 ### 3. Component 이벤트 처리시 발생하는 외부 요청 패킷 로깅
 

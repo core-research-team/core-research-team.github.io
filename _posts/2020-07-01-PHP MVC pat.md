@@ -35,7 +35,7 @@ tags: [programming]
 
 ---
 
-![/assets/dong0700.png](/assets/dong0700.png)
+![/assets/2020-07-01/dong0700.png](/assets/2020-07-01/dong0700.png)
 
 본 사진 속 코드는 "모의 웹 취약점 진단  실습용 솔루션"이며 MVC 미적용된 코드이다.
 
@@ -178,7 +178,7 @@ if (isset($_GET['no'])) {
 
 ---
 
-![/assets/dong0701.png](/assets/dong0701.png)
+![/assets/2020-07-01/dong0701.png](/assets/2020-07-01/dong0701.png)
 
 MVC 패턴이 적용된 PHP이며 Web Root Directory에 설치될 구조이며, 아래에 tree 구조로 전체를 나열하였습니다.
 

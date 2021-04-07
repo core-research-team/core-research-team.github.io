@@ -202,7 +202,7 @@ SQLi 공격을 했을 때의 요청(Request)과 응답(Response)입니다.
 
 쿼리문이 만들어졌고 모든 Row를 리턴하게 되었습니다.
 
-![/assets/202010/202010_soo.png](/assets/202010/202010_soo.png)
+![/assets/2020-10-01/202010_soo.png](/assets/2020-10-01/202010_soo.png)
 
 <center><b>MySQL Query Log</b></center>
 
@@ -342,7 +342,7 @@ SqlString.format = function format(sql, values, stringifyObjects, timeZone) {
 
 어떤 일이 벌어졌는지 MySQL Query Log를 살펴볼까요?
 
-![/assets/202010/202010_soo1.png](/assets/202010/202010_soo1.png)
+![/assets/2020-10-01/202010_soo1.png](/assets/2020-10-01/202010_soo1.png)
 
 <center><b>MySQL Query Log</b></center>
 
@@ -374,7 +374,7 @@ content-type: application/json
 {"id":0}
 ```
 
-![/assets/202010/202010_soo2.png](/assets/202010/202010_soo2.png)
+![/assets/2020-10-01/202010_soo2.png](/assets/2020-10-01/202010_soo2.png)
 
 <center><b>MySQL Query Log</b></center>
 
@@ -418,7 +418,7 @@ Pragma: no-cache
 {"id":1}
 ```
 
-![/assets/202010/202010_soo3.png](/assets/202010/202010_soo3.png)
+![/assets/2020-10-01/202010_soo3.png](/assets/2020-10-01/202010_soo3.png)
 
 <center><b>MySQL Query Log</b></center>
 ```
@@ -503,7 +503,7 @@ content-type: application/json
 
 MySQL Query Log를 살펴봅시다!
 
-![/assets/202010/202010_soo4.png](/assets/202010/202010_soo4.png)
+![/assets/2020-10-01/202010_soo4.png](/assets/2020-10-01/202010_soo4.png)
 
 <center><b>MySQL Query Log</b></center>
 
@@ -543,7 +543,7 @@ Query에 Object가 직접 들어가기 때문에 발생한 문제였으니깐 to
 
 toString()을 적용하게 되면 아래와 같이 Object가 문자열로 들어가게 됩니다!
 
-![/assets/202010/202010_soo5.png](/assets/202010/202010_soo5.png)
+![/assets/2020-10-01/202010_soo5.png](/assets/2020-10-01/202010_soo5.png)
 
 # 마무리
 

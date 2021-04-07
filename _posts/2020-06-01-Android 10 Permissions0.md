@@ -56,11 +56,11 @@ class MainActivity : AppCompatActivity() {
 
 먼저, 구글링을 통해 Android 10 환경에서 permission을 어떤 구조로  동작하는 지 알 수 있었습니다.
 
-![/assets/won60.png](/assets/won60.png)
+![/assets/2020-06-01/won60.png](/assets/2020-06-01/won60.png)
 
 설치된 사용자 앱에서 퍼미션 요청을 하게 되면, Android 10 부터는 `PermissionController 앱`, 그 이전 버전까지는 `Package Installer 앱`이 담당하여 System server로 전달하여 처리하는 것으로 보입니다. PermissionController는 다음과 같은 작업을 합니다.
 
-![/assets/won61.png](/assets/won61.png)
+![/assets/2020-06-01/won61.png](/assets/2020-06-01/won61.png)
 
 위의 기능들은 PackageInstaller의 일부 기능 이였는데, Android 10으로 넘어오면서 분리된 앱으로 구성되어 있다는 것을 확인할 수 있었습니다. 대략적으로 큰 그림을 확인하였으니,  유저 앱에서  PermissionController로 요청할 때 사용되는 `requestPermissions` 의 코드를 확인하기 위해 해당 [링크](https://android.googlesource.com/platform/frameworks/support/+/4f9d8c4/v4/java/android/support/v4/app/ActivityCompat.java#308)를 참조하였습니다.
 

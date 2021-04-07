@@ -253,6 +253,6 @@ static void gic_handle_shared_int(bool chained)
 
 ## 전체 흐름
 
-![/assets/acaa16ca-36b1-4732-99b9-e88e160356ac/9c59d286-b683-4819-b0a0-efd32e819f46.png](/assets/acaa16ca-36b1-4732-99b9-e88e160356ac/9c59d286-b683-4819-b0a0-efd32e819f46.png)
+![/assets/2020-04-01/hw.png](/assets/2020-04-01/hw.png)
 
 아키텍처별로 구현이 다르다.

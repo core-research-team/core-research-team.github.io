@@ -15,7 +15,7 @@ tags: [programming, tools]
 
 CTF 문제를 풀 때 와 개발할 때 각종 인/디코딩 및 해시화를 한 번에 볼 수 있는 게 있으면 좋을 것 같아. 고민 끝에 누구나 이용할 수 있도록 Web Language 제작하였습니다. (본 코드는 Mac OS / Linux OS의 Docker 플랫폼 자동화 기반으로 제작되었으며, 모든 코드는 Gitlab 프로젝트를 참고 하시면 됩니다.)
 
-![/assets/encode.gif](/assets/encode.gif)
+![/assets/2020-06-01/encode.gif](/assets/2020-06-01/encode.gif)
 
 ## [Code Langugage]
 

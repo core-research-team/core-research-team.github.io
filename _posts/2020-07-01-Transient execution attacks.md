@@ -12,7 +12,7 @@ tags: [etc]
 
 cpu취약점이 meltdown이후로 많이 발견되고 있다. 대부분 cache coherence와 관련된 비슷한 사이드 채널 어택이다.
 
-![/assets/jo0700.png](/assets/jo0700.png)
+![/assets/2020-07-01/jo0700.png](/assets/2020-07-01/jo0700.png)
 
 해당 취약점이 발표되고 이렇게 많이 찾는 이유는 파급도 때문일 것이다. 컴퓨터의 가장 낮은 단계에서 명령어를 실행하는 방법에 있는 취약점이기 때문에 커널이 있든 쉐도우 스택이 있든 보호기법이 걸려있든 모두 우회할 수 있기 때문이다.
 
@@ -24,7 +24,7 @@ cpu취약점이 meltdown이후로 많이 발견되고 있다. 대부분 cache co
 
 cpu분야의 첫번째 취약점이라는 점에서 관심을 많이 받았던 취약점이다. 유명하니 설명을 간략하게 하자면 cpu는 여러개의 코어를 사용해 컴퓨터의 속도를 늘리는데 이때 여러개의 파이프라인을 두고 여러 명령을 동시처리하며 속도를 향상시킨다. 같은 클럭이라면 성능이 기하급수적으로 증가한다.
 
-![/assets/jo0701.png](/assets/jo0701.png)
+![/assets/2020-07-01/jo0701.png](/assets/2020-07-01/jo0701.png)
 
 위 그림은 Intel core microarchitecure인데 맨위부터 instruction을 가져오고 instruction queue에 넣고 decode하고 최적화를 하여 Rename/Alloc을 하게 되는데 이 과정들이 있는 곳을 **front end**라고 부른다.
 
@@ -131,7 +131,7 @@ meltdown, spectre이후 계속 나오는 취약점(Spectre SWAPGS, Zombieland, F
 
 다른 이름이 붙어 있는 취약점들은 사실 meltdown, spectre라는 취약점을 상속한다고 봐도 된다. 활용하는 방안에 따라 새로운 취약점으로 이름을 붙히는 것이다. 그중 가장 최근에 나온 LVI취약점만 간략하게 소개한다.
 
-![/assets/jo0702.png](/assets/jo0702.png)
+![/assets/2020-07-01/jo0702.png](/assets/2020-07-01/jo0702.png)
 
 LVI는 attacker가 execution engine내에 있는 버퍼에 직접 값을 넣고, victim이 비순차 실행으로 읽을 때 공격자가 넣은 값을 읽게끔 하는 공격이다. 예를들면 victim의 코드는 아래와 같이 된다.
 

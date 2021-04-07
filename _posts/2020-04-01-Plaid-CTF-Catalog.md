@@ -14,7 +14,7 @@ tags: [ctf, write-up]
 
 이 문제에 처음 접속 하면 아래와 같이 회원가입, 로그인, 로그아웃 글 작성을 하는 기능이 있으며, 로그인시 관련된 정보(BAM! ~~~~)가 상단에 출력된다.
 
-![/assets/acbaedd9-1dd4-4fdb-96e9-eb34ee740b47/a8932b43-9c1d-48e3-87ae-2123769aa5f4.png](/assets/acbaedd9-1dd4-4fdb-96e9-eb34ee740b47/a8932b43-9c1d-48e3-87ae-2123769aa5f4.png)
+![/assets/2020-04-01/PlaidCTF/catalog.png](/assets/2020-04-01/PlaidCTF/catalog.png)
 
 CSP를 확인해보면 아래와 같다.
 
@@ -63,7 +63,7 @@ https://en.wikipedia.org/wiki/Cat#:~:text=On
 
 스크립트 삽입은 로그인시 상단에 표시되는 아이디로 가능합니다. 로그인을 실패해도 상단에 메세지가 뜨기 때문에 스크립트 삽입이 가능해진다.
 
-![/assets/acbaedd9-1dd4-4fdb-96e9-eb34ee740b47/a8932b43-9c1d-48e3-87ae-2123769aa5f4.png](/assets/acbaedd9-1dd4-4fdb-96e9-eb34ee740b47/a8932b43-9c1d-48e3-87ae-2123769aa5f4.png)
+![/assets/2020-04-01/PlaidCTF/catalog.png](/assets/2020-04-01/PlaidCTF/catalog.png)
 
 아래와 같이 유저이름에 스크립트를 삽입한 후 id=3로 이동시키면 상단에 스크립트가 삽입된다.
 

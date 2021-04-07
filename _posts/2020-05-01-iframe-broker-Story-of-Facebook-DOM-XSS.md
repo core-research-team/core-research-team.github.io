@@ -41,15 +41,15 @@ git clone https://github.com/vinothsparrow/iframe-broker
 
 우선 git clone 명령어를 통해 특정 폴더에 iframe-broker를 받아줍니다.
 
-![/assets/bd2f2d57-db96-4a00-8b4b-95448a489543/9680797e-d1ef-4857-b3e2-0da9ee7ab169.png](/assets/bd2f2d57-db96-4a00-8b4b-95448a489543/9680797e-d1ef-4857-b3e2-0da9ee7ab169.png)
+![/assets/2020-05-01/iframe.png](/assets/2020-05-01/iframe.png)
 
 Chrome Extension 추가를 위해 개발자 모드 옵션을 활성화 시켜줍니다. 해당 옵션을 활성화 시켜주게되면 `압축해제된 확장 프로그램을 로드합니다.` 버튼이 생기며 클릭을 통해 clone 해준 iframe-broker 폴더를 선택해줍니다.
 
-![/assets/85b6ceaf-3565-47cd-b65f-12aa7cb8b535/5b9b6572-8ba4-4984-a5d4-a72b0f832085.png](/assets/85b6ceaf-3565-47cd-b65f-12aa7cb8b535/5b9b6572-8ba4-4984-a5d4-a72b0f832085.png)
+![/assets/2020-05-01/iframe1.png](/assets/2020-05-01/iframe1.png)
 
 Iframe Broker가 정상적으로 로드된 것을 확인 할 수 있습니다.
 
-![/assets/bd53c735-b1b8-40f8-a86c-bfd2d2a7abd7/a391c04c-77cb-4b68-aab7-690a51b4c54d.png](/assets/bd53c735-b1b8-40f8-a86c-bfd2d2a7abd7/a391c04c-77cb-4b68-aab7-690a51b4c54d.png)
+![/assets/2020-05-01/iframe2.png](/assets/2020-05-01/iframe2.png)
 
 위와 같이 Chrome Extension을 통해 Domain간 통신하는 메세지를 쉽게 확인 할 수 있으며 클라이언트 사이드의 취약점을 찾는데 편리한 도구라는 생각이듭니다. 아래는 해당 Chrome Extension 개발자가 개발 후 Extension을 사용하면서 직접 취약점을 찾은 내용을 번역했습니다.
 
@@ -119,7 +119,7 @@ window.opener.parent.postMessage(result, origin)
 
 해당 초기화 payload를 주의 깊게 살펴보면 SDK가 Facebook 플러그인 iframe으로 전송합니다. url 파라미터는 i라는 변수에 저장 되며 버튼이 클릭 되어 이벤트가 트리거 될 때 아래 함수가 실행됩니다.
 
-![/assets/69ede5d3-8ba8-4af5-9ac8-fd925cbbe6d8/3dd7a08c-1d2a-4348-b669-0f7647a99b6b.png](/assets/69ede5d3-8ba8-4af5-9ac8-fd925cbbe6d8/3dd7a08c-1d2a-4348-b669-0f7647a99b6b.png)
+![/assets/2020-05-01/iframe3.png](/assets/2020-05-01/iframe3.png)
 
 ```jsx
 i.url = i.url.replace(/cbt=\d+/, "cbt=" + a);

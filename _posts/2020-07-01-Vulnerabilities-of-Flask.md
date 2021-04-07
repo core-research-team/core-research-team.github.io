@@ -111,7 +111,7 @@ db.session.execute(query, args)
 
  Flask에서 제공되는 기본 세션은 JWT 형태와 유사한 형태입니다. JWT와 유사한 형태이므로 Header와 Payload, Signature로 구분되는데, Signature를 제외한 값들은 Base64로 인코딩 되어 있습니다. 따라서 간단하게 Decoding이 가능하여 세션에 저장된 값을 복호화 할 수 있습니다.
 
-![/assets/sik0700.png](/assets/sik0700.png)
+![/assets/2020-07-01/sik0700.png](/assets/2020-07-01/sik0700.png)
 
  Session 복호화의 경우 위험한 취약점은 아니지만, 세션에 비밀번호나 이용자의 중요 정보를 삽입하여 사용할 경우 정보가 노출될 수 있습니다. 때문에 위와 같이 필요한 최소한의 정보만 사용하는 것이 바람직합니다.
 

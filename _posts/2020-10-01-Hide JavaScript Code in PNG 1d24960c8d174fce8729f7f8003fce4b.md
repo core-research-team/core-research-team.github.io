@@ -62,11 +62,11 @@ tags: [web]
 
 위 코드는 `stringenc` 에 입력한 문자열을 각 이미지 픽셀의 R,G,B 으로 입력하여 `putImageData` 를 사용하여 이미지를 만드는 코드 입니다.
 
-![/assets/2010sam.png](/assets/2010sam.png)
+![/assets/2020-10-01/hide_js.png](/assets/2020-10-01/hide_js.png)
 
 위 `javascript` 코드를 브라우저 `script console` 에 입력하면 위 그림과 같은 화면이 나타납니다. 각 픽셀의 R,G,B에는 `stringenc` 의 1자씩 들어가게 되어 3개의 글자가 1개의 픽셀을 이루고 있습니다.
 
-![/assets/2010sam1.png](/assets/2010sam1.png)
+![/assets/2020-10-01/hide_js1.png](/assets/2020-10-01/hide_js1.png)
 
 위 그림은 `stringenc` 을 이미지화하는 과정을 담은 그림입니다.
 
@@ -95,7 +95,7 @@ console.log(a);
 document.getElementsByTagName("body")[0].innerHTML=a;
 ```
 
-![/assets/2010sam2.png](/assets/2010sam2.png)
+![/assets/2020-10-01/hide_js2.png](/assets/2020-10-01/hide_js2.png)
 
 위 코드는 보이듯이 `getImageData` 를 사용하여 이미지 속에 감춰진 문자열을 뽑아내어 복원한는 과정입니다. `getImageData` 를 사용하게 되면 이미지에 대한 data는 배열의 형태로 반환되어집니다. 그 과정에서 얻어지는 배열의 순서는 다음과 같습니다. `[pixel 1R, pixel 1G, pixel 1B, pixel 1Alpah, ..., pixelNR, pixelNG, pixelNB, pixelNAlpha]`
 
@@ -196,7 +196,7 @@ lang 파라미터를 통해 표시할 이미지의 주소를 가져오도록하�
 
 [`https://pbs.twimg.com/media/EXUmOTmUcAAHGtS?format=png&name=120x120`](https://pbs.twimg.com/media/EXUmOTmUcAAHGtS?format=png&name=120x120)
 
-![/assets/2010sam3.png](/assets/2010sam3.png)
+![/assets/2020-10-01/hide_js3.png](/assets/2020-10-01/hide_js3.png)
 
 이미지에서 문자열을 추출하였을 때 원래 작성한 JS코드가 확인됩니다.
 
@@ -242,7 +242,7 @@ http://localhost/test.php?lang=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FEXUmOTmUcAA
 
 파란색 부분은 img 태그의 src 속성에 들어갈 Twitter의 이미지 주소, 빨간색 부분은 base64로 인코딩된 이미지에서 JS 코드를 추출하여 실행하는 코드입니다.
 
-![/assets/2010sam4.png](/assets/2010sam4.png)
+![/assets/2020-10-01/hide_js4.png](/assets/2020-10-01/hide_js4.png)
 
 cross-origin 에러가 발생합니다.
 
@@ -256,7 +256,7 @@ http://localhost/test.php?lang=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FEXUmOTmUcAA
 
 보라색의 코드를 추가로 넣어서 진행할 경우
 
-![/assets/2010sam5.png](/assets/2010sam5.png)
+![/assets/2020-10-01/hide_js5.png](/assets/2020-10-01/hide_js5.png)
 
 별도의 error 없이 JavaScript 코드가 실행됨을 확인 할 수 있습니다.
 
