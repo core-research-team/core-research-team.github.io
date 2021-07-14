@@ -231,7 +231,7 @@ $_smarty_tpl->_assignInScope('poc', $_smarty_tpl);?>blah-blah-blah<?php }
 
 `$_smarty_tpl->_assignInScope('poc', $_smarty_tpl)` 부분이 눈에 들어옵니다. `$poc=$smarty.template_object` 코드가 `Smarty_Internal_Template` 의 인스턴스인 템플릿 오브젝트를 `$poc` 에 할당하는 역할을 수행하는 것을 알 수 있습니다.
 
-Smarty 라이브러리 파일을 살펴보면 `Smarty_Internal_Compile_Private_Special_Variable` 클래스의 `[complie` 함수](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_compile_private_special_variable.php#L29)에서 이러한 컴파일 과정을 처리하는 것을 알 수 있습니다.
+Smarty 라이브러리 파일을 살펴보면 `Smarty_Internal_Compile_Private_Special_Variable` 클래스의 [`complie` 함수](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_compile_private_special_variable.php#L29)에서 이러한 컴파일 과정을 처리하는 것을 알 수 있습니다.
 
 ```php
 case 'template_object':
@@ -273,7 +273,7 @@ blah-blah-blah
 
 ## Exploitation - The Static Method Call Technique
 
-Smarty 라이브러리 파일을 살펴보면 `Smarty_Internal_Runtime_WriteFile` 클래스에 `[writeFile` 메소드](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_runtime_writefile.php#L28)가 존재합니다.
+Smarty 라이브러리 파일을 살펴보면 `Smarty_Internal_Runtime_WriteFile` 클래스에 [`writeFile` 메소드](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_runtime_writefile.php#L28)가 존재합니다.
 
 ```php
 class Smarty_Internal_Runtime_WriteFile
@@ -299,7 +299,7 @@ class Smarty_Internal_Runtime_WriteFile
 
 대상 파일 시스템의 임의 파일에 쓸 권한을 가진다는 건 '거의' 공격에 성공했다고 볼 수 있지만 완전히 확신할 수는 없습니다. 웹 루트에 쓰기 가능한 디렉토리가 존재하지 않을 수 있고, .htaccess 가 백도어 접근을 차단하는 등 다양한 환경이 존재합니다. 환경에 구애받지 않고 어떤 조건에서든 공격에 성공하기 위해선 뭔가가 더 필요합니다.
 
-`string:` 리소스를 사용하면 `Smarty_Template_Compiled` 클래스의 `[process` 메소드](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_template_compiled.php#L131)가 호출되고, 이는 컴파일된 템플릿 파일을 include 합니다.
+`string:` 리소스를 사용하면 `Smarty_Template_Compiled` 클래스의 [`process` 메소드](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_template_compiled.php#L131)가 호출되고, 이는 컴파일된 템플릿 파일을 include 합니다.
 
 ```php
 public function process(Smarty_Internal_Template $_smarty_tpl)
@@ -357,7 +357,7 @@ $smarty->enableSecurity($my_security_policy);
 
 기본 보안 정책이 아닌 강화된 보안 정책을 가진 대상을 상정해봅시다. 그래도 여전히 본 취약점을 사용한 공격은 유효합니다. 보안 정책과 상관없이 `Smarty` 인스턴스에 접근할 수 있고, 이를 통해 샌드박스 자체를 비활성화한 후 삽입한 PHP 코드를 직접적으로 렌더링할 수 있습니다.
 
-`[$smarty.template_object->smarty->disableSecurity()](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/Smarty.class.php#L746)` 를 사용합니다.
+[`$smarty.template_object->smarty->disableSecurity()`](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/Smarty.class.php#L746) 를 사용합니다.
 
 ```php
 /**
@@ -398,7 +398,7 @@ $smarty->enableSecurity($my_security_policy);
 
 ## Vulnerability Analysis & Exploitation
 
-본 취약점의 근본 원인은 템플릿 구문 컴파일 시 `[Smarty_Internal_Runtime_TplFunction` 클래스](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_runtime_tplfunction.php)에서 템플릿 함수 이름을 올바르게 필터링 하지 않는 점입니다.
+본 취약점의 근본 원인은 템플릿 구문 컴파일 시 [`Smarty_Internal_Runtime_TplFunction` 클래스](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_runtime_tplfunction.php)에서 템플릿 함수 이름을 올바르게 필터링 하지 않는 점입니다.
 
 아래 코드를 예제로 봅시다.
 
