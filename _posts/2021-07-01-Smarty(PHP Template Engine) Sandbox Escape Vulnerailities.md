@@ -231,7 +231,7 @@ $_smarty_tpl->_assignInScope('poc', $_smarty_tpl);?>blah-blah-blah<?php }
 
 `$_smarty_tpl->_assignInScope('poc', $_smarty_tpl)` 부분이 눈에 들어옵니다. `$poc=$smarty.template_object` 코드가 `Smarty_Internal_Template` 의 인스턴스인 템플릿 오브젝트를 `$poc` 에 할당하는 역할을 수행하는 것을 알 수 있습니다.
 
-Smarty 라이브러리 파일을 살펴보면 `Smarty_Internal_Compile_Private_Special_Variable` 클래스의 [`complie` 함수](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_compile_private_special_variable.php#L29)에서 이러한 컴파일 과정을 처리하는 것을 알 수 있습니다.
+Smarty 라이브러리 파일을 살펴보면 `Smarty_Internal_Compile_Private_Special_Variable` 클래스의 [`compile` 함수](https://github.com/smarty-php/smarty/blob/v3.1.38/libs/sysplugins/smarty_internal_compile_private_special_variable.php#L29)에서 이러한 컴파일 과정을 처리하는 것을 알 수 있습니다.
 
 ```php
 case 'template_object':
