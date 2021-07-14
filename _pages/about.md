@@ -20,9 +20,9 @@ permalink: /about/
 
 [김동민(gpsfly)](https://blog.int80.kr)
 
-[김재성(badSpell)](#)
-	
 [김재유(epist)](#)
+
+[김현수(vulhack)](#)
 
 [권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
 
@@ -30,19 +30,19 @@ permalink: /about/
 
 [유선동(DongDongE)](https://blog.d0ngd0nge.xyz)
 
+[이동현(donghyunlee00)](http://donghyunlee.me)
+
 [이영주(NextLine)](https://lordofpwn.kr/about/)
+
+[이삭(ls_toast)](#)
+
+[이충일(Bugday)](#)
 
 [임재연(imreplay)](#)
 
 [원요한(KuroNeko)](https://nekoplu5.tistory.com)
 
-[조운삼(gurumi907)](#)
-
 [조진호(wwwlk)](#)
-
-[지한별(onestar)](https://blog.1-star.kr)
-
-[최규범(qbeom)](#)
 
 [최용선(choiys)](https://blog.choiys.kr)
 
@@ -51,3 +51,11 @@ permalink: /about/
 
 ## with us
 [이종호(Hellsonic)](https://blog.hellsonic.kr/)
+
+[지한별(onestar)](https://blog.1-star.kr)
+
+[조운삼(gurumi907)](#)
+
+[최규범(qbeom)](#)
+
+[김재성(badSpell)](#)
