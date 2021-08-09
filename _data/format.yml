@@ -28,3 +28,5 @@ drm : DRM
 hardware : Hardware
 heap : Heap
 dev : Dev
+vm : VM
+code obfuscation : Code Obfuscation
