@@ -24,7 +24,7 @@ permalink: /about/
 
 [김현수(vulhack)](#)
 
-[권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
+[문시우(munsiwoo)](https://munsiwoo.kr/)
 
 [박의성(zairo)](https://zairo.tistory.com/)
 
@@ -42,11 +42,11 @@ permalink: /about/
 
 [원요한(KuroNeko)](https://nekoplu5.tistory.com)
 
+[정경빈(kafuuchin0)](#)
+
 [조진호(wwwlk)](#)
 
 [최용선(choiys)](https://blog.choiys.kr)
-
-[황정식(kkamikoon)](https://kkamikoon.tistory.com)
 
 
 ## with us
@@ -59,3 +59,7 @@ permalink: /about/
 [최규범(qbeom)](#)
 
 [김재성(badSpell)](#)
+
+[권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
+
+[황정식(kkamikoon)](https://kkamikoon.tistory.com)
