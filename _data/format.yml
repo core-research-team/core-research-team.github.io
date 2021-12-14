@@ -12,6 +12,7 @@ android : Android
 frida : Frida
 mac : Mac
 reversing : Reversing
+rev : Reversing
 docker : Docker
 windows : Windows 
 tools : Tools
