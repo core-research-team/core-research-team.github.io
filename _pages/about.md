@@ -26,8 +26,6 @@ permalink: /about/
 
 [문시우(munsiwoo)](https://munsiwoo.kr/)
 
-[박의성(zairo)](https://zairo.tistory.com/)
-
 [유선동(DongDongE)](https://blog.d0ngd0nge.xyz)
 
 [이동현(donghyunlee00)](http://donghyunlee.me)
@@ -63,3 +61,5 @@ permalink: /about/
 [권재승(myria)](https://xerxes-break.tistory.com/pages/About-Me)
 
 [황정식(kkamikoon)](https://kkamikoon.tistory.com)
+
+[박의성(zairo)](https://zairo.tistory.com/)
