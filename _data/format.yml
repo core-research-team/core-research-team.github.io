@@ -11,8 +11,7 @@ programming : Programming
 android : Android
 frida : Frida
 mac : Mac
-reversing : Reversing
-rev : Reversing
+rev, reversing : Reversing
 docker : Docker
 windows : Windows 
 tools : Tools
