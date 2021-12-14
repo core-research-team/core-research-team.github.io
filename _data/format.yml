@@ -30,3 +30,5 @@ heap : Heap
 dev : Dev
 vm : VM
 code obfuscation : Code Obfuscation
+chrome : Chrome
+v8 : V8
