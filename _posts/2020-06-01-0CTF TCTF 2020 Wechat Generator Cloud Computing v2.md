@@ -3,7 +3,7 @@ layout: post
 title: "0CTF/TCTF 2020 - Wechat Generator, Cloud Computing v2"
 author: "jeong.su"
 comments: true
-tags: [ctf, writeup, web, reversing]
+tags: [ctf, write-up, web, reversing]
 ---
 
 라온화이트햇 핵심연구팀 최정수
