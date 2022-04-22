@@ -1,14 +1,10 @@
-# Android 환경 Frida 탐지
-
+---
 layout: post
-
 title: "Android 환경 **Frida 탐지**"
-
 author: "vulhack"
-
 comments: true
-
 tags: [Android, Frida]
+---
 
 라온화이트햇 핵심연구팀 김현수
 
