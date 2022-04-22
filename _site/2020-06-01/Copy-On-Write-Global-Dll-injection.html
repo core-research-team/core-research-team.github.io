@@ -15,13 +15,13 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="라온화이트햇 핵심연구팀 김재성" />
 <meta property="og:description" content="라온화이트햇 핵심연구팀 김재성" />
-<link rel="canonical" href="http://202.182.127.225:4000/2020-06-01/Copy-On-Write-Global-Dll-injection" />
-<meta property="og:url" content="http://202.182.127.225:4000/2020-06-01/Copy-On-Write-Global-Dll-injection" />
+<link rel="canonical" href="http://172.26.12.255:4000/2020-06-01/Copy-On-Write-Global-Dll-injection" />
+<meta property="og:url" content="http://172.26.12.255:4000/2020-06-01/Copy-On-Write-Global-Dll-injection" />
 <meta property="og:site_name" content="Core-Research-Team" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-06-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Copy-On-Write 페이지 조작을 이용한 Global Dll injection","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","author":{"@type":"Person","name":"badspell"},"url":"http://202.182.127.225:4000/2020-06-01/Copy-On-Write-Global-Dll-injection","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2020-06-01/Copy-On-Write-Global-Dll-injection"},"description":"라온화이트햇 핵심연구팀 김재성","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","url":"http://172.26.12.255:4000/2020-06-01/Copy-On-Write-Global-Dll-injection","headline":"Copy-On-Write 페이지 조작을 이용한 Global Dll injection","dateModified":"2020-06-01T00:00:00+00:00","datePublished":"2020-06-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://172.26.12.255:4000/2020-06-01/Copy-On-Write-Global-Dll-injection"},"author":{"@type":"Person","name":"badspell"},"description":"라온화이트햇 핵심연구팀 김재성","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -35,7 +35,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
 
   <!-- RSS -->
-  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+  <link type="application/atom+xml" rel="alternate" href="http://172.26.12.255:4000/feed.xml" title="Core-Research-Team" />
 
   <!-- Google Analytics-->
   
@@ -70,7 +70,7 @@
          
       
          
-            <span class="tag"><center><i>system</i></center></span>
+            <span class="tag"><center><i>System</i></center></span>
          
       
          
@@ -104,7 +104,7 @@
 
 <hr />
 
-<p><img src="/assets/bad60.png" alt="/assets/bad60.png" /></p>
+<p><img src="/assets/2020-06-01/bad60.png" alt="/assets/2020-06-01/bad60.png" /></p>
 
 <p>Cheat Engine의 <code class="highlighter-rouge">Query memory region routine</code>, <code class="highlighter-rouge">Read/Write Process Memory</code> 위 두 옵션을 활성화하면 커널 드라이버를 이용한 메모리 읽기/쓰기를 지원하는데, 해당 옵션들은 보호된 읽기전용 페이지에는 여전히 쓰기가 불가능합니다.  페이지 보호 속성을 무시하고 쓰기 작업을 진행하기 위해서는 아래 작업을 추가로 진행해야합니다.</p>
 
@@ -169,17 +169,17 @@
 
 <p>여기서 흥미로운 점은 모든 윈도우즈 프로세스에 매핑되는 KUSER_SHARED_DATA (0x7FFE000) 영역 및 Copy-On-Write의 원본 페이지도 조작이 된다는 점입니다.</p>
 
-<p><img src="/assets/bad61.png" alt="/assets/bad61.png" /></p>
+<p><img src="/assets/2020-06-01/bad61.png" alt="/assets/2020-06-01/bad61.png" /></p>
 
-<p><img src="/assets/bad62.png" alt="/assets/bad62.png" /></p>
+<p><img src="/assets/2020-06-01/bad62.png" alt="/assets/2020-06-01/bad62.png" /></p>
 
 <p>모든 프로세스에는 ntdll.dll을 포함한 몇몇 시스템 라이브러리가 같은 주소공간에 로드되고 일부 Read-Only 페이지는 메모리 공간을 효율적으로 사용하기 위해 Copy-On-Write 기술로 같은 Physical Memory를 가리키고있습니다.</p>
 
 <p>그림의 예시로 ntdll.dll의 0x7FFCEE14401A 주소가 실제 Physical Memory에서는 0x1C25101A에 매핑되어있고 다른 프로세스도 역시 동일한 0x1C25101A 값을 가리킵니다.</p>
 
-<p><img src="/assets/bad63.png" alt="/assets/bad63.png" /></p>
+<p><img src="/assets/2020-06-01/bad63.png" alt="/assets/2020-06-01/bad63.png" /></p>
 
-<p><img src="/assets/bad64.png" alt="/assets/bad64.png" /></p>
+<p><img src="/assets/2020-06-01/bad64.png" alt="/assets/2020-06-01/bad64.png" /></p>
 
 <p>만약 위 그림의 Process 1에서 Copy-On-Write가 적용된 페이지를 조작하기위해 페이지 속성을 변경하면 그 순간 복제된 Page D(0xCAF9D01A)가 생성되어 그곳을 쓰게되고 Process 2에는 영향을 미치지않게 됩니다.</p>
 
@@ -187,9 +187,9 @@
 
 <hr />
 
-<p><img src="/assets/bad65.png" alt="/assets/bad65.png" /></p>
+<p><img src="/assets/2020-06-01/bad65.png" alt="/assets/2020-06-01/bad65.png" /></p>
 
-<p><img src="/assets/bad66.png" alt="/assets/bad66.png" /></p>
+<p><img src="/assets/2020-06-01/bad66.png" alt="/assets/2020-06-01/bad66.png" /></p>
 
 <p>dbk_writesIgnoreWriteProtection 옵션이 활성화된 이후에는 Copy-On-Write 메모리 복제 과정이 일어나지않고 원본 메모리(0x3F050207)에 쓰기가 발생하므로 모든 프로세스 및 앞으로 생성될 프로세스에 코드 실행을 유도할 수 있습니다. 본문에서는 이를 활용하여 Global Dll Injection을 구현해보았습니다.</p>
 
@@ -220,7 +220,7 @@ nop
 
 <p>[ntdll.dll+16A4B8]은 Writeable한 dummy 메모리로 0으로 세팅되어있으며 의도대로라면 새롭게 생성된 프로세스의 [ntdll.dll+16A4B8] 값은 1 이상이어야합니다.</p>
 
-<p><img src="/assets/bad67.png" alt="/assets/bad67.png" /></p>
+<p><img src="/assets/2020-06-01/bad67.png" alt="/assets/2020-06-01/bad67.png" /></p>
 
 <p>MessageBox로 Hello, World를 출력하는 것 이외에 아무것도 하지않는 간단한 프로그램을 실행하였을 때 값이 4인걸 확인하여 의도대로 작동하는 것을 볼 수 있습니다.</p>
 
@@ -298,7 +298,7 @@ nop
 
 <p>주의해야할 점은, LdrLoadDll 함수를 호출하면서 스택 내용이나 레지스터가 변경될때 의도하지 않은 크래시를 유발할 수 있으므로 후킹으로 인한 영향을 최소화하기위해 레지스터들을 백업해야합니다.</p>
 
-<p><img src="/assets/bad68.png" alt="/assets/bad68.png" /></p>
+<p><img src="/assets/2020-06-01/bad68.png" alt="/assets/2020-06-01/bad68.png" /></p>
 
 <p>스크립트 실행 이후에 생성되는 모든 프로세스에 ws2_32.dll이 정상적으로 injection되는 것을 확인할 수 있습니다.</p>
 
@@ -346,7 +346,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2022-04-20 22:14:58 +0000">2022</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

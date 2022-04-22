@@ -15,13 +15,13 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="라온화이트햇 핵심연구팀 황정식" />
 <meta property="og:description" content="라온화이트햇 핵심연구팀 황정식" />
-<link rel="canonical" href="http://202.182.127.225:4000/2021-03-01/Magnetic" />
-<meta property="og:url" content="http://202.182.127.225:4000/2021-03-01/Magnetic" />
+<link rel="canonical" href="http://172.26.12.255:4000/2021-03-01/Magnetic" />
+<meta property="og:url" content="http://172.26.12.255:4000/2021-03-01/Magnetic" />
 <meta property="og:site_name" content="Core-Research-Team" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2021-03-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"카드 결제 방식 분석 및 복사 연구(Magnetic, RFID, IC)","dateModified":"2021-03-01T00:00:00+00:00","datePublished":"2021-03-01T00:00:00+00:00","author":{"@type":"Person","name":"kkamikoon"},"url":"http://202.182.127.225:4000/2021-03-01/Magnetic","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2021-03-01/Magnetic"},"description":"라온화이트햇 핵심연구팀 황정식","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","url":"http://172.26.12.255:4000/2021-03-01/Magnetic","headline":"카드 결제 방식 분석 및 복사 연구(Magnetic, RFID, IC)","dateModified":"2021-03-01T00:00:00+00:00","datePublished":"2021-03-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://172.26.12.255:4000/2021-03-01/Magnetic"},"author":{"@type":"Person","name":"kkamikoon"},"description":"라온화이트햇 핵심연구팀 황정식","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -35,7 +35,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
 
   <!-- RSS -->
-  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
+  <link type="application/atom+xml" rel="alternate" href="http://172.26.12.255:4000/feed.xml" title="Core-Research-Team" />
 
   <!-- Google Analytics-->
   
@@ -66,6 +66,8 @@
    
       
          
+            <span class="tag"><center><i>Hardware</i></center></span>
+         
       
          
             <span class="tag"><center><i>Research</i></center></span>
@@ -84,7 +86,7 @@
 
 <p>우리가 일상에서 사용하는 카드 결제 방식은 대략 세 가지 정도가 있습니다. 예전부터 사용했던 <strong><code class="highlighter-rouge">마그네틱 카드(Magnetic Card)</code></strong>가 카드 결제에 대표적인 예시입니다. 그러나 카드 복사와 다른 보안성 문제로 인해 다른 대체제가 필요로 하게 되었습니다. 이로 마그네틱 카드의 대체제로써 <strong><code class="highlighter-rouge">RFID Tag</code></strong>, <strong><code class="highlighter-rouge">IC Chip</code></strong> 등이 있으며, 현재 직불카드(체크카드와 신용카드 등)에 부착하여 널리 사용되고 있습니다.</p>
 
-<p><img src="/assets/202103/sik_.png" alt="/assets/202103/sik_.png" /></p>
+<p><img src="/assets/2021-03-01/sik_.png" alt="/assets/2021-03-01/sik_.png" /></p>
 
 <p>이번 연구에서는 위의 세 가지 카드 결제 방식에 대해 <strong><code class="highlighter-rouge">복사</code></strong>가 <strong><code class="highlighter-rouge">가능여부</code></strong>에 대한 연구와, <strong><code class="highlighter-rouge">보안성</code></strong>에 대한 내용을 다뤄보겠습니다.</p>
 
@@ -92,15 +94,15 @@
 
 <p>마그네틱 카드는 신용카드의 도입에 큰 역할을 한 기술이라고 볼 수 있습니다. 기존의 신용카드(Credit card)는 종이 재질의 카드로써 배포되었었습니다. 하지만 이러한 종이 재질의 카드로써는 불편함과 신용인에 대한 확인에서부터 많은 시간이 소요되는 단점이 있었습니다. 이를 개선하기 위해 등장한 기술이 마그네틱 기술입니다.</p>
 
-<p><img src="/assets/202103/sik_1.png" alt="/assets/202103/sik_1.png" /></p>
+<p><img src="/assets/2021-03-01/sik_1.png" alt="/assets/2021-03-01/sik_1.png" /></p>
 
 <p>마그네틱 카드는 전류를 통해 마그네틱 띠가 자화되는 원리를 이용하여 정보를 기록하고, 이와 반대 방향으로 자기 방향을 변화하면 유도전류를 흘려 마그네틱 띠 내부의 정보를 읽을 수 있도록 하는 구조입니다.</p>
 
-<p><img src="/assets/202103/sik_2.png" alt="/assets/202103/sik_2.png" /></p>
+<p><img src="/assets/2021-03-01/sik_2.png" alt="/assets/2021-03-01/sik_2.png" /></p>
 
 <p>마그네틱 카드의 구조는 대략적으로 이렇게 구성되어 있습니다. 이 부분에서 눈여겨 봐야 할 부분은 Track 1과 Track 2의 부분입니다.</p>
 
-<p><img src="/assets/202103/sik_3.png" alt="/assets/202103/sik_3.png" /></p>
+<p><img src="/assets/2021-03-01/sik_3.png" alt="/assets/2021-03-01/sik_3.png" /></p>
 
 <p>Track 1과 Track 2에는 공통적으로 <strong><code class="highlighter-rouge">고객번호(Primary Account Number) 19자</code></strong>와 <strong><code class="highlighter-rouge">ED(Expiration Data or Date)</code></strong>와 같은 만료날짜, <strong><code class="highlighter-rouge">SC(Service Code)</code></strong> 서비스 코드, 그리고 <strong><code class="highlighter-rouge">CVV/CVC(Discretionary Data)</code></strong>가 기록되어 있습니다. Track 1에는 Track 2에 비해 이름 등과 같은 이용자의 정보가 좀 더 들어가 있습니다.</p>
 
@@ -114,11 +116,11 @@
 
     <p>마그네틱 카드는 해외에서 거래되는 Magnetic Card Reader, Writer를 통해 가능합니다. 이러한 카드 리더기는 Amazon 혹은 Ali Express와 같은 해외 직구 사이트를 통해 구입이 가능했습니다.</p>
 
-    <p><img src="/assets/202103/sik_4.png" alt="/assets/202103/sik_4.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_4.png" alt="/assets/2021-03-01/sik_4.png" /></p>
 
     <p>카드 리더기를 통해 읽어들이게 되면, 다음과 같이 세 개의 Track 정보를 보여주게 됩니다. 제 개인정보 보호를 위해 일부 모자이크 처리를 수행하였습니다. 마그네틱 카드는 시중에서 쉽게 구매가 가능하며, 읽고 쓰는 것이 얼마든지 자유로운 것으로 확인되었습니다.</p>
 
-    <p><img src="/assets/202103/sik_5.png" alt="/assets/202103/sik_5.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_5.png" alt="/assets/2021-03-01/sik_5.png" /></p>
   </li>
   <li>
     <p>마그네틱 카드 보안성 정리</p>
@@ -140,7 +142,7 @@
   <li>
     <p><strong>RFID Tag 식별 과정(요약)</strong></p>
 
-    <p><img src="/assets/202103/sik_6.png" alt="/assets/202103/sik_6.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_6.png" alt="/assets/2021-03-01/sik_6.png" /></p>
 
     <p>흔히 버스카드 리더기, 결제창구, 도어락 등에서 위와 같은 Antenna라고 하여 RFID Tag를 읽는 기능을 내장하고 있습니다. 이러한 Antenna에서는 일정량의 유도전류를 상시 발생시키고 있습니다. 그리고 이런 안테나에 RFID Tag를 가져다 대면 RFID Tag는 전류를 받아 특정 데이터를 응답하도록 되어 있습니다. 이에 대한 흐름과 순서는 다음과 같습니다.</p>
 
@@ -158,11 +160,11 @@
 
     <p>RFID는 <strong><code class="highlighter-rouge">16개의 Sector</code></strong>와 각 하나의 Sector 별로 <strong><code class="highlighter-rouge">4개의 Block</code></strong>이 존재합니다. 이렇게 해서 총 64개의 블록이 존재하게 되는데, 그 구조는 다음과 같습니다.</p>
 
-    <p><img src="/assets/202103/sik_7.png" alt="/assets/202103/sik_7.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_7.png" alt="/assets/2021-03-01/sik_7.png" /></p>
 
     <p>이러한 섹터 중에서 가장 핵심적인 영역이 Sector 0 부분입니다. <strong><code class="highlighter-rouge">Sector 0의 Block 0</code></strong>의 경우 처음 공장에서 생성될 경우 권한을 다른 섹터 및 블록과 다르게 <strong><code class="highlighter-rouge">Readonly</code></strong>로 되는 것을 원칙으로 하고 있습니다. 따라서 해당 영역은 일반적인 카드에서는 변경이 불가능합니다. 또한 <strong><code class="highlighter-rouge">네 번째 블록</code></strong>인 <strong><code class="highlighter-rouge">트레일러(Trailer)</code></strong>의 경우 다음과 같은 형태로 중요 정보를 저장하고 있습니다.</p>
 
-    <p><img src="/assets/202103/sik_8.png" alt="/assets/202103/sik_8.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_8.png" alt="/assets/2021-03-01/sik_8.png" /></p>
 
     <p>트레일러에는 <strong><code class="highlighter-rouge">Key</code></strong>값 A와 B를 저장할 수 있는 공간이 각각 <strong><code class="highlighter-rouge">6Bytes</code></strong>씩 있고, 그 사이에  <strong><code class="highlighter-rouge">Access Bits</code></strong>를 지정할 수 있는 공간이 <strong><code class="highlighter-rouge">4Bytes</code></strong> 있습니다.</p>
 
@@ -182,14 +184,14 @@
 
         <p>액세스 권한을 정의하며, 6, 7, 8 Byte의 내용에 따라 계산됩니다. 그 구조는 대략 아래와 같습니다.</p>
 
-        <p><img src="/assets/202103/sik_9.png" alt="/assets/202103/sik_9.png" /></p>
+        <p><img src="/assets/2021-03-01/sik_9.png" alt="/assets/2021-03-01/sik_9.png" /></p>
       </li>
       <li>
         <p><strong>RFID Tag 기본키 사용 장치 예시</strong></p>
 
         <p>RFID Tag에 내제된 Key 값이 Default Key인 경우에 대해 다음과 같은 예시가 있습니다.</p>
 
-        <p><img src="/assets/202103/sik_10.png" alt="/assets/202103/sik_10.png" /></p>
+        <p><img src="/assets/2021-03-01/sik_10.png" alt="/assets/2021-03-01/sik_10.png" /></p>
 
         <p>교통카드, 도어락 스마트키, 공카드로 자체제작하는 어떠한 장치 등은 기본적으로 Default Key를 사용하도록 되어 있습니다. 따라서 제공된 Default 키를 이용할 경우 쉽게 정보가 탈취당할 수 있어 유의해야 합니다.</p>
 
@@ -211,9 +213,9 @@
 
         <p>RFID Tag에 대해 <strong><code class="highlighter-rouge">Side Channel Attack</code></strong>의 예시는 다음과 같습니다. 해당 링크에서 나오는 내용을 요약하면 MITM 공격으로 RFID 결제를 우회할 수 있는 공격입니다. 두 개의 스마트폰 사이에서 WiFi를 통해 연결 후, APDU 명령어를 통해 공격하는 내용을 말하고 있습니다.</p>
 
-        <p><img src="/assets/202103/sik_11.png" alt="/assets/202103/sik_11.png" /></p>
+        <p><img src="/assets/2021-03-01/sik_11.png" alt="/assets/2021-03-01/sik_11.png" /></p>
 
-        <p><img src="/assets/202103/sik_12.png" alt="/assets/202103/sik_12.png" /></p>
+        <p><img src="/assets/2021-03-01/sik_12.png" alt="/assets/2021-03-01/sik_12.png" /></p>
 
         <p>관련 논문은 링크로 남겨드리도록 하겠습니다.</p>
 
@@ -231,7 +233,7 @@
 
 <p>IC Chip은 Integrated Circuit Chip의 약자로써, 집적 회로(Integrated Circuit)를 이용하여 특정 대상을 식별할 수 있는 기술을 말합니다. 흔히 신용카드나 체크카드에 붙어있는 금색 칩을 보셨을 것입니다. 이러한 칩은 다음과 같이 이루어져 있습니다.</p>
 
-<p><img src="/assets/202103/sik_13.png" alt="/assets/202103/sik_13.png" /></p>
+<p><img src="/assets/2021-03-01/sik_13.png" alt="/assets/2021-03-01/sik_13.png" /></p>
 
 <p>IC Chip 혹은 Smart Chip이라고도 불리며, 이러한 칩의 구성은 CPU와 RAM, ROM(혹은 OS, EEPROM 등)으로 이루어져 있으며, 자체적인 암호화 모듈(Encryption Module)도 함께 내장되어 있기도 합니다. 이러한 칩 내부에는 하드웨어 및 Card OS와 같은 운영체제로 동작하는 부분과 Java Card Platform과 같은 SW 규격을 맞춘 데이터가 내포되어 있습니다. 이는 카드 자체의 연산 능력이 있다는 것을 말합니다.</p>
 
@@ -248,11 +250,11 @@
 
     <p><a href="https://hack-gogumang.tistory.com/569">금융부문 암호기술 - (2) IC카드 거래에 사용된 암호화 기술</a></p>
 
-    <p><img src="/assets/202103/sik_14.png" alt="/assets/202103/sik_14.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_14.png" alt="/assets/2021-03-01/sik_14.png" /></p>
 
     <p>SDA 인증절차는 IC 단말기가 CA 공개키를 통해 IC 카드에 저장된 발급사 공개키 인증서를 검증하는 절차입니다. 이때 IC 카드 내에는 서명된 SAD(정적 어플리케이션 데이터)를 저장해야 하고, 또한 발급사의 공개키 인증서를 저장해야 합니다.</p>
 
-    <p><img src="/assets/202103/sik_15.png" alt="/assets/202103/sik_15.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_15.png" alt="/assets/2021-03-01/sik_15.png" /></p>
 
     <p>DDA 인증절차는 IC 카드 내부에서 동적으로 생성된 동적 어플리케이션 데이터(DAD)의 유효성을 계속해서 검증하는 절차를 말합니다. IC Chip 내부에서 계속해서 변하는 암호문 데이터를 결제 시마다 검증하여 보안성을 높이는 절차입니다.</p>
   </li>
@@ -272,7 +274,7 @@
 
     <p>해당 연구는 충전용 카드에 있는 IC Chip을 우회하여, 충전되어 있는 카드의 내역을 조작하는 내용입니다. 내용을 요약하여 설명드리자면, IC Chip을 통해 통신하는 내용을 오실로스코프를 통해 주파수를 잡아 이를 통해 IC Chip 내부의 값을 조작하는 것으로 기존에 충전되어 있는 금액을 조작합니다. 자세한 내용은 유튜브와 Blackhat에서 발표한 PDF 파일을 참조해주기 바랍니다.</p>
 
-    <p><img src="/assets/202103/sik_16.png" alt="/assets/202103/sik_16.png" /></p>
+    <p><img src="/assets/2021-03-01/sik_16.png" alt="/assets/2021-03-01/sik_16.png" /></p>
 
     <p><a href="https://www.youtube.com/watch?t=882&amp;v=3_ojBHBvF9s&amp;feature=youtu.be&amp;ab_channel=BlackHat">Breaking Korea Transit Card with Side-Channel Attack - Unauthorized Recharging</a></p>
   </li>
@@ -319,7 +321,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2022-04-20 22:14:58 +0000">2022</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 
