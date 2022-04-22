@@ -15,13 +15,13 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="라온화이트햇 핵심연구팀 원요한" />
 <meta property="og:description" content="라온화이트햇 핵심연구팀 원요한" />
-<link rel="canonical" href="http://172.26.12.255:4000/2021-02-01/Chrome-EME" />
-<meta property="og:url" content="http://172.26.12.255:4000/2021-02-01/Chrome-EME" />
+<link rel="canonical" href="http://202.182.127.225:4000/2021-02-01/Chrome-EME" />
+<meta property="og:url" content="http://202.182.127.225:4000/2021-02-01/Chrome-EME" />
 <meta property="og:site_name" content="Core-Research-Team" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2021-02-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","url":"http://172.26.12.255:4000/2021-02-01/Chrome-EME","headline":"Chrome EME (MediaSession) - 1","dateModified":"2021-02-01T00:00:00+00:00","datePublished":"2021-02-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://172.26.12.255:4000/2021-02-01/Chrome-EME"},"author":{"@type":"Person","name":"KuroNeko"},"description":"라온화이트햇 핵심연구팀 원요한","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Chrome EME (MediaSession) - 1","dateModified":"2021-02-01T00:00:00+00:00","datePublished":"2021-02-01T00:00:00+00:00","author":{"@type":"Person","name":"KuroNeko"},"url":"http://202.182.127.225:4000/2021-02-01/Chrome-EME","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2021-02-01/Chrome-EME"},"description":"라온화이트햇 핵심연구팀 원요한","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -35,7 +35,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
 
   <!-- RSS -->
-  <link type="application/atom+xml" rel="alternate" href="http://172.26.12.255:4000/feed.xml" title="Core-Research-Team" />
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
 
   <!-- Google Analytics-->
   
@@ -94,11 +94,11 @@
 
 <p>EME란, 미디어 컨텐츠의 저작권 보호를 위해 사용되는 DRM 방식 중 하나입니다. 그리고 브라우저에서 사용할 수 있도록 디자인되었습니다.</p>
 
-<p><img src="/assets/2021-02-01/202102won.png" alt="/assets/2021-02-01/202102won.png" /></p>
+<p><img src="/assets/202102/202102won.png" alt="/assets/202102/202102won.png" /></p>
 
 <p>위의 그림과 같이 License 서버에서 받은 License를 MediaKeySession을 통해 내부 Content Decryption Module에 전달하며 해당 구조로 인해서 브라우저마다 암/복호화 방식의 차이가 존재하면 안되기 때문에 어느정도 정해진 암/복호화 알고리즘을 사용할 것으로 보입니다. 이에 따라서, <code class="highlighter-rouge">CMAF(Common Media Application Format)</code> 이 등장하였습니다.</p>
 
-<p><img src="/assets/2021-02-01/202102won1.png" alt="/assets/2021-02-01/202102won1.png" /></p>
+<p><img src="/assets/202102/202102won1.png" alt="/assets/202102/202102won1.png" /></p>
 
 <p>해당 포맷은 MPEG-DASH, HLS 방식의 프로토콜을 통해 미디어 컨텐츠들을 조각내 스트리밍 방식으로 전송합니다. 이 방식은 기존에 사용하던 코덱과 같이 하나의 컨텐츠 파일을 모두 다운로드되기 전까지 미디어 재생이 불가능한 단점을 극복하기 위해 고안되었습니다. 또한, 컨턴츠의 암호화를 통해 DRM과 같은 부가적인 서비스까지 적용가능합니다. DRM은 위의 그림과 같이 CMAF 포맷에서 표준 암호화 규격으로 <code class="highlighter-rouge">CENC(Common Encryption/AES-CTR)</code>와 <code class="highlighter-rouge">CBCS(AES-CBC)</code> 를 사용합니다. 각각의 복호화 방식에 대해서 <a href="http://cs.chromium.org">http://cs.chromium.org</a> 에서 CDM의 소스코드를 분석해 어떤식으로 코드가 구성되어있는지 확인해보겠습니다.</p>
 
@@ -342,7 +342,7 @@
 
 <p>아래의 그림과 같은 구조를 가진 chromium에서는 Browser와 Render 프로세스 간의 IPC 통신으로 메세지 필터링 후, 메세지에 알맞은 Renderer에 전달하게 됩니다.</p>
 
-<p><img src="/assets/2021-02-01/202102won2.png" alt="/assets/2021-02-01/202102won2.png" /></p>
+<p><img src="/assets/202102/202102won2.png" alt="/assets/202102/202102won2.png" /></p>
 
 <p>즉, Renderer에서 Audio/Video Packet을 처리를 위한 Stream을 관리가 필요하므로 내부적으로 DecoderBuffer를 생성해야함을 알 수 있습니다. 저는 Audio와 관련된 Renderer에 관심을 가졌고 audio stream을 가져오는 초기화 과정부터 살펴봤습니다.</p>
 
@@ -818,7 +818,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2022-04-20 22:14:58 +0000">2022</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 

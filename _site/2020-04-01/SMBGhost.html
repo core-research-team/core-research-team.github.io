@@ -15,13 +15,13 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="라온화이트햇 핵심연구팀 김동민" />
 <meta property="og:description" content="라온화이트햇 핵심연구팀 김동민" />
-<link rel="canonical" href="http://172.26.12.255:4000/2020-04-01/SMBGhost" />
-<meta property="og:url" content="http://172.26.12.255:4000/2020-04-01/SMBGhost" />
+<link rel="canonical" href="http://202.182.127.225:4000/2020-04-01/SMBGhost" />
+<meta property="og:url" content="http://202.182.127.225:4000/2020-04-01/SMBGhost" />
 <meta property="og:site_name" content="Core-Research-Team" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-04-01T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","url":"http://172.26.12.255:4000/2020-04-01/SMBGhost","headline":"SMBGhost","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://172.26.12.255:4000/2020-04-01/SMBGhost"},"author":{"@type":"Person","name":"dmkim@raoncorp.com"},"description":"라온화이트햇 핵심연구팀 김동민","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"SMBGhost","dateModified":"2020-04-01T00:00:00+00:00","datePublished":"2020-04-01T00:00:00+00:00","author":{"@type":"Person","name":"dmkim@raoncorp.com"},"url":"http://202.182.127.225:4000/2020-04-01/SMBGhost","mainEntityOfPage":{"@type":"WebPage","@id":"http://202.182.127.225:4000/2020-04-01/SMBGhost"},"description":"라온화이트햇 핵심연구팀 김동민","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -35,7 +35,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.ico">
 
   <!-- RSS -->
-  <link type="application/atom+xml" rel="alternate" href="http://172.26.12.255:4000/feed.xml" title="Core-Research-Team" />
+  <link type="application/atom+xml" rel="alternate" href="http://202.182.127.225:4000/feed.xml" title="Core-Research-Team" />
 
   <!-- Google Analytics-->
   
@@ -97,7 +97,7 @@
 
 <p>영향도 : Windows 10, server 2016 (v1903 및 v1909)</p>
 
-<p><img src="/assets/2020-04-01/smb.png" alt="/assets/2020-04-01/smb.png" /></p>
+<p><img src="/assets/ca8b0633-25c0-4775-b98d-abaa573a80aa/23409f90-577a-4c9b-8c5c-ac109e5b854e.png" alt="/assets/ca8b0633-25c0-4775-b98d-abaa573a80aa/23409f90-577a-4c9b-8c5c-ac109e5b854e.png" /></p>
 
 <p>Kryptos Logic의 Marcus Hutchins 연구원이 여러 PoC를 공개함.</p>
 
@@ -108,7 +108,7 @@ Windows 10 버전 1903에 추가 된 새로운 기능(SMBv3 - 압축)</p>
 
 <p>SMBv3 부터 새로 추가된 압축 및 해제 관련 구조체</p>
 
-<p><img src="/assets/2020-04-01/smb1.png" alt="/assets/2020-04-01/smb1.png" /></p>
+<p><img src="/assets/2e230da0-a66b-415f-a56c-a4ce0f1f2310/a1b26d28-8f7b-4262-9d28-3905ee6fcb7d.png" alt="/assets/2e230da0-a66b-415f-a56c-a4ce0f1f2310/a1b26d28-8f7b-4262-9d28-3905ee6fcb7d.png" /></p>
 
 <h2 id="버그">버그</h2>
 
@@ -118,15 +118,15 @@ SMB2_Compression_Transform_Header 에서 OriginalSize, Offset 조작하여 Integ
 <p>발생위치 : add ecx, eax ; OriginalSize + Offset (in srv2.sys!Srv2DecompressData)
 이후 계산된 (조작된)버퍼크기를 SrvNetAllocateBuffer 함수로 전달하여 버퍼를 할당.</p>
 
-<p><img src="/assets/2020-04-01/smb2.png" alt="/assets/2020-04-01/smb2.png" /></p>
+<p><img src="/assets/43890ef7-d6a0-404b-87e8-8e6dedd43a2d/cae33f4b-81e9-46a1-8c9d-b10847bef027.png" alt="/assets/43890ef7-d6a0-404b-87e8-8e6dedd43a2d/cae33f4b-81e9-46a1-8c9d-b10847bef027.png" /></p>
 
 <p>RtlDecompressBufferXpressLz 함수를 통해 오버플로우된 데이터를 확인할 수 있음.</p>
 
-<p><img src="/assets/2020-04-01/smb3.png" alt="/assets/2020-04-01/smb3.png" /></p>
+<p><img src="/assets/c84373bd-ff68-452a-965a-889380182a46/136ad7b6-6a43-4be1-9199-442e16ee7c26.png" alt="/assets/c84373bd-ff68-452a-965a-889380182a46/136ad7b6-6a43-4be1-9199-442e16ee7c26.png" /></p>
 
 <p>Wireshark 패킷 캡처 (4294967295 → 0xffffffff)</p>
 
-<p><img src="/assets/2020-04-01/smb4.png" alt="/assets/2020-04-01/smb4.png" /></p>
+<p><img src="/assets/e023ce58-1b21-4137-82fc-efb2246350fc/ed07a9d0-665a-4966-b3ab-c7118898723f.png" alt="/assets/e023ce58-1b21-4137-82fc-efb2246350fc/ed07a9d0-665a-4966-b3ab-c7118898723f.png" /></p>
 
 <ul>
   <li>call stack</li>
@@ -140,13 +140,13 @@ ffff9480`20e2ae70  srv2!Srv2DecompressData+0xdc
 
 <p>-&gt; nt!RtlDecompressBufferXpressLz 함수에서 버퍼 할당을 하며 최종적으로 Integer Overflow 에서 Buffer Overflow 로 발전.</p>
 
-<p><img src="/assets/2020-04-01/smb5.png" alt="/assets/2020-04-01/smb5.png" /></p>
+<p><img src="/assets/92494741-0475-46e7-ae99-94d8c6f50187/95b8d163-d7a5-4b44-aebc-c3330f141735.png" alt="/assets/92494741-0475-46e7-ae99-94d8c6f50187/95b8d163-d7a5-4b44-aebc-c3330f141735.png" /></p>
 
-<p><img src="/assets/2020-04-01/smb6.png" alt="/assets/2020-04-01/smb6.png" /></p>
+<p><img src="/assets/7e2fdcfc-1e14-48bf-8281-02b690c663b0/f6cf5ff3-1f03-4233-a02f-333bc0da6ab8.png" alt="/assets/7e2fdcfc-1e14-48bf-8281-02b690c663b0/f6cf5ff3-1f03-4233-a02f-333bc0da6ab8.png" /></p>
 
 <h2 id="exploit">Exploit</h2>
 
-<p><img src="/assets/2020-04-01/smb7.png" alt="/assets/2020-04-01/smb7.png" /></p>
+<p><img src="/assets/5520bbff-5dec-4aed-89b1-8b423c2c06ad/d92bc102-b9b1-4951-9a27-0a00de7ec043.png" alt="/assets/5520bbff-5dec-4aed-89b1-8b423c2c06ad/d92bc102-b9b1-4951-9a27-0a00de7ec043.png" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># CVE-2020-0796 Local Privilege Escalation POC
 # (c) 2020 ZecOps, Inc. - https://www.zecops.com - Find Attackers' Mistakes
@@ -309,7 +309,7 @@ ffff9480`20e2ae70  srv2!Srv2DecompressData+0xdc
 
 <p>패치 전</p>
 
-<p><img src="/assets/2020-04-01/smb8.png" alt="/assets/2020-04-01/smb8.png" /></p>
+<p><img src="/assets/7542c932-c7dc-4efb-b0af-6145d1b23a85/f23e3771-1917-47ae-9d47-0b574a2a4d6b.png" alt="/assets/7542c932-c7dc-4efb-b0af-6145d1b23a85/f23e3771-1917-47ae-9d47-0b574a2a4d6b.png" /></p>
 
 <p>패치 후</p>
 
@@ -317,7 +317,7 @@ ffff9480`20e2ae70  srv2!Srv2DecompressData+0xdc
   <li>Srv2DecompressData 에서 두 헤더(OriginalSize, Offset)의 길이를 검사하는 루틴 추가.</li>
 </ul>
 
-<p><img src="/assets/2020-04-01/smb9.png" alt="/assets/2020-04-01/smb9.png" /></p>
+<p><img src="/assets/67ad6e02-3410-460b-b2eb-8c177bfdbe8b/22e350cc-ca35-47e9-8898-f84225ce7412.png" alt="/assets/67ad6e02-3410-460b-b2eb-8c177bfdbe8b/22e350cc-ca35-47e9-8898-f84225ce7412.png" /></p>
 
 <h2 id="대응방안">대응방안</h2>
 
@@ -383,7 +383,7 @@ End disqus -->
 
     <!--footer>
   <span>
-    &copy; <time datetime="2022-04-20 22:14:58 +0000">2022</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2021-03-08 07:19:49 +0000">2021</time> Core-Research-Team. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer-->
 
