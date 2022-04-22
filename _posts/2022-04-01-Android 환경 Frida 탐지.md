@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Android 환경 **Frida 탐지**"
+title: "Android 환경 Frida 탐지"
 author: "vulhack"
 comments: true
 tags: [Android, Frida]
