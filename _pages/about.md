@@ -24,11 +24,13 @@ permalink: /about/
 
 [김재유(epist)](#)
 
-[황순찬(schwang)](#)
+[황순찬(gegul)](#)
 
 [정경빈(kafuuchin0)](#)
 
 [최강현(b4sh5i)](https://b4sh5i.notion.site/Hello-World-eca7fff696f3439c87a512367a385bb4)
+
+[정민우(P1nkjelly)](http://blog.pinkjelly.cat/)
 
 [유선동(DongDongE)](https://blog.d0ngd0nge.xyz)
 
