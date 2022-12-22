@@ -20,8 +20,6 @@ permalink: /about/
 ## Team member
 [김동민(gpsfly)](https://blog.int80.kr)
 
-[조진호(wwwlk)](#)
-
 [김재유(epist)](#)
 
 [황순찬(gegul)](#)
@@ -39,8 +37,6 @@ permalink: /about/
 [김현수(vulhack)](#)
 
 [임재연(imreplay)](#)
-
-[이충일(Bugday)](#)
 
 [문시우(munsiwoo)](https://munsiwoo.kr/)
 
@@ -73,3 +69,7 @@ permalink: /about/
 [원요한(KuroNeko)](https://nekoplu5.tistory.com)
 
 [이삭(ls_toast)](#)
+
+[조진호(wwwlk)](#)
+
+[이충일(Bugday)](#)

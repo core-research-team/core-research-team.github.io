@@ -34,3 +34,6 @@ chrome : Chrome
 v8 : V8
 blockchain : Blockchain
 nft : NFT
+aws : AWS
+ec2 : EC2
+ssrf : SSRF
