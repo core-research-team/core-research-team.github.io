@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "How does \"<!--<script>" work in DOM?"
+title:  'How does "<!--<script>" work in DOM?'
 author: "moon"
 comments: true
 tags: [Research]
