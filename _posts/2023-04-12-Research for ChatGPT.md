@@ -564,3 +564,11 @@ ChatGPT는 사이버 보안 분야에서 많은 기대를 받고 있다. 기존�
 또한 ChatGPT를 통해 만든 악성코드 및 피싱 메일 등을 판별하는 도구 개발 및 부적절한 쿼리에 대한 검증과 지속적인 관리 및 모니터링이 필요할 것으로 생각된다.
 
 항후에 이런 AI 등 고도화 되고 있는 해킹에 대해 대응하기 위해 보안 전문가들은 지속적인 교육과 개발을 통해 최신 기술의 보안 동향에 대해 파악해야 하며, 사이버 공격에 대한 대응 능력을 높여야 할 것으로 생각된다.
+
+# 6. 참조
+https://chat.openai.com
+https://eiec.kdi.re.kr/policy/domesticView.do?ac=0000173535&issus=&pp=20&datecount=&pg=
+https://modulabs.co.kr/blog/chatgpt/
+http://www.boanproject.com/
+https://www.youtube.com/playlist?list=PL1jdJcP6uQttgtmg3zKqPDDG0Q0sDiqM2
+http://blog.plura.io/?p=18955
