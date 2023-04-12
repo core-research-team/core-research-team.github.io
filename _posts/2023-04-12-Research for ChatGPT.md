@@ -567,8 +567,14 @@ ChatGPT는 사이버 보안 분야에서 많은 기대를 받고 있다. 기존�
 
 # 6. 참조
 https://chat.openai.com
+
 https://eiec.kdi.re.kr/policy/domesticView.do?ac=0000173535&issus=&pp=20&datecount=&pg=
+
 https://modulabs.co.kr/blog/chatgpt/
+
 http://www.boanproject.com/
+
 https://www.youtube.com/playlist?list=PL1jdJcP6uQttgtmg3zKqPDDG0Q0sDiqM2
+
 http://blog.plura.io/?p=18955
+
