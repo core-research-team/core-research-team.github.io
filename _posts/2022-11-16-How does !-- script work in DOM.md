@@ -13,7 +13,7 @@ tags: [Research]
 
 어느날 화이트햇 팀 톡방에 다음과 같은 질문이 올라왔다.
 
-![Untitled](/assets/2023-11-16/Untitled.png)
+![Untitled](/assets/2022-11-16/Untitled.png)
 
 톡방에 올라온 질문 덕에 상기시키는 겸 해당 특이점에 대해 문서로 정리해보았다.
 
@@ -47,7 +47,7 @@ alert(1); // 실행 X
 
 (개발자 도구의 콘솔을 확인해보면 아무런 에러도 발생하지 않는다)
 
-![Untitled](/assets/2023-11-16/Untitled%201.png)
+![Untitled](/assets/2022-11-16/Untitled%201.png)
 
 이번엔 파일 내용을 다음과 같이 구성하여 실행해보자.
 
@@ -66,7 +66,7 @@ alert(1); // 실행 X
 <h1>bar</h1>
 ```
 
-![Untitled](/assets/2023-11-16/Untitled%202.png)
+![Untitled](/assets/2022-11-16/Untitled%202.png)
 
 `<!--<script>` 문자열이 포함된 script태그가 나오기 전까지만 렌더링 및 자바스크립트를 실행해주며 맨 아래의 “bar”는 렌더링 조차 되지 않는다.
 
@@ -109,7 +109,7 @@ onload, onerror, onfocus와 같은 `on*` attribute에서도 똑같이 작동하�
 <svg onload='alert("test <!--<script> test")'>
 ```
 
-![Untitled](/assets/2023-11-16/Untitled%203.png)
+![Untitled](/assets/2022-11-16/Untitled%203.png)
 
 script태그 밖에선 영향을 미치지 않는다.
 
@@ -153,7 +153,7 @@ alert(3); // executed
 
 파일 내용을 위와 같이 구성한 뒤, 브라우저로 열어보면 페이지에 렌더링되는 내용은 다음과 같다.
 
-![Untitled](/assets/2023-11-16/Untitled%204.png)
+![Untitled](/assets/2022-11-16/Untitled%204.png)
 
 브라우저는 똑똑하기 때문에, 개발자가 미처 닫지못한 태그의 유효성을 검사하여 HTML 사양에 따라 닫을 태그는 알아서 닫아주고 렌더링 해준다. 따라서 위 예제에서 `</iframe>` 으로 iframe태그를 닫지 않았음에도, 위와 같이 정상적으로 페이지에 표시된 것을 확인할 수 있다. (이러한 브라우저의 태그 처리 과정을 이용해서 XSS를 발생시킬 수 있는데, 이것을 Mutation XSS 줄여서 mXSS라고 부른다)
 
@@ -194,9 +194,9 @@ alert(1)
 
 **실제 결과:**
 
-![Untitled](/assets/2023-11-16/Untitled%205.png)
+![Untitled](/assets/2022-11-16/Untitled%205.png)
 
-![Untitled](/assets/2023-11-16/Untitled%206.png)
+![Untitled](/assets/2022-11-16/Untitled%206.png)
 
 `alert(1)`는 정상적으로 실행되며, 변수 `foo`에 아무 값도 담기지 않은 것을 확인할 수 있다.
 브라우저는 해당 HTML을 다음과 같이 인식한 것이다.
@@ -220,11 +220,11 @@ alert(1) // 실행됨
 
 위의 내용을 브라우저로 읽었을 때 DOM은 다음과 같이 구성된다.
 
-![Untitled](/assets/2023-11-16/Untitled%207.png)
+![Untitled](/assets/2022-11-16/Untitled%207.png)
 
 좀 더 자세히 보자,
 
-![Untitled](/assets/2023-11-16/Untitled%208.png)
+![Untitled](/assets/2022-11-16/Untitled%208.png)
 
 script태그를 닫아주는 `</script>`가 2개 있는것을 확인할 수 있다.
 즉, `"<!--<script>"`를 단순 자바스크립트의 문자열로 해석한 것이 아닌, Document 파서에서 실제 열려있는 script태그로 해석하여 `</script>`로 한번 닫아주는 과정이 추가되었다. (`<h1>a</h1>` 또한 출력되지 않는다)
@@ -236,11 +236,11 @@ script태그를 닫아주는 `</script>`가 2개 있는것을 확인할 수 있�
 <h1>a</h1>
 ```
 
-![Untitled](/assets/2023-11-16/Untitled%209.png)
+![Untitled](/assets/2022-11-16/Untitled%209.png)
 
 페이지에 a가 정상적으로 출력되지만 콘솔을 확인해보면 다음과 같은 에러가 발생한다.
 
-![Untitled](/assets/2023-11-16/Untitled%2010.png)
+![Untitled](/assets/2022-11-16/Untitled%2010.png)
 
 `</script></script>`에서 앞에 있는 `</script>`를 자바스크립트의 정규식 문법(`/(?:)/`)으로 인식하면서 발생한 에러다. 
 즉, `a="<!--<script>"</script>`가 정상적으로 스크립트로 인식되면서 자바스크립트로 실행됐다는 의미다.
@@ -253,7 +253,7 @@ script태그를 닫아주는 `</script>`가 2개 있는것을 확인할 수 있�
 
 이렇게 script태그를 닫아주지 않고 브라우저로 넘겨주면
 
-![Untitled](/assets/2023-11-16/Untitled%2011.png)
+![Untitled](/assets/2022-11-16/Untitled%2011.png)
 
 `<script>alert(1)</script>`가 정상적으로 완성됨에도 불구하고, 스크립트 실행이 안되는 것을 알고있다. 
 
@@ -270,7 +270,7 @@ script태그를 닫아주는 `</script>`가 2개 있는것을 확인할 수 있�
 <h1>a</h1>
 ```
 
-![Untitled](/assets/2023-11-16/Untitled%2012.png)
+![Untitled](/assets/2022-11-16/Untitled%2012.png)
 
 참 아이러니한 상황이다, `<!--<script>`를 왜 script태그로 인식하는지는 아래 소스코드를 분석하면 알 수 있을 것이다.
 
@@ -308,7 +308,7 @@ Input2: `</script><script>alert`XSS`</script>`
 <img src="</script><script>alert`XSS`</script>">
 ```
 
-![Untitled](/assets/2023-11-16/Untitled%2013.png)
+![Untitled](/assets/2022-11-16/Untitled%2013.png)
 
 ## 특이점을 이용해서 풀어볼 수 있는 문제
 
