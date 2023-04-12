@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Blind PostgreSQL Injection in DApp Interface (Paid USD $20,000 Bounty)"
-author: "moon"
+author: "munsiwoo"
 comments: true
 tags: [Research]
 ---
@@ -10,10 +10,6 @@ tags: [Research]
 
 # Blind PostgreSQL Injection in DApp Interface (Paid USD $20,000 Bounty)
 
-Title: Blind PostgreSQL Injection in DApp Interface (USD $20,000 Bounty)
-Author: munsiwoo (라온화이트햇 핵심연구2팀 문시우)
-Comments: true
-Tags: [web3, web2, sqli, bug bounty]
 
 본 글은 리얼 월드의 Web3 인터페이스에서 찾아 제보한 Critical 취약점과 익스플로잇 경험에 대한 포스팅입니다.
 
