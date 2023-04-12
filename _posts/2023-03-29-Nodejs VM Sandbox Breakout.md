@@ -41,7 +41,7 @@ tmp = vm.runInNewContext(`process.mainModule.require('child_process').execSync('
 console.log(tmp);
 ```
 
-![Untitled](/assets/2023-03-29/Untitled 1.png)
+![Untitled](/assets/2023-03-29/Untitled%201.png)
 
 VM 모듈을 사용하면 `process is not defined` 에러 메세지를 확인할 수 있습니다. 이와 같이 생성된 가성머신 내에서 스크립트를 실행하고 호스트 시스템에 대한 접근을 제한하고 있는 것을 확인할 수 있습니다.
 
