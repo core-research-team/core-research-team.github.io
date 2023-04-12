@@ -1,3 +1,13 @@
+---
+layout: post
+title:  "Research for ChatGPT"
+author: "sjkim"
+comments: true
+tags: [Research]
+---
+
+라온화이트햇 핵심연구2팀 김성진
+
 # ChatGPT의 등장으로 변화하고 있는 사이버 보안
 
 # **1. 개요**
