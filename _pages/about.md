@@ -5,44 +5,40 @@ author: "core research team"
 permalink: /about/
 ---
 
-<center><i>RAON Whitehat CRT(core-research-team) blog</i></center>
-<center><i>contact : jeon9.5u at gmail.com</i></center>
+<center><i>Raonsecure CRT(core-research-team) blog</i></center>
 
-## Why RAON Whitehat?
+## Why Raonsecure?
 
-[About RAON Whitehat...](https://www.whitehat.co.kr/ko/)
+[About Raonsecure...](https://www.raonsecure.com/ko/main)
 
 ## Team leader
-[최정수(jeong.su)](https://tblog.jeong.su/category/Profile)
-
-[강인욱(hkkiw0823)](https://github.com/hkkiw0823/hkkiw0823.github.io)
-
-## Team member
 [김동민(gpsfly)](https://blog.int80.kr)
 
-[김재유(epist)](#)
-
-[황순찬(gegul)](#)
+## Team member
 
 [정경빈(kafuuchin0)](#)
-
-[최강현(b4sh5i)](https://b4sh5i.notion.site/Hello-World-eca7fff696f3439c87a512367a385bb4)
-
-[정민우(P1nkjelly)](http://blog.pinkjelly.cat/)
 
 [유선동(DongDongE)](https://blog.d0ngd0nge.xyz)
 
 [최용선(choiys)](https://blog.choiys.kr)
 
-[김현수(vulhack)](#)
-
 [임재연(imreplay)](#)
 
-[문시우(munsiwoo)](https://munsiwoo.kr/)
+[이재용(kimmongyong)](#)
 
-[홍지원(hzone)](#)
+[유병일(yoobi)](https://velog.io/@yoobi/about)
 
-[김성진(sjkim)](#)
+[강우선(c0w5un)](#)
+
+[김성민(r4v!dus)](#)
+
+[이권호(hooya0011)](#)
+
+[이진재(fr0g2s)](#)
+
+[박영욱(youngdu)](https://duddnr0615k.tistory.com/)
+
+[이선아()](#)
 
 
 ## with us
@@ -73,3 +69,23 @@ permalink: /about/
 [조진호(wwwlk)](#)
 
 [이충일(Bugday)](#)
+
+[최정수(jeong.su)](https://tblog.jeong.su/category/Profile)
+
+[강인욱(hkkiw0823)](https://github.com/hkkiw0823/hkkiw0823.github.io)
+
+[김재유(epist)](#)
+
+[황순찬(gegul)](#)
+
+[최강현(b4sh5i)](https://b4sh5i.notion.site/Hello-World-eca7fff696f3439c87a512367a385bb4)
+
+[정민우(P1nkjelly)](http://blog.pinkjelly.cat/)
+
+[김현수(vulhack)](#)
+
+[문시우(munsiwoo)](https://munsiwoo.kr/)
+
+[홍지원(hzone)](#)
+
+[김성진(sjkim)](#)
