@@ -18,7 +18,7 @@ permalink: /about/
 
 [정경빈(kafuuchin0)](#)
 
-[유선동(DongDongE)](https://blog.d0ngd0nge.xyz)
+[유선동(DongDongE)](https://d0ngd0nge.xyz)
 
 [최용선(choiys)](https://blog.choiys.kr)
 
@@ -38,7 +38,7 @@ permalink: /about/
 
 [박영욱(youngdu)](https://duddnr0615k.tistory.com/)
 
-[이선아()](#)
+[이선아(xeon.a)](#)
 
 
 ## with us
