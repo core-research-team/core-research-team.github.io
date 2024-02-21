@@ -24,7 +24,7 @@ permalink: /about/
 
 [임재연(imreplay)](#)
 
-[이재용(kimmongyong)](#)
+[이재용(kimmongyong)](https://blog.kimmongyong.kr/about/)
 
 [유병일(yoobi)](https://velog.io/@yoobi/about)
 
@@ -40,6 +40,13 @@ permalink: /about/
 
 [이선아(xeon.a)](#)
 
+[박민혁(shiro)](#)
+
+[박진희(daldaguri)](#)
+
+[이고원(go1ng)](#)
+
+[김성민(kimg00n)](https://kimgoon.tistory.com/)
 
 ## with us
 [이종호(Hellsonic)](https://blog.hellsonic.kr/)
