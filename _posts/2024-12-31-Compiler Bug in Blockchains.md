@@ -1,10 +1,14 @@
 ---
 layout: post
-title:  “Compiler Bug in Blockchains"
+title:  Compiler Bug in Blockchains
 author: "kafuuchin0"
 comments: true
 tags: [Research, Web3, Vyper, Ethereum]
 ---
+
+라온시큐어 화이트햇센터 핵심연구팀 정경빈(kafuuchin0)
+
+
 # Compiler Bug in Blockchains
 
 # 1. 개요
