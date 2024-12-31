@@ -307,12 +307,12 @@ def withdrawAllTokens():
             # Line 13
             [seq,
               [if,
-                **[eq, _calldata_method_id, 1354409506 <0x50baa622: withdrawToken(uint256)>],**
+                [eq, _calldata_method_id, 1354409506 <0x50baa622: withdrawToken(uint256)>] // withdrawToken(uint256)
                 [seq,
                   [goto, external_withdrawToken__uint256__common],
                   [seq,
                     [label, external_withdrawToken__uint256__common],
-                    **[seq, [assert, [iszero, [sload, 0]]], [sstore, 0, 1]],**
+                    [seq, [assert, [iszero, [sload, 0]]], [sstore, 0, 1]], // Storage Slot이 0일 경우에 Storage Slot 0번에 1 저장 (락 활성화)
                     # Line 14
                     [if,
                       [iszero, [ge, [sload, [sha3_64, 2 <self.balanceOf>, caller]], [calldataload, 4]]],
@@ -360,7 +360,7 @@ def withdrawAllTokens():
                       [assert, [call, gas, caller, [calldataload, 4], 384, [mload, 352], 0, 0]]],
                     # Line 13
                     [label, external_withdrawToken__uint256__cleanup],
-                    **[sstore, 0, 0],**
+                    [sstore, 0, 0], // Storage Slot 0번에 0 저장 (락 해제)
                     stop]]]],
             # Line 23
             [seq,
@@ -370,7 +370,7 @@ def withdrawAllTokens():
                   [goto, external_withdrawAllTokens____common],
                   [seq,
                     [label, external_withdrawAllTokens____common],
-                    **[seq, [assert, [iszero, [sload, 1]]], [sstore, 1, 1]],**
+                    [seq, [assert, [iszero, [sload, 1]]], [sstore, 1, 1]], // Storage Slot 1번이 0이 아니면 Storage Slot 1번에 1 저장 (락 활성화)
                     /* amount: uint256 = self.balanceOf[msg.sender] */
                     [mstore,
                       320,
@@ -406,14 +406,13 @@ def withdrawAllTokens():
                       [assert, [call, gas, caller, [mload, 320 <amount>], 416, [mload, 384], 0, 0]]],
                     # Line 23
                     [label, external_withdrawAllTokens____cleanup],
-                    **[sstore, 1, 0],**
-                    stop]]]],
+                    [sstore, 1, 0], // Storage Slot 1번에 1 저장 (락 해제)
+                    stop]]]], 
 // .. skip
       0]]]
 ```
 
-- 볼드체 처리한 부분에서 알 수 있듯이, 서로 같은 lock key를 사용함에도 서로 다른 Storage Slot을 사용하고 있습니다.
-
+- 위 IR코드의 주석에서 확인할수 있듯이, 두 함수가 서로 다른 Storage Slot을 통해 Lock을 관리하고 있기 때문에 함수간의 Re-entrancy 공격을 예방할 수 없습니다.
 # 4. Fix
 
 - 취약했던 반복문이 다음과 같이 수정되었습니다.
@@ -461,12 +460,12 @@ for node in vyper_module.get_children(vy_ast.FunctionDef):
             # Line 13
             [seq,
               [if,
-                **[iszero, [xor, _calldata_method_id, 1354409506 <0x50baa622: withdrawToken(uint256)>]],**
+                [iszero, [xor, _calldata_method_id, 1354409506 <0x50baa622: withdrawToken(uint256)>]],
                 [seq,
                   [goto, external_withdrawToken__uint256__common],
                   [seq,
                     [label, external_withdrawToken__uint256__common],
-                    **[seq, [assert, [iszero, [sload, 0]]], [sstore, 0, 1]],**
+                    [seq, [assert, [iszero, [sload, 0]]], [sstore, 0, 1]], ㅊㅊ
                     # Line 14
                     /* assert self.balanceOf[msg.sender] >= amount, "Insufficient token balance" */
                     [if,
@@ -540,7 +539,7 @@ for node in vyper_module.get_children(vy_ast.FunctionDef):
                       [seq, [returndatacopy, 0, 0, returndatasize], [revert, 0, returndatasize]]],
                     # Line 13
                     [label, external_withdrawToken__uint256__cleanup],
-                    **[sstore, 0, 0],**
+                    [sstore, 0, 0], // Storage Slot 0번에 0 저장 ( lock 해제 )
                     stop]]]],
             # Line 23
             [seq,
@@ -550,7 +549,7 @@ for node in vyper_module.get_children(vy_ast.FunctionDef):
                   [goto, external_withdrawAllTokens____common],
                   [seq,
                     [label, external_withdrawAllTokens____common],
-                    **[seq, [assert, [iszero, [sload, 0]]], [sstore, 0, 1]],**
+                    [seq, [assert, [iszero, [sload, 0]]], [sstore, 0, 1]], // Storage Slot 0번이 0이 아니면 Storage Slot 0번에 1 저장 (락 활성화)
                     /* amount: uint256 = self.balanceOf[msg.sender] */
                     [mstore,
                       224,
@@ -595,13 +594,13 @@ for node in vyper_module.get_children(vy_ast.FunctionDef):
                       [seq, [returndatacopy, 0, 0, returndatasize], [revert, 0, returndatasize]]],
                     # Line 23
                     [label, external_withdrawAllTokens____cleanup],
-                    **[sstore, 0, 0],**
+                    [sstore, 0, 0], //  Storage Slot 0번에 1 저장 (락 해제)
                     stop]]]],
 
         [seq, [label, fallback], /* Default function */ [revert, 0, 0]]]]]]
 ```
-
-- 이제 같은 lock key를 사용하면 같은 Storage Slot을 사용함을 확인 할 수 있었습니다.
+- 위 주석에서 확인 할 수 있듯이, 이제 같은 lock은 같은 Storage Slot 0번을 이용해서 락을 관리합니다.
+- 이제 같은 lock key를 사용하면 같은 Storage Slot을 사용함을 확인 할 수 있었습니다. 
 - 또한 Vyper 0.4.0부터는 이제 전역 reentrancy lock만을 제공하기 때문에 근본적으로 해당 이슈는 없어지게 되었습니다.
 
 # 5. 결론
