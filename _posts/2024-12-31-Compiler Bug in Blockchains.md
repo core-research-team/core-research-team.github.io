@@ -182,7 +182,7 @@ Vyper는 EVM를 목적코드로 하는 언어입니다.
 
 솔리디티와는 다르게 각 파일 한개가 컨트랙트 하나를 표현합니다.
 
-```python
+```vyper
 @external
 def add_seven(a: int128) -> int128:
     return a + 7
@@ -194,7 +194,7 @@ def add_seven_with_overloading(a: uint256, b: uint256 = 3):
 
 또한 `@nonreentrant` 데코레이터를 통한 Reentrancy Attack을 방지할 수 있습니다.
 
-```python
+```vyper
 @external
 @nonreentrant
 def make_a_call(_addr: address):
@@ -206,7 +206,7 @@ def make_a_call(_addr: address):
 
 vyper의 0.4.0 미만의 버전에서는 nonreentrancy의 key 인자를 제공할 수 있었습니다.
 
-```solidity
+```vyper
 @external
 @nonreentrant("make_a_call_lock")
 def make_a_call(_addr: address):
@@ -220,7 +220,7 @@ def make_a_call(_addr: address):
 
 해당 취약점은 이러한 스토리지 공간 할당 부분에서 발생하게 됩니다.
 
-```solidity
+```vyper
 def set_storage_slots(vyper_module: vy_ast.Module) -> StorageLayout:
     storage_slot = 0
 
@@ -262,7 +262,7 @@ def set_storage_slots(vyper_module: vy_ast.Module) -> StorageLayout:
     - 이때 반복문을 순회하면서 각 noreentrant key마다 다른 Storage Slot을 할당하는것처럼 보입니다.
     - 하지만 이미 storage가 할당된 noreentrant key에 대해서도 슬롯이 할당되어 실제로는 서로 다른 슬롯을 참조하여 락을 사용하는 상황이 발생됩니다.
 
-```python
+```vyper
 balanceOf: public(HashMap[address, uint256])
 totalSupply: public(uint256)
 
@@ -296,7 +296,7 @@ def withdrawAllTokens():
 - 따라서 위와 같은 코드에서 분명 같은 “lock” 키를 사용하고있지만, 서로 실제로는 락을 공유하지 않기 때문에, withdrawToken()에서 fallback함수를 이용하여 withdrawAllTokens() 함수를 호출하여 동일하게 재진입 공격이 가능합니다.
 - 취약한 버전의 컴파일러로 위 예제를 컴파일하여 생성한 IR(중간언어)을 확인하여 실제로 어떻게 스토리지가 할당되었는지 알아보겠습니다.
 
-```json
+```
 [seq,
   [return,
     0,
@@ -450,7 +450,7 @@ for node in vyper_module.get_children(vy_ast.FunctionDef):
 - 위와 조건문에서 이미 같은 이름의 reentrancy key가 존재한다면 해당 위치의 슬롯을 사용하게끔 변경되었음을 확인할 수 있습니다.
 - 패치된 버전으로 동일한 예제를 컴파일하였을 때의 IR를 확인해보면 다음과 같습니다.
 
-```json
+```
 [seq,
   [return,
     0,
