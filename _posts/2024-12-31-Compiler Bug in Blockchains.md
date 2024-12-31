@@ -11,17 +11,17 @@ tags: [Research, Web3, Vyper, Ethereum]
 
 # Compiler Bug in Blockchains
 
-# 1. 개요
+## 1. 개요
 
 - 현대 소프트웨어에서 컴파일러 오작동은 Javascript JIT 엔진에서 발생하는 취약점들에서 확인할 수 있듯이 보안에 치명적인 영향을 끼칠수 있습니다. 또한 컴파일러는 매우 복잡한 소프트웨어이기 때문에, 컴파일러에 사용자가 임의의 코드를 입력할 수 있는 경우에 특히 컴파일러 동작이 오작동 없이 동작하여아 합니다.
 - 현재 스마트 컨트랙트를 지원하는 블록체인 플랫폼들도 컴파일러의 복잡도가 커짐에 따라서 컴파일러 버그에 대한 위험도가 증가하고, 또한 해당 버그를 통한 재산손실이 발생하고 있습니다.
 - 본 글에서는 Vyper의 Reentrancy 버그를 분석하여 어떠한 영향을 끼치는지, 어떻게 발생하는지 조사하였습니다.
 
-# 2. 배경지식
+## 2. 배경지식
 
 이 글의 주제가 되는 취약점에 대해 이해하기위해서는 Vyper라는 언어와 EVM, 그리고 Re-entrancy 취약점에 대해서 이해하여야합니다.
 
-## 2.1 EVM
+### 2.1 EVM
 
 - 이더리움은 [공식 문서](https://ethereum.org/en/developers/docs/evm/)에 따르면 분산된 상태 기계([State Machine](https://en.wikipedia.org/wiki/Finite-state_machine))로 설명할 수 있습니다.
     - 계정 정보(잔액, 주소)와 컨트랙트와 관련된 변수 상태를 ‘상태’라고 볼 수 있습니다.
@@ -38,7 +38,7 @@ tags: [Research, Web3, Vyper, Ethereum]
     - [https://ethereum.org/en/developers/docs/evm/opcodes/](https://ethereum.org/en/developers/docs/evm/opcodes/)
 - 이러한 어셈블리 명령어로 컨트랙트를 작성하는것은 번거롭기 때문에 Solidity, Vyper와 같은 고수준 언어를 EVM 코드로 컴파일하여 스마트 컨트랙트를 작성하게 됩니다.
 
-## 2.2 Account & Contract
+### 2.2 Account & Contract
 
 이더리움에서 Account는 ether(ETH)를 보낼수 있는 주체를 뜻합니다.
 
@@ -51,7 +51,7 @@ Account는 총 두 종류로 분류할 수 있습니다.
 
 - 즉, **스마트 컨트랙트간 서로 상호 작용도 가능합니다.**
 
-## 2.3 Re-entrancy Bug
+### 2.3 Re-entrancy Bug
 
 Re-entrancy 취약점은 한 컨트랙트 함수의 실행이 끝나기 전에 다시 그 함수를 호출할 수 있는 상황(콜백)을 이용하여 악의적인 동작을 수행하는 취약점입니다.
 
@@ -176,7 +176,7 @@ contract EtherStore is ReEntrancyGuard{
 - 이러한 보호방법은 lock 변수를 체크하는데 추가적인 코드 실행이 필요하기 때문에 Gas 소비가 있다는 단점이 존재합니다.
     - OpenZeppelin에서도 이러한 방식으로 구현된 [ReentrancyGuard](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/ReentrancyGuard.sol)를 제공합니다.
 
-## 2.4 Vyper
+### 2.4 Vyper
 
 Vyper는 EVM를 목적코드로 하는 언어입니다.
 
@@ -206,7 +206,7 @@ def make_a_call(_addr: address):
     ...
 ```
 
-# 3. Root Cause
+## 3. Root Cause
 
 vyper의 0.4.0 미만의 버전에서는 nonreentrancy의 key 인자를 제공할 수 있었습니다.
 
@@ -417,7 +417,7 @@ def withdrawAllTokens():
 ```
 
 - 위 IR코드의 주석에서 확인할수 있듯이, 두 함수가 서로 다른 Storage Slot을 통해 Lock을 관리하고 있기 때문에 함수간의 Re-entrancy 공격을 예방할 수 없습니다.
-# 4. Fix
+## 4. Fix
 
 - 취약했던 반복문이 다음과 같이 수정되었습니다.
 
@@ -607,7 +607,7 @@ for node in vyper_module.get_children(vy_ast.FunctionDef):
 - 이제 같은 lock key를 사용하면 같은 Storage Slot을 사용함을 확인 할 수 있었습니다. 
 - 또한 Vyper 0.4.0부터는 이제 전역 reentrancy lock만을 제공하기 때문에 근본적으로 해당 이슈는 없어지게 되었습니다.
 
-# 5. 결론
+## 5. 결론
 
 Vyper 개발진이 작성한 해당 버그에 대한 Post-mortem 보고서를 확인 하였을때 해당 버그도 다른 컴파일러 버그와 비슷하게 컴파일러의 최적화 도입으로 인한 버그로 확인되었습니다. 해당 버그는 Storage 슬롯의 효율성을 위하여 도입한 패치가 원인이 되었습니다.
 
@@ -620,7 +620,7 @@ Vyper 개발진이 작성한 해당 버그에 대한 Post-mortem 보고서를 �
 
 따라서 실제 취약점 진단 상황에서도 대상에 따라 컴파일러에 대한 이해와 이슈를 계속 확인하여야 합니다.
 
-# Reference
+## Reference
 
 - [https://ethereum.org/en/developers/docs/evm/](https://ethereum.org/en/developers/docs/evm/)
 - [https://docs.vyperlang.org/en/stable/](https://docs.vyperlang.org/en/stable/)
